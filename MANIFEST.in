@@ -1,0 +1,6 @@
+include Dockerfile
+include docker-entrypoint.sh
+include LICENSE
+include README.md
+include requirements.txt
+include requirements-tests.txt

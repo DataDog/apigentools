@@ -1,0 +1,6 @@
+CONFIG_FILE = "config.json"
+LANGUAGE_OAPI_CONFIGS = "languages"
+OPENAPI_GENERATOR_GIT = "https://github.com/OpenAPITools/openapi-generator"
+GITHUB_REPO_URL_TEMPLATE = "github.com/{{github_org_name}}/{{github_repo_name}}"
+HEADER_FILE_NAME = "header.yaml"
+SHARED_SECTION_NAME = "shared"
