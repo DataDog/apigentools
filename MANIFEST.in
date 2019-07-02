@@ -1,3 +1,4 @@
+include container-apigentools
 include Dockerfile
 include docker-entrypoint.sh
 include LICENSE

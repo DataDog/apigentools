@@ -1,0 +1,47 @@
+#!/bin/bash
+# (C) Datadog, Inc. 2019
+# All rights reserved
+# Licensed under a 3-clause BSD style license (see LICENSE)
+
+USAGE="""\
+container-apigentools: Run apigentools in container
+Usage: container-apigentools IMAGE [--spec-repo-volume SPEC_REPO_VOLUME] [APIGENTOOLS_ARG ...]
+
+When invoked only with IMAGE argument, this will run the whole code
+generation workflow inside a container.
+
+When the optional APIGENTOOLS_ARG(s) are provided, they will be passed
+to apigentools running inside the container.
+
+By default, current working directory is mounted inside the image as the spec
+repo. This can be changed by providing "--spec-repo-volume" option with a full
+path to spec repo as argument.
+"""
+
+if [[ "$#" -eq 0 ]]; then
+    echo "Error: You must provide full name of image to use"
+    echo ""
+    echo "${USAGE}"
+    exit 1
+fi
+
+if [[ "$1" == "--help" || "$1" == "-h" ]]; then
+    echo "${USAGE}"
+    exit 0
+fi
+
+IMAGE="$1"
+shift
+
+SPEC_REPO_VOLUME="$(pwd)"
+if [ "$1" == "--spec-repo-volume" ]; then
+    SPEC_REPO_VOLUME="$2"
+    shift 2
+fi
+
+
+# Add APIGENTOOLS_IMAGE env var as well as every env var that starts with "APIGENTOOLS_"
+ENV="-e APIGENTOOLS_IMAGE=${IMAGE} `env | grep APIGENTOOLS_ | sed -e "s|^|-e |"`"
+VOLUMES="-v ${SPEC_REPO_VOLUME}:/var/lib/apigentools/spec-repo -v /var/run/docker.sock:/var/run/docker.sock"
+
+exec docker run ${ENV} ${VOLUMES} ${IMAGE} "$@"
