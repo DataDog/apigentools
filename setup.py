@@ -31,6 +31,7 @@ setup(
     entry_points={
         "console_scripts": ["apigentools=apigentools.cli:cli"]
     },
+    scripts=["container-apigentools"],
     platforms="any",
     install_requires=install_requires,
     tests_require=tests_require,

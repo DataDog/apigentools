@@ -36,6 +36,10 @@ You will also need to install some Python dependencies with `pip3 install --user
 
 If you want to do the execution steps using Docker, you'll just need Docker. Build the tools image using `docker build . -t apigentools:local`. You can of course create your own image with all the tooling that you might require to generate your API clients.
 
+The `apigentools` package contains a convenience wrapper script called `container-apigentools` that can be used to execute `apigentools` inside a container. Examples are provided below. Note that while all the examples explicitly pass `--spec-repo-volume /absolute/path/to/spec/repo`, you can omit this if running the command from the spec repo directory.
+
+This repository contains a simple Dockerfile that can be used to build an image that works fine with `container-apigentools` script. We intend to keep it as minimal as possible, therefore we recommend that you build your own image (either on top of our one or from scratch) if you need any special tools run before/after code generation.
+
 ### Create "Spec Repo"
 
 apigentools expects you to have a separate repository containing various configuration files, openapi specs and other artifacts. We call it the "Spec Repo". The expected layout is as follows:
@@ -96,7 +100,7 @@ Run `apigentools -b path/to/spec/repo validate`.
 
 #### Docker
 
-TODO
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo validate`.
 
 ### Add Template Patches
 
@@ -129,7 +133,7 @@ Run e.g. `apigentools -b path/to/spec/repo templates local-dir /path/to/base/tem
 
 #### Docker
 
-TODO
+Run e.g. `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo templates openapi-git v4.0.2`.
 
 ### Generate Client Code
 
@@ -141,13 +145,13 @@ Run `apigentools -b path/to/spec/repo generate`
 
 #### Docker
 
-TODO
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo generate`.
 
 ### Running the Whole Workflow
 
-Note that the whole above workflow can be run with Docker easily (except creating the patches):
+Note that all the above commands can be run in sequence with Docker in just one command by passing no additional arguments:
 
-TODO
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo`.
 
 ## File Formats
 
