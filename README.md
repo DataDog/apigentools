@@ -21,6 +21,7 @@ In general, the workflow is as follows:
 5. (Optional) Add downstream templates
 6. Prepare templates (locally or using Docker)
 7. Generate client code (locally or using Docker)
+8. Run tests
 
 See the below sections for descriptions of the above steps.
 
@@ -146,6 +147,18 @@ Run `apigentools -b path/to/spec/repo generate`
 #### Docker
 
 Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo generate`.
+
+### Run Tests
+
+openapi-generator pre-creates unittest files for most of the languages supported. The tests themselves need to be implemented by hand, but apigentools still allows running them as an optional part of the process. The `apigentools test` command will look for `Dockerfile.test.{major_api_version}` file in the *top level directory* of the generated repo (*not* in the subdirectory with code for that specific major API version) - for example, if a specific language in `config.json` has `"github_repo_name": "my-client-java"` and `"spec_versions": ["v1", "v2"]`, apigentools will be looking for `generated/my-client-java/Dockerfile.test.v1` and `generated/my-client-java/Dockerfile.test.v2`. For each of these files found, it is built and then executed without arguments. These Dockerfiles would need to be put in the repos manually or added via the [downstream templates](#Add-Downstream-Templates) mechanism.
+
+#### Locally
+
+Run `apigentools -b path/to/spec/repo test`
+
+#### Docker
+
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo test`.
 
 ### Running the Whole Workflow
 

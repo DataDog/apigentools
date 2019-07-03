@@ -58,7 +58,7 @@ class GenerateCommand(Command):
 
                 run_command(to_run, additional_env=lc.command_env)
 
-    def render_downstream_templates(self, language, downstream_templates_dir, generated_code_dir):
+    def render_downstream_templates(self, language, downstream_templates_dir):
         """ Render the templates included in this repository under `downstream-templates/`
 
         :param language: Language to render templates for (also has to be a subdirectory
@@ -66,8 +66,6 @@ class GenerateCommand(Command):
         :type language: ``str``
         :param downstream_templates_dir: Path to the directory with downstream templates
         :type downstream_templates_dir: ``str``
-        :param generated_code_dir: Path to the directory in which to put results
-        :type generated_code_dir: ``str``
         """
         log.info("Rendering downstream templates ...")
         templates_dir = os.path.join(downstream_templates_dir, language)
@@ -82,8 +80,7 @@ class GenerateCommand(Command):
                 template_path = os.path.join(root, f)
                 relative_path = template_path[len(templates_dir):].strip("/")
                 target_path = os.path.join(
-                    generated_code_dir,
-                    settings["github_repo_name"],
+                    self.get_generated_lang_dir(language),
                     relative_path,
                 )
                 log.info("Writing {target}".format(target=target_path))
@@ -128,11 +125,7 @@ class GenerateCommand(Command):
                 )
                 with open(language_oapi_config_path) as lcp:
                     language_oapi_config = json.load(lcp)
-                version_output_dir = os.path.join(
-                    self.args.generated_code_dir,
-                    language_config.github_repo_name,
-                    chevron.render(language_config.version_path_template, {'spec_version': version})
-                )
+                version_output_dir = self.get_generated_lang_version_dir(language, version)
 
                 stamp = "Generated with: image {img}; apigentools version {version}".format(
                     img=self.args.generated_with_image,
@@ -169,7 +162,6 @@ class GenerateCommand(Command):
                 self.render_downstream_templates(
                     language,
                     self.args.downstream_templates_dir,
-                    self.args.generated_code_dir,
                 )
 
         return 0

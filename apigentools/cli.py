@@ -153,6 +153,22 @@ def get_cli_parser():
         help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml')",
     )
 
+    test_parser = sp.add_parser(
+        "test",
+        help="Run tests for generated code"
+    )
+    test_parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        default=env_or_val("APIGENTOOLS_TEST_BUILD_NO_CACHE", False),
+        help="Build test image with --no-cache option",
+    )
+    test_parser.add_argument(
+        "-g", "--generated-code-dir",
+        default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
+        help="Path to directory where to save the generated code (default: 'generated')",
+    )
+
     split_parser = sp.add_parser(
         "split",
         help="Split single OpenAPI spec file into multiple files"
