@@ -89,6 +89,7 @@ def get_current_commit(repo_path):
             res = run_command(["git", "rev-parse", "--short", "HEAD"], log_level=logging.DEBUG)
         except subprocess.CalledProcessError:
             # not a git repository
+            log.debug("Failed getting current git commit for %s, not a git repository", repo_path)
             return None
         return res.stdout.strip()
 
