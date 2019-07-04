@@ -17,7 +17,7 @@ tests_require = get_requirements("requirements-tests.txt")
 
 setup(
     name="apigentools",
-    version="0.1.0",
+    version="0.1.0.dev1",
     description=description,
     long_description=description,
     keywords="openapi,api,client,openapi-generator",

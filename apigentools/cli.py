@@ -10,7 +10,7 @@ import sys
 from apigentools.config import Config
 from apigentools.constants import CONFIG_FILE, OPENAPI_GENERATOR_GIT
 from apigentools.commands import all_commands
-from apigentools.utils import change_cwd, env_or_val, get_current_commit, set_log, set_log_level
+from apigentools.utils import change_cwd, env_or_val, set_log, set_log_level
 
 log = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ def get_cli_parser():
     )
     p.add_argument(
         "-v", "--verbose",
-        default=env_or_val("APIGENTOOLS_VERBOSE", False),
+        default=env_or_val("APIGENTOOLS_VERBOSE", False, __type=bool),
         action='store_true',
         help="Whether or not to log the generation in verbose mode",
     )
@@ -60,11 +60,12 @@ def get_cli_parser():
         "--additional-stamp",
         nargs="*",
         help="Additional components to add to the 'apigentoolsStamp' variable passed to templates",
-        default=[],
+        default=env_or_val("APIGENTOOLS_ADDITIONAL_STAMP", [], __type=list),
+        type=list,
     )
     generate_parser.add_argument(
         "-i", "--generated-with-image",
-        default=env_or_val("APIGENTOOLS_IMAGE", "NO IMAGE!"),
+        default=env_or_val("APIGENTOOLS_IMAGE", None),
         help="Override the tag of the image with which the client code was generated",
     )
     generate_parser.add_argument(
@@ -160,7 +161,7 @@ def get_cli_parser():
     test_parser.add_argument(
         "--no-cache",
         action="store_true",
-        default=env_or_val("APIGENTOOLS_TEST_BUILD_NO_CACHE", False),
+        default=env_or_val("APIGENTOOLS_TEST_BUILD_NO_CACHE", False, __type=bool),
         help="Build test image with --no-cache option",
     )
     test_parser.add_argument(

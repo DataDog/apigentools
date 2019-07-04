@@ -9,7 +9,7 @@ import chevron
 from apigentools import __version__
 from apigentools.commands.command import Command
 from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
-from apigentools.utils import change_cwd, run_command, write_full_spec
+from apigentools.utils import change_cwd, get_current_commit, run_command, write_full_spec
 
 log = logging.getLogger(__name__)
 
@@ -102,6 +102,24 @@ class GenerateCommand(Command):
 
         raise KeyError("no package version found in language config")
 
+    def get_stamp(self):
+        """ Get string for "stamping" files for trackability
+
+        :return: Stamp, for example:
+            "Generated with: apigentools version X.Y.Z (image: apigentools:X.Y.Z); spec repo commit abcd123"
+        :rtype: ``str``
+        """
+        stamp = "Generated with: apigentools version {version}".format(version=__version__)
+        if self.args.generated_with_image is None:
+            stamp += " (non-container run)"
+        else:
+            stamp += " (image: '{image}')".format(image=self.args.generated_with_image)
+        spec_repo_commit = get_current_commit(self.args.spec_repo_dir)
+        stamp = [stamp]
+        if spec_repo_commit:
+            stamp.append("spec repo commit {commit}".format(commit=spec_repo_commit))
+        return "; ".join(stamp + self.args.additional_stamp)
+
     def run(self):
         fs_paths = {}
 
@@ -127,12 +145,6 @@ class GenerateCommand(Command):
                     language_oapi_config = json.load(lcp)
                 version_output_dir = self.get_generated_lang_version_dir(language, version)
 
-                stamp = "Generated with: image {img}; apigentools version {version}".format(
-                    img=self.args.generated_with_image,
-                    version=__version__,
-                )
-                stamp = "; ".join([stamp] + self.args.additional_stamp)
-
                 generate_cmd = [
                     self.config.codegen_exec,
                     "generate",
@@ -146,7 +158,7 @@ class GenerateCommand(Command):
                     "-i", fs_paths[version],
                     "-o", version_output_dir,
                     "--additional-properties",
-                    "apigentoolsStamp='{stamp}'".format(stamp=stamp),
+                    "apigentoolsStamp='{stamp}'".format(stamp=self.get_stamp()),
                 ]
 
                 if not self.args.builtin_templates:
