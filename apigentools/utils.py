@@ -40,7 +40,7 @@ def change_cwd(change_to):
         os.chdir(curdir)
 
 
-def env_or_val(env, val, *args, **kwargs):
+def env_or_val(env, val, *args, __type=str, **kwargs):
     """ Return value of environment variable (if it's defined) or a given fallback value
 
     :param env: Environment variable to look for
@@ -49,6 +49,9 @@ def env_or_val(env, val, *args, **kwargs):
     :type val: ``str`` or a function
     :param args: If ``val`` is a function, these are the ``*args`` to pass to that function
     :type args: ``list``
+    :param __type: type of value to return when extracting from env variable, can be one of
+        ``str``, ``int``, ``float``, ``bool``, ``list``
+    :type __type: ``type``
     :param kwargs: If ``val`` is a function, these are the ``**kwargs`` to pass to that function
     :type kwargs: ``dict``
     :return: Either the env value (if defined) or the fallback value
@@ -58,18 +61,37 @@ def env_or_val(env, val, *args, **kwargs):
         if isinstance(val, type(env_or_val)):
             val = val(*args, **kwargs)
         return val
-    return os.environ.get(env)
+    retval = os.environ.get(env)
+    if __type in [str, int, float]:
+        return __type(retval)
+    elif __type is bool:
+        if retval.lower() in ["true", "1", "yes"]:
+            return True
+        else:
+            return False
+    elif __type is list:
+        return retval.split(":")
+    else:
+        raise ValueError("__type must be one of: str, int, float, bool, list")
 
 
-def get_current_commit():
+def get_current_commit(repo_path):
     """ Get short name of the current commit
 
+    :param repo_path: Path of the repository to get current commit for
+    :type repo_path: ``str``
     :return: The commit short name (e.g. ``abcd123``)
     :rtype: ``str``
     """
     log.debug("Getting current commit for stamping ...")
-    res = run_command(["git", "rev-parse", "--short", "HEAD"], log_level=logging.DEBUG)
-    return res.stdout.strip()
+    with change_cwd(repo_path):
+        try:
+            res = run_command(["git", "rev-parse", "--short", "HEAD"], log_level=logging.DEBUG)
+        except subprocess.CalledProcessError:
+            # not a git repository
+            log.debug("Failed getting current git commit for %s, not a git repository", repo_path)
+            return None
+        return res.stdout.strip()
 
 
 def run_command(cmd, log_level=logging.INFO, additional_env=None):
