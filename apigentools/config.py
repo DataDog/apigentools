@@ -62,6 +62,14 @@ class LanguageConfig:
         return cmd_objects
 
     @property
+    def github_repo(self):
+        return self.raw_dict.get('github_repo_name')
+
+    @property
+    def github_org(self):
+        return self.raw_dict.get('github_org_name')
+
+    @property
     def command_env(self):
         return self.raw_dict.get("command_env", {})
 
