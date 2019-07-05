@@ -171,6 +171,7 @@ Run `apigentools -b path/to/spec/repo push`
 #### Docker
 
 Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo push`
+**Note** This command requires SSH keys to be setup to be able to push/clone the specified repos. One way to accomplish this via docker would be to mount the SSH key into the image. This is not done by default and requires a custom image.
 
 ### Running the Whole Workflo
 
