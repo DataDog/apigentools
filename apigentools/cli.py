@@ -38,7 +38,7 @@ def get_cli_parser():
     p.add_argument(
         "-g", "--generated-code-dir",
         default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
-        help="Path to directory where to save the generated code (default: 'generated')",
+        help="Path to directory where to save the generated source code (default: 'generated')",
     )
     sp = p.add_subparsers(dest="action", required=True)
 
@@ -155,7 +155,7 @@ def get_cli_parser():
 
     test_parser = sp.add_parser(
         "test",
-        help="Run tests for generated code"
+        help="Run tests for generated source code"
     )
     test_parser.add_argument(
         "--no-cache",
@@ -166,7 +166,7 @@ def get_cli_parser():
     test_parser.add_argument(
         "-g", "--generated-code-dir",
         default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
-        help="Path to directory where to save the generated code (default: 'generated')",
+        help="Path to directory where to save the generated source code (default: 'generated')",
     )
 
     split_parser = sp.add_parser(
@@ -191,8 +191,15 @@ def get_cli_parser():
 
     push_parser = sp.add_parser(
         "push",
-        help="Push the generated code into each git repository specified in the config",
+        help="Push the generated source code into each git repository specified in the config",
     )
+    push_parser.add_argument(
+        "--use_https",
+        action="store_true",
+        help="Use HTTPS to interact with the github repositories (default: False and uses SSH)",
+        default=False
+    )
+
     return p
 
 

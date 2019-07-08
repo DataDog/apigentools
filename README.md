@@ -162,7 +162,10 @@ Run `apigentools -b path/to/spec/repo test`
 Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo test`
 
 ### Push Code
-Now that we've validated, generated, and tested all of these apiclients, we can push them up to the git repository they belong to. The `apigentools push` command will use the SSH keys setup locally to interact with the `git` binary on your machine and pull/push to the repos configured in your config.json file.
+Now that we've validated, generated, and tested all of these apiclients, we can push them up to the git repositories they belong to. The `apigentools push` command interacts with the `git` binary on your machine and pull/push to the repos configured in your config.json file.
+
+#### Prerequisites
+The `apigentools` push command requires that either SSH keys or the HTTPS git configurations are properly setup. Checkout the [Github Help Page](https://help.github.com/en/articles/set-up-git#next-steps-authenticating-with-github-from-git) for more information on how to set this up.
 
 #### Locally
 
@@ -171,7 +174,6 @@ Run `apigentools -b path/to/spec/repo push`
 #### Docker
 
 Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo push`
-**Note** This command requires SSH keys to be setup to be able to push/clone the specified repos. One way to accomplish this via docker would be to mount the SSH key into the image. This is not done by default and requires a custom image.
 
 ### Running the Whole Workflo
 

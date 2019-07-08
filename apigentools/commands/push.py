@@ -1,6 +1,5 @@
 import logging
 import os
-from pprint import pformat
 import tempfile
 import time
 
@@ -9,7 +8,8 @@ from apigentools.utils import change_cwd, run_command
 
 log = logging.getLogger(__name__)
 
-REPO_URL = 'git@github.com:{}/{}.git'
+REPO_SSH_URL = 'git@github.com:{}/{}.git'
+REPO_HTTPS_URL = 'https://github.com/{}/{}.git'
 
 class PushCommand(Command):
 
@@ -21,8 +21,14 @@ class PushCommand(Command):
             # Note: We assume that its one repo for all versions.
             # Git shallow clone the repository into a temp dir
             with tempfile.TemporaryDirectory() as temp_repo_dir:
-                repo = REPO_URL.format(lang_config.github_org, lang_config.github_repo)
-                try
+                # Choose to use HTTPS or SSH method of cloning the repo
+                # Defaults to SSH
+                if self.args.use_https:
+                    repo = REPO_HTTPS_URL.format(lang_config.github_org, lang_config.github_repo)
+                else:
+                    repo = REPO_SSH_URL.format(lang_config.github_org, lang_config.github_repo)
+
+                try:
                     run_command(['git', 'clone', '--depth=2', repo, temp_repo_dir])
                 except subprocess.CalledProcessError as e:
                     log.error("Error cloning repo {}: {}".format(repo, e))
