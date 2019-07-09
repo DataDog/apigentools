@@ -18,7 +18,8 @@ class ValidateCommand(Command):
 
     def run(self):
         cmd_result = 0
-        for version in self.config.spec_versions:
+        versions = self.args.api_versions or self.config.spec_versions
+        for version in versions:
             fs_path = write_full_spec(self.config, self.args.spec_dir, version, self.args.full_spec_file)
             if not self.validate_spec(fs_path):
                 cmd_result = 1

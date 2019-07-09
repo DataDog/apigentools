@@ -43,7 +43,8 @@ class TemplatesCommand(Command):
                     ])
 
             # copy the processed templates from the temporary dir to templates dir
-            for lang in self.config.languages:
+            languages = self.args.languages or self.config.languages
+            for lang in languages:
                 upstream_templatedir = self.config.languages[lang].get("upstream_templates_dir", lang)
                 outlang_dir = os.path.join(self.args.output_dir, lang)
                 if os.path.exists(outlang_dir):

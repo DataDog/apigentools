@@ -123,8 +123,11 @@ class GenerateCommand(Command):
     def run(self):
         fs_paths = {}
 
+        versions = self.args.api_versions or self.config.spec_versions
+        languages = self.args.languages or self.config.languages
+
         # first, generate full spec for all major versions of the API
-        for version in self.config.spec_versions:
+        for version in versions:
             fs_paths[version] = write_full_spec(
                 self.config, self.args.spec_dir, version, self.args.full_spec_file
             )
@@ -132,7 +135,7 @@ class GenerateCommand(Command):
         # now, for each language generate a client library for every major version that is explicitly
         # listed in its settings (meaning that we can have languages that don't support all major
         # API versions)
-        for language in self.config.languages:
+        for language in languages:
             language_config = self.config.get_language_config(language)
             for version in language_config.spec_versions:
                 log.info("Generation in %s, spec version %s", language, version)

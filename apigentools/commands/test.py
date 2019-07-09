@@ -42,8 +42,18 @@ class TestCommand(Command):
 
     def run(self):
         cmd_result = 0
+
+        versions = self.args.api_versions or self.config.spec_versions
+        languages = self.args.languages or self.config.languages
+
         for lang_name, lang_config in self.config.language_configs.items():
+            # Skip any non user provided languages
+            if lang_name not in languages:
+                continue
             for version in lang_config.spec_versions:
+                # Skip any non user provided versions
+                if version not in versions:
+                    continue
                 df_path = self.get_test_df_name(lang_name, version)
                 img_name = "apigentools-test-{lang}-{version}".format(
                     lang=lang_name, version=version
