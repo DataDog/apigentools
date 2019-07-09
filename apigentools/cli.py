@@ -35,6 +35,11 @@ def get_cli_parser():
         action='store_true',
         help="Whether or not to log the generation in verbose mode",
     )
+    p.add_argument(
+        "-g", "--generated-code-dir",
+        default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
+        help="Path to directory where to save the generated source code (default: 'generated')",
+    )
     sp = p.add_subparsers(dest="action", required=True)
 
     generate_parser = sp.add_parser(
@@ -50,11 +55,6 @@ def get_cli_parser():
         "-f", "--full-spec-file",
         default=env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
         help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml')",
-    )
-    generate_parser.add_argument(
-        "-g", "--generated-code-dir",
-        default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
-        help="Path to directory where to save the generated code (default: 'generated')",
     )
     generate_parser.add_argument(
         "--additional-stamp",
@@ -156,7 +156,7 @@ def get_cli_parser():
 
     test_parser = sp.add_parser(
         "test",
-        help="Run tests for generated code"
+        help="Run tests for generated source code"
     )
     test_parser.add_argument(
         "--no-cache",
@@ -167,7 +167,7 @@ def get_cli_parser():
     test_parser.add_argument(
         "-g", "--generated-code-dir",
         default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
-        help="Path to directory where to save the generated code (default: 'generated')",
+        help="Path to directory where to save the generated source code (default: 'generated')",
     )
 
     split_parser = sp.add_parser(
@@ -189,6 +189,18 @@ def get_cli_parser():
         default=env_or_val("APIGENTOOLS_SPLIT_SPEC_VERSION", "v1"),
         help="Version of API that the input spec describes (default: 'v1')",
     )
+
+    push_parser = sp.add_parser(
+        "push",
+        help="Push the generated source code into each git repository specified in the config",
+    )
+    push_parser.add_argument(
+        "--use_https",
+        action="store_true",
+        help="Use HTTPS to interact with the github repositories (default: False and uses SSH)",
+        default=False
+    )
+
     return p
 
 

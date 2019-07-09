@@ -22,6 +22,7 @@ In general, the workflow is as follows:
 6. Prepare templates (locally or using Docker)
 7. Generate client code (locally or using Docker)
 8. Run tests
+5. Push code
 
 See the below sections for descriptions of the above steps.
 
@@ -101,7 +102,7 @@ Run `apigentools -b path/to/spec/repo validate`.
 
 #### Docker
 
-Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo validate`.
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo validate`
 
 ### Add Template Patches
 
@@ -134,7 +135,7 @@ Run e.g. `apigentools -b path/to/spec/repo templates local-dir /path/to/base/tem
 
 #### Docker
 
-Run e.g. `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo templates openapi-git v4.0.2`.
+Run e.g. `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo templates openapi-git v4.0.2`
 
 ### Generate Client Code
 
@@ -146,7 +147,7 @@ Run `apigentools -b path/to/spec/repo generate`
 
 #### Docker
 
-Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo generate`.
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo generate`
 
 ### Run Tests
 
@@ -158,13 +159,27 @@ Run `apigentools -b path/to/spec/repo test`
 
 #### Docker
 
-Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo test`.
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo test`
 
-### Running the Whole Workflow
+### Push Code
+Now that we've validated, generated, and tested all of these apiclients, we can push them up to the git repositories they belong to. The `apigentools push` command interacts with the `git` binary on your machine and pull/push to the repos configured in your config.json file.
+
+#### Prerequisites
+The `apigentools` push command requires that either SSH keys or the HTTPS git configurations are properly setup. Checkout the [Github Help Page](https://help.github.com/en/articles/set-up-git#next-steps-authenticating-with-github-from-git) for more information on how to set this up.
+
+#### Locally
+
+Run `apigentools -b path/to/spec/repo push`
+
+#### Docker
+
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo push`
+
+### Running the Whole Workflo
 
 Note that all the above commands can be run in sequence with Docker in just one command by passing no additional arguments:
 
-Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo`.
+Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo`
 
 ## File Formats
 

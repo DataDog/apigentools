@@ -1,4 +1,5 @@
 from apigentools.commands.generate import GenerateCommand
+from apigentools.commands.push import PushCommand
 from apigentools.commands.split import SplitCommand
 from apigentools.commands.templates import TemplatesCommand
 from apigentools.commands.test import TestCommand
@@ -10,4 +11,5 @@ all_commands = {
     "templates": TemplatesCommand,
     "test": TestCommand,
     "validate": ValidateCommand,
+    "push": PushCommand,
 }

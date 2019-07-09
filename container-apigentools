@@ -39,7 +39,6 @@ if [ "$1" == "--spec-repo-volume" ]; then
     shift 2
 fi
 
-
 # Add APIGENTOOLS_IMAGE env var as well as every env var that starts with "APIGENTOOLS_"
 ENV="-e APIGENTOOLS_IMAGE=${IMAGE} `env | grep APIGENTOOLS_ | sed -e "s|^|-e |"`"
 VOLUMES="-v ${SPEC_REPO_VOLUME}:/var/lib/apigentools/spec-repo -v /var/run/docker.sock:/var/run/docker.sock"
