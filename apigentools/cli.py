@@ -40,6 +40,18 @@ def get_cli_parser():
         default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
         help="Path to directory where to save the generated source code (default: 'generated')",
     )
+    p.add_argument(
+        "-l", "--languages",
+        action="append",
+        default=env_or_val("APIGENTOOLS_LANG", None),
+        help="The language to run the specified action against. These must match what the config in the spec repo contains. Ex: 'apigentools -l go -l java test' (Default: None to run all)",
+    )
+    p.add_argument(
+        "-av", "--api-versions",
+        action="append",
+        default=env_or_val("APIGENTOOLS_API_VERSION", None),
+        help="The API version to run the specified action against. These must match what the config in the spec repo contains. Ex: 'apigentools -av v1 -av v2 test' (Default: None to run all)",
+    )
     sp = p.add_subparsers(dest="action", required=True)
 
     generate_parser = sp.add_parser(

@@ -17,7 +17,13 @@ class PushCommand(Command):
         created_branches = {}
         cmd_result = 0
 
+        versions = self.args.api_versions or self.config.spec_versions
+        languages = self.args.languages or self.config.languages
+
         for lang_name, lang_config in self.config.language_configs.items():
+            # Skip any languages not specified by the user
+            if lang_name not in languages:
+                continue
             # Note: We assume that its one repo for all versions.
             # Git shallow clone the repository into a temp dir
             with tempfile.TemporaryDirectory() as temp_repo_dir:
@@ -36,6 +42,9 @@ class PushCommand(Command):
                     continue
 
                 for version in lang_config.spec_versions:
+                    # Skip any versions not specified by the user
+                    if version not in versions:
+                        continue
                     # Copy the contents of the generated dir into the git clone
                     # Make a branch and push all changes up to that branch
                     # Print branch name for each repo
