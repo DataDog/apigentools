@@ -7,7 +7,7 @@ import sys
 
 import yaml
 
-from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME
+from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME, REDACTED_OUT_SECRET
 
 log = logging.getLogger(__name__)
 
@@ -94,50 +94,80 @@ def get_current_commit(repo_path):
         return res.stdout.strip()
 
 
-def run_command(cmd, log_level=logging.INFO, additional_env=None):
+def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_err=False):
     """ Wrapper for running subprocesses with reasonable logging.
 
-    :param cmd: Command to run as subprocess
-    :type cmd: ``list`` of ``str``
+    :param cmd: Command to run as subprocess. Members are either strings (directly used
+        to construct the command) or dicts. Dicts must have the form of
+        ``{"item": "someitem", "secret": <bool value>}``. In this case, the ``item`` is used to
+        construct the command and won't be logged if ``secret`` is set to ``True``.
+    :type cmd: ``list`` of ``str`` or ``dict`` items
     :param log_level: Level to log messages at (defaults to ``logging.INFO``)
     :type log_level: ``int``
     :param additional_env: Additional environment values to add to current environment
         while executing the command (``None`` or empty dict for no additional values)
     :type additional_env: ``dict`` or ``NoneType``
     :raise: ``subprocess.CalledProcessError`` if subprocess fails
+    :param combine_out_err: Whether or not to combine stdout and stderr of the subprocess
+        into a single stream (more human readable when they're interleaved),
+        defaults to `False`
+    :type combine_out_err: ``bool``
     :return: Result of the called subprocess
     :rtype: ``subprocess.CompletedProcess``
     """
+    cmd_strlist = []
+    cmd_logstr = []
+    for member in cmd:
+        if isinstance(member, dict) and member.get("secret", False):
+            cmd_strlist.append(member["item"])
+            cmd_logstr.append(REDACTED_OUT_SECRET)
+        else:
+            cmd_strlist.append(member)
+            cmd_logstr.append(member)
     try:
         env = copy.deepcopy(os.environ)
         if additional_env:
             env.update(additional_env)
-        log.log(log_level, "Running command '{}'".format(" ".join(cmd)))
-        result = subprocess.run(cmd, capture_output=True, check=True, text=True, env=env)
-        log.log(log_level, "Command result:\n{}".format(fmt_cmd_out_for_log(result)))
+        log.log(log_level, "Running command '{}'".format(" ".join(cmd_logstr)))
+        stdout=subprocess.PIPE
+        stderr=subprocess.STDOUT if combine_out_err else subprocess.PIPE
+        result = subprocess.run(cmd_strlist, stdout=stdout, stderr=stderr, check=True, text=True, env=env)
+        log.log(log_level, "Command result:\n{}".format(
+            fmt_cmd_out_for_log(result, combine_out_err)
+        ))
     except subprocess.CalledProcessError as e:
         log.log(
             log_level,
-            "Error in called process:\n{}".format(fmt_cmd_out_for_log(e))
+            "Error in called process:\n{}".format(fmt_cmd_out_for_log(e, combine_out_err))
         )
         raise
 
     return result
 
 
-def fmt_cmd_out_for_log(result_or_error):
+def fmt_cmd_out_for_log(result_or_error, combine_out_err):
     """ Formats result of (or error raised from) subprocess.run for logging.
 
     :param result_or_error: Result/error to format
     :type result_or_error: ``subprocess.CalledProcessError`` or ``subprocess.CompletedProcess``
+    :param combine_out_err: Whether or not stdout and stderr of the subprocess are combined
+        into a single stream (more human readable when they're interleaved),
+        defaults to `False`
+    :type combine_out_err: ``bool``
     :return: Formatted result/error
     :rtype: ``str``
     """
-    return "RETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
-        rc=result_or_error.returncode,
-        o=result_or_error.stdout,
-        e=result_or_error.stderr,
-    )
+    if combine_out_err:
+        return "RETCODE: {rc}\nOUTPUT:\n{o}".format(
+            rc=result_or_error.returncode,
+            o=result_or_error.stdout,
+        )
+    else:
+        return "RETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
+            rc=result_or_error.returncode,
+            o=result_or_error.stdout,
+            e=result_or_error.stderr,
+        )
 
 
 def write_full_spec(config, spec_dir, version, full_spec_file):

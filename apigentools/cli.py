@@ -181,6 +181,14 @@ def get_cli_parser():
         default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
         help="Path to directory where to save the generated source code (default: 'generated')",
     )
+    test_parser.add_argument(
+        "--container-env",
+        nargs="*",
+        default=env_or_val("APIGENTOOLS_CONTAINER_ENV", [], __type=list),
+        help="Additional environment variables to pass to containers running the tests, " +
+             "for example '--container-env API_KEY=123 OTHER_KEY=234'. Note that these values " +
+             "are considered secret by apigentools and thus will never be logged.",
+    )
 
     split_parser = sp.add_parser(
         "split",
