@@ -3,6 +3,7 @@ import os
 import subprocess
 
 from apigentools.commands.command import Command
+from apigentools.constants import REDACTED_OUT_SECRET
 from apigentools.utils import run_command
 
 log = logging.getLogger(__name__)
@@ -28,17 +29,21 @@ class TestCommand(Command):
             ]
             if self.args.no_cache:
                 build.append("--no-cache")
-            run_command(build)
+            run_command(build, combine_out_err=True)
             return img_name
         return None
 
     def run_test_image(self, img_name):
         log.info("Running tests: %s", img_name)
-        run_command([
-            "docker",
-            "run",
-            img_name
-        ])
+        cmd = ["docker", "run"]
+        for i, ce in enumerate(self.args.container_env):
+            split = ce.split("=", 1)
+            if len(split) != 2:
+                raise ValueError("{} (passed in on position {})".format(REDACTED_OUT_SECRET, i))
+            cmd.append("-e")
+            cmd.append({"item": "{}={}".format(split[0], split[1]), "secret": True})
+        cmd.append(img_name)
+        run_command(cmd, combine_out_err=True)
 
     def run(self):
         cmd_result = 0
@@ -88,4 +93,7 @@ class TestCommand(Command):
                         lang_name, version
                     )
                     cmd_result =  1
+                except ValueError as e:
+                    log.error("Bad container env '%s', must be in form KEY=VALUE", str(e))
+
         return cmd_result
