@@ -181,6 +181,28 @@ Note that all the above commands can be run in sequence with Docker in just one 
 
 Run `container-apigentools apigentools:local --spec-repo-volume /absolute/path/to/spec/repo`
 
+## Trackability and Reproducibility
+
+In order to provide trackability and reproducibility of code generation, apigentools provide two special features:
+
+* A file called `.apigentools-info` gets written into the top-level directory of each language client. For example:
+  ```
+  {
+      "additional_stamps": [],
+      "apigentools_version": "0.1.0.dev1",
+      "image": "apigentools:local",
+      "info_version": "1"
+      "spec_repo_commit": "36cefa8",
+  }
+  ```
+  Explanation of the keys and their values follows:
+  * `additional_stamps` is a list of strings given through `--additional-stamp` argument (empty if none)
+  * `apigentools_version` is a version of apigentools used to generate code
+  * `image` is a name and tag of the Docker image in which code generation happened (`null` if outside of Docker image)
+  * `info_version` is a version of format of this document
+  * `spec_repo_commit` is a commit of the Spec Repository (`null` if it's not a git repository)
+* All the templates rendered with openapi-generator get an additional key in context, `apigentoolsStamp`, which contains the same set of information as `.apigentools-info` in a condensed form, for example: `Generated with: apigentools version 0.1.0.dev1 (image: apigentools:local); spec repo commit 36cefa8`. You can use this in your or template patches and/or downstream templates if you wish.
+
 ## File Formats
 
 ### config/config.json
