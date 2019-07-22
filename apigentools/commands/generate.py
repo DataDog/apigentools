@@ -74,6 +74,7 @@ class GenerateCommand(Command):
 
         settings = copy.deepcopy(self.config.get_language_config(language).raw_dict)
         settings["github_repo_url"] = chevron.render(GITHUB_REPO_URL_TEMPLATE, settings)
+        settings["apigentoolStamp"] = self.get_stamp()
 
         for root, _, files in os.walk(templates_dir):
             for f in files:
@@ -120,6 +121,26 @@ class GenerateCommand(Command):
             stamp.append("spec repo commit {commit}".format(commit=spec_repo_commit))
         return "; ".join(stamp + self.args.additional_stamp)
 
+    def write_dot_apigentools_info(self, language):
+        """ Write .apigentools-info file in the top-level directory of the given language
+
+        :param language: Language to write .apigentools-info for
+        :type language: ``str``
+        """
+        outfile = os.path.join(
+            self.get_generated_lang_dir(language),
+            ".apigentools-info",
+        )
+        info = {
+            "additional_stamps": self.args.additional_stamp,
+            "apigentools_version": __version__,
+            "info_version": "1",
+            "image": self.args.generated_with_image,
+            "spec_repo_commit": get_current_commit(self.args.spec_repo_dir),
+        }
+        with open(outfile, "w") as f:
+            json.dump(info, f, indent=4)
+
     def run(self):
         fs_paths = {}
 
@@ -137,6 +158,7 @@ class GenerateCommand(Command):
         # API versions)
         for language in languages:
             language_config = self.config.get_language_config(language)
+            self.write_dot_apigentools_info(language)
             for version in language_config.spec_versions:
                 log.info("Generation in %s, spec version %s", language, version)
                 language_oapi_config_path = os.path.join(
