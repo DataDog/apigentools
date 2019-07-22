@@ -197,11 +197,12 @@ In order to provide trackability and reproducibility of code generation, apigent
   ```
   Explanation of the keys and their values follows:
   * `additional_stamps` is a list of strings given through `--additional-stamp` argument (empty if none)
+    * As an example, you might want to use additional stamps when using a post-processing tool (as a `post` command) on the generated code, which does actual changes to the code. E.g. if you decided to use [black](https://black.readthedocs.io/en/stable/) on generated Python code, you could specify `--additional-stamp black=1.2.3` to record its version.
   * `apigentools_version` is a version of apigentools used to generate code
   * `image` is a name and tag of the Docker image in which code generation happened (`null` if outside of Docker image)
   * `info_version` is a version of format of this document
   * `spec_repo_commit` is a commit of the Spec Repository (`null` if it's not a git repository)
-* All the templates rendered with openapi-generator get an additional key in context, `apigentoolsStamp`, which contains the same set of information as `.apigentools-info` in a condensed form, for example: `Generated with: apigentools version 0.1.0.dev1 (image: apigentools:local); spec repo commit 36cefa8`. You can use this in your or template patches and/or downstream templates if you wish.
+* All the templates rendered with openapi-generator get an additional key in context, `apigentoolsStamp`, which contains the same set of information as `.apigentools-info` in a condensed form, for example: `Generated with: apigentools version 0.1.0.dev1 (image: apigentools:local); spec repo commit 36cefa8`. You can use this in your or template patches and/or downstream templates as `{{apigentoolsStamp}}` tag if you wish.
 
 ## File Formats
 
