@@ -202,7 +202,7 @@ In order to provide trackability and reproducibility of code generation, apigent
   * `image` is a name and tag of the Docker image in which code generation happened (`null` if outside of Docker image)
   * `info_version` is a version of format of this document
   * `spec_repo_commit` is a commit of the Spec Repository (`null` if it's not a git repository)
-* All the templates rendered with openapi-generator get an additional key in context, `apigentoolsStamp`, which contains the same set of information as `.apigentools-info` in a condensed form, for example: `Generated with: apigentools version 0.1.0.dev1 (image: apigentools:local); spec repo commit 36cefa8`. You can use this in your or template patches and/or downstream templates as `{{apigentoolsStamp}}` tag if you wish.
+* All the templates rendered with openapi-generator get an additional key in context, `apigentoolsStamp`, which contains the same set of information as `.apigentools-info` in a condensed form, for example: `Generated with: apigentools version 0.1.0.dev1 (image: apigentools:local); spec repo commit 36cefa8`. You can use this in your template patches and/or downstream templates as `{{apigentoolsStamp}}` tag if you wish.
 
 ## File Formats
 
