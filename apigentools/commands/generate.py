@@ -158,7 +158,6 @@ class GenerateCommand(Command):
         # API versions)
         for language in languages:
             language_config = self.config.get_language_config(language)
-            self.write_dot_apigentools_info(language)
             for version in language_config.spec_versions:
                 log.info("Generation in %s, spec version %s", language, version)
                 language_oapi_config_path = os.path.join(
@@ -200,5 +199,9 @@ class GenerateCommand(Command):
                     language,
                     self.args.downstream_templates_dir,
                 )
+
+            # Write the apigentools.info file once per language
+            # after each nested folder has been created
+            self.write_dot_apigentools_info(language)
 
         return 0
