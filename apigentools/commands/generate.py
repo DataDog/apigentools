@@ -141,6 +141,13 @@ class GenerateCommand(Command):
         with open(outfile, "w") as f:
             json.dump(info, f, indent=4)
 
+    def get_missing_templates(self, languages):
+        missing = []
+        for language in languages:
+            if not os.path.exists(os.path.join(self.args.template_dir, language)):
+                missing.append(language)
+        return missing
+
     def run(self):
         fs_paths = {}
 
@@ -152,6 +159,14 @@ class GenerateCommand(Command):
             fs_paths[version] = write_full_spec(
                 self.config, self.args.spec_dir, version, self.args.full_spec_file
             )
+
+        missing_templates = self.get_missing_templates(languages)
+        if missing_templates:
+            log.error(
+                "Missing templates for %s; please run `apigentools templates` first",
+                ", ".join(missing_templates)
+            )
+            return 1
 
         # now, for each language generate a client library for every major version that is explicitly
         # listed in its settings (meaning that we can have languages that don't support all major
