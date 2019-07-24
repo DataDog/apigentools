@@ -128,7 +128,7 @@ def get_cli_parser():
     )
     local_parser = templates_source.add_parser(
         "local-dir",
-        help="Obtain upstream templates from a local directory",
+        help="Obtain upstream templates from a local directory (e.g. an openapi-generator git checkout)",
     )
     local_parser.add_argument(
         "local_path",
