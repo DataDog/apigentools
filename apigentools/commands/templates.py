@@ -2,6 +2,7 @@ import glob
 import logging
 import os
 import shutil
+import subprocess
 import tempfile
 
 from apigentools.commands.command import Command
@@ -41,15 +42,23 @@ class TemplatesCommand(Command):
                 log.info("Applying patches to upstream templates ...")
                 patches = glob.glob(os.path.join(self.args.template_patches_dir, "*.patch"))
                 for p in sorted(patches):
-                    run_command([
-                        "patch",
-                        "--no-backup-if-mismatch",
-                        "-p1",
-                        "-i",
-                        os.path.abspath(os.path.join(self.args.template_patches_dir, os.path.basename(p))),
-                        "-d",
-                        patch_in,
-                    ])
+                    try:
+                        run_command([
+                            "patch",
+                            "--no-backup-if-mismatch",
+                            "-p1",
+                            "-i",
+                            os.path.abspath(os.path.join(self.args.template_patches_dir, os.path.basename(p))),
+                            "-d",
+                            patch_in,
+                        ])
+                    except subprocess.CalledProcessError:
+                        # at this point, the stdout/stderr of the process have been printed by
+                        # `run_command`, so the user should have sufficient info to about what went wrong
+                        log.error(
+                            "Failed to apply patch %s, exiting as templates can't be processed", p
+                        )
+                        return 1
 
             # copy the processed templates from the temporary dir to templates dir
             languages = self.args.languages or self.config.languages
