@@ -20,7 +20,16 @@ class TemplatesCommand(Command):
                 run_command(["unzip", "-q", self.args.jar_path, "-d", td])
             elif self.args.templates_source == "local-dir":
                 for lang in self.config.languages:
-                    shutil.copytree(os.path.join(self.args.local_path, lang), os.path.join(td, lang))
+                    lang_upstream_templates_dir = self.config.get_language_config(lang).upstream_templates_dir
+                    local_lang_dir = os.path.join(self.args.local_path, lang_upstream_templates_dir)
+                    if not os.path.exists(local_lang_dir):
+                        log.error(
+                            "Directory %s doesn't contain '%s' directory with templates. " +
+                            "Make sure %s contains directories with templates for all languages",
+                            self.args.local_path, lang_upstream_templates_dir, self.args.local_path
+                        )
+                        return 1
+                    shutil.copytree(local_lang_dir, os.path.join(td, lang))
             else:
                 patch_in = copy_from = os.path.join(
                     td, "modules", "openapi-generator", "src", "main", "resources"
