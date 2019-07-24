@@ -132,7 +132,7 @@ def get_cli_parser():
     )
     local_parser.add_argument(
         "local_path",
-        help="Path to directory with upstream templates",
+        help="Path to directory with openapi-generator upstream templates",
     )
     git_parser = templates_source.add_parser(
         "openapi-git",
