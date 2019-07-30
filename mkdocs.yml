@@ -1,0 +1,10 @@
+site_name: Apigentools Docs
+nav:
+  - Introduction and Quickstart: index.md
+  - Spec Repo: spec_repo.md
+  - CLI Reference: cli.md
+  - Workflow: workflow.md
+  - File Formats: file_formats.md
+markdown_extensions:
+  - toc:
+      permalink: 
