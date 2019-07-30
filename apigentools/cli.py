@@ -187,8 +187,10 @@ def get_cli_parser():
         nargs="*",
         default=env_or_val("APIGENTOOLS_CONTAINER_ENV", [], __type=list),
         help="Additional environment variables to pass to containers running the tests, " +
-             "for example '--container-env API_KEY=123 OTHER_KEY=234'. Note that these values " +
-             "are considered secret by apigentools and thus will never be logged.",
+             "for example `--container-env API_KEY=123 OTHER_KEY=234`. Note that apigentools " +
+             "contains additional logic to treat these values as sensitive and avoid logging " +
+             "them during runtime. (NOTE: if the testing container itself prints this value, " +
+             "it *will* be logged as part of the test output by apigentools)."
     )
 
     split_parser = sp.add_parser(

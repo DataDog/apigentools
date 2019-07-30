@@ -15,7 +15,7 @@ The purpose of the apigentools package is to provide an easy way to generate API
 Install apigentools with
 
 ```
-pip install apigentools
+TODO: not available yet
 ```
 
 ### Setup Spec Repo
@@ -157,9 +157,9 @@ This will make sure that Go client will be generated with the following aspects:
 
 * It will be generated inside `generated/my-api-client-go` directory.
 * Only `v1` client will be generated. If you ever add another version of API, you'll need to also explicitly add it to its `spec_versions`.
-* The code for `v1` of the API will reside under `generated/my-api-client-go/myapi_v1` (see [config.json format](file_formats.md#configconfigjson) for information on how the `version_path_template` works).
+* The code for `v1` of the API will reside under `generated/my-api-client-go/myapi_v1` (see [config.json format](spec_repo.md#configconfigjson) for information on how the `version_path_template` works).
 
-Next, we need to add openapi-generator configuration file for Python, called `config/languages/go_v1.json`:
+Next, we need to add openapi-generator configuration file for Go, called `config/languages/go_v1.json`:
 
 ```
 {
@@ -186,4 +186,4 @@ Note that we're using the `--builtin-templates` argument here to tell apigentool
 
 You can now browse the generated code under `generated/my-api-client-go/myapi_v1`. Note that if we wanted to make this a proper go module with per-major-API-version submodules, we'd need to also add top-level `go.mod` and `go.sum` that would be placed in `generated/my-api-client-go`. If you want to continue working on this example, see [downstream templates](workflow.md#add-downstream-templates) documentation for instructions on how to do that.
 
-Also note that not all language templates included in openapi-generator are compatible with apigentools' per-major-API-version submodules approach. This is something that we (authors of apigentools) will continue working on together with openapi-generator authors.
+Also note that not all language templates included in openapi-generator are compatible with apigentools' per-major-API-version submodules approach. If you find a language for which this is not possible, consider contributing this as a feature to openapi-generator to make the project better for everyone!

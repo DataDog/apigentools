@@ -43,11 +43,11 @@ apigentools init myapispec
 
 ## Modify the OpenAPI Spec Sections
 
-When you want to add/change behaviour of your generated clients, you need to modify the [spec sections](file_formats.md#section-files) for the relevant major version of your API under `spec/<MAJOR_VERSION>`. If you're adding new section files, don't forget to also add them in `spec_sections` in `config/config.json`. If you're adding a new major API version, don't forget to add it in top-level `spec_versions` and then in per-language `spec_versions` in `config/config.yaml` (thanks to this, you can choose which languages generate code for which major API versions).
+When you want to add/change behaviour of your generated clients, you need to modify the [spec sections](spec_repo.md#section-files) for the relevant major version of your API under `spec/<MAJOR_VERSION>`. If you're adding new section files, don't forget to also add them in `spec_sections` in `config/config.json`. If you're adding a new major API version, don't forget to add it in top-level `spec_versions` and then in per-language `spec_versions` in `config/config.yaml` (thanks to this, you can choose which languages generate code for which major API versions).
 
 ## Modify apigentools Configuration
 
-When adding new languages to generate clients for, adding major API version or adding spec sections, you'll need to do the corresponding changes to [config/config.yaml](file_formats.md#configconfigjson).
+When adding new languages to generate clients for, adding major API version or adding spec sections, you'll need to do the corresponding changes to [config/config.yaml](spec_repo.md#configconfigjson).
 
 ## Validate Specs
 
