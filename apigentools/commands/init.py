@@ -73,7 +73,7 @@ class InitCommand(Command):
                                 "schemas": {},
                                 "security_schemes": {},
                             },
-                            "security": {},
+                            "security": [],
                             "tags": [],
                         },
                         f

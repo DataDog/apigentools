@@ -161,7 +161,7 @@ class GenerateCommand(Command):
             )
 
         missing_templates = self.get_missing_templates(languages)
-        if missing_templates:
+        if missing_templates and not self.args.builtin_templates:
             log.error(
                 "Missing templates for %s; please run `apigentools templates` first",
                 ", ".join(missing_templates)
