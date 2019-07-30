@@ -2,7 +2,7 @@
 
 ## Purpose
 
-The purpose of the apigentools package is providing an easy way to generate API clients from [OpenAPI v3 specification](https://github.com/OAI/OpenAPI-Specification/) for multiple languages using [openapi-generator](https://github.com/OpenAPITools/openapi-generator).
+The purpose of the apigentools package is to provide an easy way to generate API clients from [OpenAPI v3 specification](https://github.com/OAI/OpenAPI-Specification/) for multiple languages using [openapi-generator](https://github.com/OpenAPITools/openapi-generator).
 
 *Note on "downstream/upstream" nomenclature*: Throughout the code and documentation of this project, the words "*downstream*" and "*upstream*" are used when talking about certain pieces of functionality and/or templates. In this context, "*upstream*" is used to reference functionality/templates coming from openapi-generator or other external tools used; "*downstream*" is used to reference configuration and modifications that you will be providing as inputs to apigentools.
 
