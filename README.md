@@ -69,6 +69,12 @@ apigentools expects you to have a separate repository containing various configu
     └── .gitkeep
 ```
 
+You can create a basic scaffold of a Spec Repo using the `init` subcommand, for example:
+
+```
+apigentools init myspecrepo
+```
+
 Most of the paths in this layout can be overriden by commandline arguments passed to apigentools executable. More details about files from the above structure can be found in following sections.
 
 #### Create the OpenAPI Specs

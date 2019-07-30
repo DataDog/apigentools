@@ -8,9 +8,10 @@ import os
 import sys
 
 from apigentools.config import Config
-from apigentools.constants import CONFIG_FILE, OPENAPI_GENERATOR_GIT
 from apigentools.commands import all_commands
 from apigentools.utils import change_cwd, env_or_val, set_log, set_log_level
+
+from apigentools import constants
 
 log = logging.getLogger(__name__)
 
@@ -26,8 +27,8 @@ def get_cli_parser():
     )
     p.add_argument(
         "-c", "--config-dir",
-        default=env_or_val("APIGENTOOLS_CONFIG_DIR", "config"),
-        help="Path to config directory (default: 'config')",
+        default=env_or_val("APIGENTOOLS_CONFIG_DIR", constants.DEFAULT_CONFIG_DIR),
+        help="Path to config directory (default: '{}')".format(constants.DEFAULT_CONFIG_DIR),
     )
     p.add_argument(
         "-v", "--verbose",
@@ -37,8 +38,8 @@ def get_cli_parser():
     )
     p.add_argument(
         "-g", "--generated-code-dir",
-        default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
-        help="Path to directory where to save the generated source code (default: 'generated')",
+        default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", constants.DEFAULT_GENERATED_CODE_DIR),
+        help="Path to directory where to save the generated source code (default: '{}')".format(constants.DEFAULT_GENERATED_CODE_DIR),
     )
     p.add_argument(
         "-l", "--languages",
@@ -60,8 +61,8 @@ def get_cli_parser():
     )
     generate_parser.add_argument(
         "-s", "--spec-dir",
-        default=env_or_val("APIGENTOOLS_SPEC_DIR", "spec"),
-        help="Path to directory with OpenAPI specs (default: 'spec')",
+        default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
+        help="Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
     )
     generate_parser.add_argument(
         "-f", "--full-spec-file",
@@ -82,15 +83,15 @@ def get_cli_parser():
     )
     generate_parser.add_argument(
         "-d", "--downstream-templates-dir",
-        default=env_or_val("APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR", "downstream-templates"),
-        help="Path to directory with downstream templates (default: 'downstream-templates')",
+        default=env_or_val("APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR", constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR),
+        help="Path to directory with downstream templates (default: '{}')".format(constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR),
     )
 
     template_group = generate_parser.add_mutually_exclusive_group()
     template_group.add_argument(
         "-t", "--template-dir",
-        default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", "templates"),
-        help="Path to directory with processed upstream templates (default: 'templates')",
+        default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
+        help="Path to directory with processed upstream templates (default: '{}')".format(constants.DEFAULT_TEMPLATES_DIR),
     )
     template_group.add_argument(
         "--builtin-templates",
@@ -105,13 +106,13 @@ def get_cli_parser():
     )
     templates_parser.add_argument(
         "-o", "--output-dir",
-        default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", "templates"),
-        help="Path to directory where to put processed upstream templates (default: 'templates')",
+        default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
+        help="Path to directory where to put processed upstream templates (default: {})".format(constants.DEFAULT_TEMPLATES_DIR),
     )
     templates_parser.add_argument(
         "-p", "--template-patches-dir",
-        default=env_or_val("APIGENTOOLS_TEMPLATE_PATCHES_DIR", "template-patches"),
-        help="Directory with patches for upstream templates (default: 'template-patches')",
+        default=env_or_val("APIGENTOOLS_TEMPLATE_PATCHES_DIR", constants.DEFAULT_TEMPLATE_PATCHES_DIR),
+        help="Directory with patches for upstream templates (default: '{}')".format(constants.DEFAULT_TEMPLATE_PATCHES_DIR),
     )
     templates_source = templates_parser.add_subparsers(
         dest="templates_source",
@@ -140,8 +141,8 @@ def get_cli_parser():
     )
     git_parser.add_argument(
         "-u", "--repo_url",
-        default=OPENAPI_GENERATOR_GIT,
-        help="URL of the openapi-generator repo (default: '{}')".format(OPENAPI_GENERATOR_GIT),
+        default=constants.OPENAPI_GENERATOR_GIT,
+        help="URL of the openapi-generator repo (default: '{}')".format(constants.OPENAPI_GENERATOR_GIT),
     )
     git_parser.add_argument(
         "git_committish",
@@ -157,8 +158,8 @@ def get_cli_parser():
     # these are duplicated with generate_parser, we should deduplicate
     validate_parser.add_argument(
         "-s", "--spec-dir",
-        default=env_or_val("APIGENTOOLS_SPEC_DIR", "spec"),
-        help="Path to directory with OpenAPI specs (default: 'spec')",
+        default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
+        help="Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
     )
     validate_parser.add_argument(
         "-f", "--full-spec-file",
@@ -178,8 +179,8 @@ def get_cli_parser():
     )
     test_parser.add_argument(
         "-g", "--generated-code-dir",
-        default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", "generated"),
-        help="Path to directory where to save the generated source code (default: 'generated')",
+        default=env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", constants.DEFAULT_GENERATED_CODE_DIR),
+        help="Path to directory where to save the generated source code (default: '{}')".format(constants.DEFAULT_GENERATED_CODE_DIR),
     )
     test_parser.add_argument(
         "--container-env",
@@ -201,8 +202,8 @@ def get_cli_parser():
     )
     split_parser.add_argument(
         "-s", "--spec-dir",
-        default=env_or_val("APIGENTOOLS_SPEC_DIR", "spec"),
-        help="Path to directory with OpenAPI specs (default: 'spec')",
+        default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
+        help="Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
     )
     split_parser.add_argument(
         "-v", "--api-version",
@@ -221,6 +222,21 @@ def get_cli_parser():
         default=False
     )
 
+    init_parser = sp.add_parser(
+        "init",
+        help="Initialize a new spec repo",
+    )
+    init_parser.add_argument(
+        "projectdir",
+        help="Directory to create the new project in (will be created if it doesn't exist)",
+    )
+    init_parser.add_argument(
+        "-g", "--no-git-repo",
+        help="Don't initialize a git repository in the project directory",
+        default=False,
+        action="store_true",
+    )
+
     return p
 
 
@@ -231,8 +247,11 @@ def cli():
     if args.verbose:
         set_log_level(toplog, logging.DEBUG)
 
+    command_class = all_commands[args.action]
+    command = command_class({}, args)
+    if args.action == "init":
+        sys.exit(command.run())
+
     with change_cwd(args.spec_repo_dir):
-        config = Config.from_file(os.path.join(args.config_dir, CONFIG_FILE))
-        command_class = all_commands[args.action]
-        command = command_class(config, args)
+        command.config = Config.from_file(os.path.join(args.config_dir, constants.DEFAULT_CONFIG_FILE))
         sys.exit(command.run())
