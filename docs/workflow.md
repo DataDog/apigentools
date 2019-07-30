@@ -47,7 +47,7 @@ When you want to add/change behaviour of your generated clients, you need to mod
 
 ## Modify apigentools Configuration
 
-When adding new languages to generate clients for, adding major API version or adding spec sections, you'll need to do appropriate changes to [config/config.yaml](file_formats.md#configconfigjson).
+When adding new languages to generate clients for, adding major API version or adding spec sections, you'll need to do the corresponding changes to [config/config.yaml](file_formats.md#configconfigjson).
 
 ## Validate Specs
 
