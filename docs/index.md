@@ -27,7 +27,7 @@ apigentools init myspecrepo
 cd myspecrepo
 ```
 
-This will create a `myspecrepo` directory with a directory structure inside that apigentools expect.
+This will create an apigentools supported directory, `myspecrepo` where you can start defining your API spec.
 
 ### Writing the OpenAPI Specification
 
