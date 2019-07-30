@@ -21,6 +21,7 @@ class InitCommand(Command):
         with change_cwd(self.args.projectdir):
             dirs = {
                 "config_dir": constants.DEFAULT_CONFIG_DIR,
+                "downstream_templates_dir": constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,
                 "languages_config_dir": os.path.join(constants.DEFAULT_CONFIG_DIR, constants.DEFAULT_LANGUAGES_CONFIG_DIR),
                 "generated_dir": constants.DEFAULT_GENERATED_CODE_DIR,
                 "spec_dir": constants.DEFAULT_SPEC_DIR,
@@ -87,10 +88,12 @@ class InitCommand(Command):
                 if not os.path.exists(".gitignore"):
                     with open(".gitignore", "w") as f:
                         f.write(
-                            "generated/\n"
-                            "!generated/.gitkeep"
+                            "!generated\n"
+                            "generated/*\n"
+                            "!generated/.gitkeep\n"
                             "spec/*/full_spec.yaml\n"
-                            "templates/"
+                            "!templates\n"
+                            "templates/*\n"
                             "!templates/.gitkeep"
                         )
 

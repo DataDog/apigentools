@@ -83,8 +83,8 @@ def get_cli_parser():
     )
     generate_parser.add_argument(
         "-d", "--downstream-templates-dir",
-        default=env_or_val("APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR", constants.DEFAUTL_DOWNSTREAM_TEMPLATES_DIR),
-        help="Path to directory with downstream templates (default: '{}')".format(constants.DEFAUTL_DOWNSTREAM_TEMPLATES_DIR),
+        default=env_or_val("APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR", constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR),
+        help="Path to directory with downstream templates (default: '{}')".format(constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR),
     )
 
     template_group = generate_parser.add_mutually_exclusive_group()

@@ -1,6 +1,6 @@
 DEFAULT_CONFIG_DIR = "config"
 DEFAULT_CONFIG_FILE = "config.json"
-DEFAUTL_DOWNSTREAM_TEMPLATES_DIR = "downstream-templates"
+DEFAULT_DOWNSTREAM_TEMPLATES_DIR = "downstream-templates"
 DEFAULT_GENERATED_CODE_DIR = "generated"
 DEFAULT_LANGUAGES_CONFIG_DIR = "languages"
 DEFAULT_SPEC_DIR = "spec"
