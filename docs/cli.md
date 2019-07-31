@@ -12,7 +12,7 @@ Note that a lot of arguments can take their value from environment variables and
 * If the commandline argument is not provided and the environment variable exists, its content is used.
 * If the commandline argument is not provided and the enviromnent variable doesn't exist, the coded-in default is used.
 
-Throughout this document, arguments with this behaviour have a value in both their "Environment VariableDefault" colwell as "Default" column.
+Throughout this document, arguments with this behaviour have a value both in their "Environment Variable" column as well as in their "Default" column.
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
