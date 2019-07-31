@@ -7,13 +7,9 @@ To propose improvements, feel free to submit a PR.
 
 ## Submitting issues
 
-* If you have a feature request, you should [contact support][2] so the request
-can be properly tracked.
+* If you have a feature request, you should open up an issue on the [Open Issues][1]. We're always happy to review Pull Requests based on the issue discussion as well!
 * If you think you've found an issue, please search the [Open Issues][1]
-  section of this repository to see if it's known.
-* If you can't find anything useful, please contact our [support][2] and
-  provide a detailed report of the issue.
-* Finally, you can open a Github issue.
+  section of this repository to see if it's known and open a new one if its not yet known.
 
 ## Pull Requests
 
@@ -28,8 +24,8 @@ when submitting your PR:
 * Summarize your PR with a meaningful title, [see later on this doc](#pull-request-title).
 
 Your pull request must pass all CI tests before we will merge it. If you're seeing
-an error and don't think it's your fault, it may not be! [Join us on Slack][3]
-or send  us an email, and together we'll get it sorted out.
+an error and don't think it's your fault, it may not be! [Join us on Slack][2]
+or send us an email, and together we'll get it sorted out.
 
 ### Keep it small, focused
 
@@ -56,5 +52,4 @@ it keeps history cleaner and it's easier to revert things. It also makes develop
 happier!
 
 [1]: https://github.com/DataDog/apigentools/issues
-[2]: https://docs.datadoghq.com/help
-[3]: https://datadoghq.slack.com
+[2]: https://datadoghq.slack.com

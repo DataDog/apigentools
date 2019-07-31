@@ -14,4 +14,4 @@ Anything else we should know when reviewing?
 
 - [ ] Files changes must correspond to the primary purpose of the PR as described in the title (small unrelated changes should have their own PR)
 - [ ] Feature or bugfix must have tests
-- [ ] Git history [must be clean](https://github.com/DataDog/integrations-core/blob/master/CONTRIBUTING.md#commit-messages)
+- [ ] Git history [must be clean](https://github.com/DataDog/apigentools/blob/master/CONTRIBUTING.md#commit-messages)
