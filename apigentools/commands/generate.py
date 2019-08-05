@@ -192,7 +192,8 @@ class GenerateCommand(Command):
                     self.config.codegen_exec,
                     "generate",
                     "--http-user-agent",
-                    "DataDog/{v}/{l}".format(
+                    "{c}/{v}/{l}".format(
+                        c=self.config.user_agent_client_name,
                         v=self.get_version_from_lang_oapi_config(language_oapi_config),
                         l=language
                     ),
