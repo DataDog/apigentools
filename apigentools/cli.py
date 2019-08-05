@@ -215,7 +215,7 @@ def get_cli_parser():
 
     push_parser = sp.add_parser(
         "push",
-        help="Push the generated source code into each git repository specified in the config",
+        help="[WIP Not Yet Available] Push the generated source code into each git repository specified in the config",
     )
     push_parser.add_argument(
         "--use_https",
