@@ -13,7 +13,8 @@ class Config:
             "languages": {},
             "server_base_urls": {},
             "spec_sections": {},
-            "spec_versions": []
+            "spec_versions": [],
+            "user_agent_client_name": "OpenAPI"
         }
         self.language_configs = {}
         for lang, conf in raw_dict.get("languages", {}).items():

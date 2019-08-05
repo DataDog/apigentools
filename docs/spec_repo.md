@@ -92,7 +92,8 @@ Example:
     "spec_sections": {
         "v1": ["accounts.yaml"]
     },
-    "spec_versions": ["v1"]
+    "spec_versions": ["v1"],
+    "user_agent_client_name": "MyCompany"
 }
 ```
 
@@ -118,6 +119,7 @@ The structure of the general config file is as follows (starting with top-level 
 * `server_base_urls` - mapping of major spec versions (these have to be in `spec_versions`) to URLs of servers that provide them
 * `spec_sections` - mapping of major spec versions (these have to be in `spec_versions`) to lists of files with paths/tags/components definitions to merge when creating full spec (files not explicitly listed here will be ignored)
 * `spec_versions` - list of major versions currently known and operated on (these have to be subdirectories of `spec` directory)
+* `user_agent_client_name` - the HTTP User Agent string will be set to `{user_agent_client_name}/{package_version}/{language}`
 
 ### Functions in Language Phase Commands
 

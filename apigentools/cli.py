@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 
 def get_cli_parser():
     p = argparse.ArgumentParser(
-        description="Script for manipulating Datadog's OpenAPI spec and generating client code from it",
+        description="Manipulate OpenAPI specs and generate code using openapi-generator",
     )
     p.add_argument(
         "-r", "--spec-repo-dir",
