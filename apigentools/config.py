@@ -38,6 +38,10 @@ class Config:
 
         return cls(config)
 
+    @classmethod
+    def from_dict(cls, d):
+        return cls(d)
+
 
 class LanguageConfig:
     def __init__(self, language, raw_dict):
