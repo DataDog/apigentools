@@ -11,8 +11,11 @@ def get_requirements(file):
     with open(file) as f:
         for l in f.readlines():
             l = l.strip()
-            if l and not l.startswith("#"):
-                res.append(l)
+            if l:
+                if l.startswith("-r"):
+                    res.extend(get_requirements(l[2:].strip()))
+                elif not l.startswith("#"):
+                    res.append(l)
     return res
 
 install_requires = get_requirements("requirements.txt")
