@@ -7,6 +7,7 @@ import glob
 import json
 import logging
 import os
+import subprocess
 
 import chevron
 
@@ -19,6 +20,8 @@ log = logging.getLogger(__name__)
 
 
 class GenerateCommand(Command):
+    __cached_codegen_version = None
+
     def run_language_commands(self, language, phase, cwd):
         """ Runs commands specified in language settings for given language and phase
 
@@ -123,7 +126,23 @@ class GenerateCommand(Command):
         stamp = [stamp]
         if spec_repo_commit:
             stamp.append("spec repo commit {commit}".format(commit=spec_repo_commit))
+        stamp.append("codegen version {v}".format(v=self.get_codegen_version()))
         return "; ".join(stamp + self.args.additional_stamp)
+
+    def get_codegen_version(self):
+        """ Gets and caches version of the configured codegen_exec. Returns the cached result on subsequent invocations.
+
+        :return: Codegen version, for example ``4.1.0``; ``None`` if getting the version failed
+        :rtype: ``str``
+        """
+        if self.__cached_codegen_version is None:
+            try:
+                res = run_command([self.config.codegen_exec, "version"])
+                self.__cached_codegen_version = res.stdout.strip()
+            except subprocess.CalledProcessError:
+                pass
+
+        return self.__cached_codegen_version
 
     def write_dot_apigentools_info(self, language):
         """ Write .apigentools-info file in the top-level directory of the given language
@@ -138,6 +157,7 @@ class GenerateCommand(Command):
         info = {
             "additional_stamps": self.args.additional_stamp,
             "apigentools_version": __version__,
+            "codegen_version": self.get_codegen_version(),
             "info_version": "1",
             "image": self.args.generated_with_image,
             "spec_repo_commit": get_current_commit(self.args.spec_repo_dir),
@@ -170,6 +190,11 @@ class GenerateCommand(Command):
                 "Missing templates for %s; please run `apigentools templates` first",
                 ", ".join(missing_templates)
             )
+            return 1
+
+        # cache codegen version
+        if self.get_codegen_version() is None:
+            log.error("Failed to get codegen version, exiting")
             return 1
 
         # now, for each language generate a client library for every major version that is explicitly
