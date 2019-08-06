@@ -16,8 +16,6 @@ def get_requirements(file):
     return res
 
 install_requires = get_requirements("requirements.txt")
-tests_require = get_requirements("requirements-tests.txt")
-
 
 setup(
     name="apigentools",
@@ -31,14 +29,12 @@ setup(
     license="BSD 3-clause",
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,
-    test_suite="tests",
     entry_points={
         "console_scripts": ["apigentools=apigentools.cli:cli"]
     },
     scripts=["container-apigentools"],
     platforms="any",
     install_requires=install_requires,
-    tests_require=tests_require,
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
