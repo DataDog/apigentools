@@ -18,6 +18,9 @@ REPO_HTTPS_URL = 'https://github.com/{}/{}.git'
 class PushCommand(Command):
 
     def run(self):
+        log.error("The push command is a work in progress and isn't currently available")
+        return 1
+
         created_branches = {}
         cmd_result = 0
 
