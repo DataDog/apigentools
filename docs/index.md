@@ -15,7 +15,7 @@ The purpose of the apigentools package is to provide an easy way to generate API
 Install apigentools with
 
 ```
-TODO: not available yet
+pip install apigentools
 ```
 
 ### Setup Spec Repo

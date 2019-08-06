@@ -28,7 +28,7 @@ The following sections explain the individual steps.
 Install apigentools from PyPI:
 
 ```
-TODO: not available yet
+pip install apigentools
 ```
 
 Note that apigentools are shipped with 2 executables - `apigentools` and `container-apigentools`. Consult [CLI documentation](cli.md) on how these are used. The following sections will provide examples using both of these.
