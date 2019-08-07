@@ -108,7 +108,7 @@ Argument | Description | Environment Variable | Default
 
 Positional Argument | Description | Environment Variable | Default
 --------------------|-------------|----------------------|--------
-`jar_path` | Path to openapi-generator jar file | `APIGENTOOLS_OPENAPI_JAR` | `openapi.jar`
+`jar_path` | Path to openapi-generator jar file | `APIGENTOOLS_OPENAPI_JAR` | `openapi-generator.jar`
 
 ## `apigentools test`
 
