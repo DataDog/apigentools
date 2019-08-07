@@ -125,6 +125,8 @@ def get_cli_parser():
     )
     jar_parser.add_argument(
         "jar_path",
+        nargs="?",
+        default=env_or_val("APIGENTOOLS_OPENAPI_JAR", constants.OPENAPI_JAR),
         help="Path to openapi-generator jar file",
     )
     local_parser = templates_source.add_parser(

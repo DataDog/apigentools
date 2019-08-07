@@ -12,8 +12,7 @@ if [[ "$#" -eq 0 ]]; then
     /usr/bin/apigentools \
         --spec-repo-dir ${APIGENTOOLS_SPEC_REPO_DIR} \
         templates \
-        openapi-jar \
-        `npm list --global --depth=0 --parseable @openapitools/openapi-generator-cli`/bin/openapi-generator.jar
+        openapi-jar
 
     /usr/bin/apigentools \
         --spec-repo-dir ${APIGENTOOLS_SPEC_REPO_DIR} \

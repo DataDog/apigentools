@@ -15,6 +15,8 @@ RUN dnf install -y ${PACKAGES} && \
     dnf clean all && \
     npm install @openapitools/openapi-generator-cli@cli-${OPENAPI_GENERATOR_VERSION} -g
 
+ENV APIGENTOOLS_OPENAPI_JAR "/usr/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator.jar"
+
 COPY docker-entrypoint.sh /usr/bin/
 COPY . /tmp/apigentools
 
