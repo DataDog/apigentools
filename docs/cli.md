@@ -38,6 +38,8 @@ Argument | Description | Environment Variable | Default
 `-i GENERATED_WITH_IMAGE, --generated-with-image GENERATED_WITH_IMAGE` | Override the tag of the image with which the client code was generated | `APIGENTOOLS_IMAGE` | `None`
 `-s SPEC_DIR, --spec-dir SPEC_DIR` | Path to directory with OpenAPI specs | `APIGENTOOLS_SPEC_DIR` | `spec`
 `-t TEMPLATE_DIR, --template-dir TEMPLATE_DIR` | Path to directory with processed upstream templates | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
+`--no-pull` | Don't pull the remote github repository when generating the client | | `false`
+`--use-https` | Whether to use https (or ssh) for git actions | | `true`
 
 ## `apigentools init`
 

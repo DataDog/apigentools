@@ -21,6 +21,10 @@ def get_cli_parser():
         description="Manipulate OpenAPI specs and generate code using openapi-generator",
     )
     p.add_argument(
+        '--use-https',
+        action='store_true'
+    )
+    p.add_argument(
         "-r", "--spec-repo-dir",
         default=env_or_val("APIGENTOOLS_SPEC_REPO_DIR", "."),
         help="Switch to this directory before doing anything else",
@@ -63,6 +67,10 @@ def get_cli_parser():
         "-s", "--spec-dir",
         default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
         help="Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
+    )
+    generate_parser.add_argument(
+        '--no-pull',
+        action='store_false'
     )
     generate_parser.add_argument(
         "-f", "--full-spec-file",
