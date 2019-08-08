@@ -52,7 +52,13 @@ Argument | Description | Environment Variable | Default
 
 ## `apigentools push`
 
-Currently not operational, please don't use.
+Pushes the content of the generated directory to its target git repository
+The generated directory is left in the branch that was checked out to push the code.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`--use-https` | Whether to use https (or ssh) for git actions | | `true`
+`-h, --help` | Show help message and exit
 
 ## `apigentools split`
 
