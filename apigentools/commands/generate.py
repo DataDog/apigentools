@@ -264,7 +264,7 @@ class GenerateCommand(Command):
 
     def pull_repository(self, language):
         output_dir = self.get_generated_lang_dir(language.language)
-        if self.args.use_https:
+        if self.args.git_via_https:
             repo = REPO_HTTPS_URL.format(language.github_org, language.github_repo)
         else:
             repo = REPO_SSH_URL.format(language.github_org, language.github_repo)

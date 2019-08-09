@@ -8,7 +8,7 @@ import time
 import subprocess
 
 from apigentools.commands.command import Command
-from apigentools.utils import change_cwd, run_command
+from apigentools.utils import change_cwd, run_command, get_current_commit
 
 log = logging.getLogger(__name__)
 
@@ -20,6 +20,8 @@ class PushCommand(Command):
         cmd_result = 0
 
         languages = self.args.languages or self.config.languages
+        commit_msg = "Regenerate client from commit {} of spec repo".format(get_current_commit(self.args.spec_repo_dir))
+        commit_msg = self.args.push_commit_msg or commit_msg
 
         for lang_name, lang_config in self.config.language_configs.items():
             # Skip any languages not specified by the user
@@ -27,7 +29,6 @@ class PushCommand(Command):
                 continue
 
             gen_dir = self.get_generated_lang_dir(lang_name)
-
             # Assumes all generated changes are in the gen_dir directory
             # This is done by default in the `generate` command.
             with change_cwd(gen_dir):
