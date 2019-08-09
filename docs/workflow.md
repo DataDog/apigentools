@@ -118,7 +118,9 @@ Run `container-apigentools apigentools:latest test`
 
 ## Push Code
 
-The [push command](cli.md#apigentools-push) is currently unstable, please don't use it.
+The [push command](cli.md#apigentools-push) allows for taking the generated client code and pushing it up to the remote target directory so that a quick Pull Request can be created and merged.
+
+Note that when using the `push` command, the generated directory must be empty, and the `generate` command should be run with the `--clone-repo` flag. This ensure that the latest master of the client repository is cloned into the generated directory, and the generated client is generated on top of this, ensuring any ignore rules are respected.
 
 # Run All Automated Parts of the Workflow
 

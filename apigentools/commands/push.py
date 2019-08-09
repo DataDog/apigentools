@@ -37,7 +37,7 @@ class PushCommand(Command):
                 try:
                     run_command(['git', 'checkout', '-b', branch_name])
                     run_command(['git', 'add', '-A'])
-                    run_command(['git', 'commit', '-a', '-m', "'Pushing latest generated client'"])
+                    run_command(['git', 'commit', '-a', '-m', commit_msg])
                     run_command(['git', 'push', 'origin', 'HEAD'])
                     created_branches[repo] = branch_name
                 except subprocess.CalledProcessError as e:

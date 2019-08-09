@@ -71,9 +71,9 @@ def get_cli_parser():
         help="Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
     )
     generate_parser.add_argument(
-        '--no-pull',
-        action='store_false',
-        default=env_or_val('APIGENTOOLS_SKIP_PULL_REPO', True),
+        '--clone-repo',
+        action='store_true',
+        default=env_or_val('APIGENTOOLS_SKIP_PULL_REPO', False),
         help="When specified, generate the client without first cloning the target repository",
     )
     generate_parser.add_argument(
@@ -229,7 +229,7 @@ def get_cli_parser():
 
     push_parser = sp.add_parser(
         "push",
-        help="[WIP Not Yet Available] Push the generated source code into each git repository specified in the config",
+        help="Push the generated source code into each git repository specified in the config",
     )
     push_parser.add_argument(
         '--push-commit-msg',

@@ -26,6 +26,7 @@ REPO_HTTPS_URL = 'https://github.com/{}/{}.git'
 
 class GenerateCommand(Command):
     __cached_codegen_version = None
+    errors = []
 
     def run_language_commands(self, language, phase, cwd):
         """ Runs commands specified in language settings for given language and phase
@@ -182,7 +183,7 @@ class GenerateCommand(Command):
 
         versions = self.args.api_versions or self.config.spec_versions
         languages = self.args.languages or self.config.languages
-        pull_repo = self.args.no_pull
+        pull_repo = self.args.clone_repo
 
         # first, generate full spec for all major versions of the API
         for version in versions:
@@ -260,7 +261,12 @@ class GenerateCommand(Command):
             # after each nested folder has been created
             self.write_dot_apigentools_info(language)
 
-        return 0
+        if self.errors:
+            for e in self.errors:
+                log.error(e)
+            return 1
+        else:
+            return 0
 
     def pull_repository(self, language):
         output_dir = self.get_generated_lang_dir(language.language)
@@ -270,11 +276,8 @@ class GenerateCommand(Command):
             repo = REPO_SSH_URL.format(language.github_org, language.github_repo)
 
         try:
-            # Git doesn't allow you to clone into a non empty dir
-            # so create a temp dir and we'll move the content after
-            with tempfile.TemporaryDirectory() as temp_repo_dir:
-                run_command(['git', 'clone', '--depth=2', repo, temp_repo_dir])
-                copy_tree(temp_repo_dir, output_dir)
+            run_command(['git', 'clone', '--depth=2', repo, output_dir])
         except subprocess.CalledProcessError as e:
-            log.error("Error cloning repo {}: {}".format(repo, e))
-            exit(1)
+            # Git doesn't allow you to clone into a non empty dir
+            # Throw a helpful error if this happens
+            self.errors.append("Error cloning repo {0} into {1}. Make sure {1} is empty first.".format(repo, output_dir))
