@@ -23,7 +23,7 @@ def get_cli_parser():
     p.add_argument(
         '--git-via-https',
         action='store_true',
-        default=env_or_val('APIGENTOOLS_GIT_VIA_HTTPS', False),
+        default=env_or_val('APIGENTOOLS_GIT_VIA_HTTPS', False, __type=bool),
         help='Use HTTPS for interacting with the git repositories. Otherwise use SSH.'
     )
     p.add_argument(
@@ -73,7 +73,7 @@ def get_cli_parser():
     generate_parser.add_argument(
         '--clone-repo',
         action='store_true',
-        default=env_or_val('APIGENTOOLS_SKIP_PULL_REPO', False),
+        default=env_or_val('APIGENTOOLS_SKIP_PULL_REPO', False, __type=bool),
         help="When specified, generate the client without first cloning the target repository",
     )
     generate_parser.add_argument(
