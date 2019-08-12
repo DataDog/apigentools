@@ -26,7 +26,6 @@ REPO_HTTPS_URL = 'https://github.com/{}/{}.git'
 
 class GenerateCommand(Command):
     __cached_codegen_version = None
-    errors = []
 
     def run_language_commands(self, language, phase, cwd):
         """ Runs commands specified in language settings for given language and phase
@@ -261,11 +260,6 @@ class GenerateCommand(Command):
             # after each nested folder has been created
             self.write_dot_apigentools_info(language)
 
-        if self.errors:
-            for e in self.errors:
-                log.error(e)
-            return 1
-        else:
             return 0
 
     def pull_repository(self, language):
@@ -280,4 +274,5 @@ class GenerateCommand(Command):
         except subprocess.CalledProcessError as e:
             # Git doesn't allow you to clone into a non empty dir
             # Throw a helpful error if this happens
-            self.errors.append("Error cloning repo {0} into {1}. Make sure {1} is empty first.".format(repo, output_dir))
+            log.error("Error cloning repo {0} into {1}. Make sure {1} is empty first".format(repo, output_dir))
+            raise e
