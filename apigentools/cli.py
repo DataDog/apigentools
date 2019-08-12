@@ -21,6 +21,12 @@ def get_cli_parser():
         description="Manipulate OpenAPI specs and generate code using openapi-generator",
     )
     p.add_argument(
+        '--git-via-https',
+        action='store_true',
+        default=env_or_val('APIGENTOOLS_GIT_VIA_HTTPS', False, __type=bool),
+        help='Use HTTPS for interacting with the git repositories. Otherwise use SSH.'
+    )
+    p.add_argument(
         "-r", "--spec-repo-dir",
         default=env_or_val("APIGENTOOLS_SPEC_REPO_DIR", "."),
         help="Switch to this directory before doing anything else",
@@ -63,6 +69,12 @@ def get_cli_parser():
         "-s", "--spec-dir",
         default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
         help="Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
+    )
+    generate_parser.add_argument(
+        '--clone-repo',
+        action='store_true',
+        default=env_or_val('APIGENTOOLS_SKIP_PULL_REPO', False, __type=bool),
+        help="When specified, generate the client without first cloning the target repository",
     )
     generate_parser.add_argument(
         "-f", "--full-spec-file",
@@ -217,13 +229,12 @@ def get_cli_parser():
 
     push_parser = sp.add_parser(
         "push",
-        help="[WIP Not Yet Available] Push the generated source code into each git repository specified in the config",
+        help="Push the generated source code into each git repository specified in the config",
     )
     push_parser.add_argument(
-        "--use_https",
-        action="store_true",
-        help="Use HTTPS to interact with the github repositories (default: False and uses SSH)",
-        default=False
+        '--push-commit-msg',
+        help='Message to use for the commit when pushing the auto generated clients',
+        default=env_or_val("APIGENTOOLS_COMMIT_MSG", '')
     )
 
     init_parser = sp.add_parser(

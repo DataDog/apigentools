@@ -8,6 +8,8 @@ import json
 import logging
 import os
 import subprocess
+import tempfile
+from distutils.dir_util import copy_tree
 
 import chevron
 
@@ -17,6 +19,9 @@ from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIG
 from apigentools.utils import change_cwd, get_current_commit, run_command, write_full_spec
 
 log = logging.getLogger(__name__)
+
+REPO_SSH_URL = 'git@github.com:{}/{}.git'
+REPO_HTTPS_URL = 'https://github.com/{}/{}.git'
 
 
 class GenerateCommand(Command):
@@ -177,6 +182,7 @@ class GenerateCommand(Command):
 
         versions = self.args.api_versions or self.config.spec_versions
         languages = self.args.languages or self.config.languages
+        pull_repo = self.args.clone_repo
 
         # first, generate full spec for all major versions of the API
         for version in versions:
@@ -202,6 +208,11 @@ class GenerateCommand(Command):
         # API versions)
         for language in languages:
             language_config = self.config.get_language_config(language)
+
+            # Clone the language target repo into the output directory
+            if pull_repo:
+                self.pull_repository(language_config)
+
             for version in language_config.spec_versions:
                 log.info("Generation in %s, spec version %s", language, version)
                 language_oapi_config_path = os.path.join(
@@ -249,4 +260,19 @@ class GenerateCommand(Command):
             # after each nested folder has been created
             self.write_dot_apigentools_info(language)
 
-        return 0
+            return 0
+
+    def pull_repository(self, language):
+        output_dir = self.get_generated_lang_dir(language.language)
+        if self.args.git_via_https:
+            repo = REPO_HTTPS_URL.format(language.github_org, language.github_repo)
+        else:
+            repo = REPO_SSH_URL.format(language.github_org, language.github_repo)
+
+        try:
+            run_command(['git', 'clone', '--depth=2', repo, output_dir])
+        except subprocess.CalledProcessError as e:
+            # Git doesn't allow you to clone into a non empty dir
+            # Throw a helpful error if this happens
+            log.error("Error cloning repo {0} into {1}. Make sure {1} is empty first".format(repo, output_dir))
+            raise e

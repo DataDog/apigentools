@@ -22,11 +22,12 @@ Argument | Description | Environment Variable | Default
 `-h, --help` | Show help message and exit
 `-l LANGUAGES, --languages LANGUAGES` | Languages to run the specified action against. These must match what the config in the spec repo contains. Example: `apigentools -l go -l java test` | `APIGENTOOLS_LANG` | `None` to run against all
 `-r SPEC_REPO_DIR, --spec-repo-dir SPEC_REPO_DIR` | Switch to this directory before doing anything else | `APIGENTOOLS_SPEC_REPO_DIR` | `.`
+`--git-via-https` | Whether to use https (or ssh) for git actions | `APIGENTOOLS_GIT_VIA_HTTPS` | `false`
 `-v, --verbose` | Whether or not to log the generation in verbose mode
 
 ## `apigentools generate`
 
-Generates client code.
+Generates client code. When specified with the `--clone-repo` flag, the `generated-code-dir` for that client must be empty.
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
@@ -38,6 +39,7 @@ Argument | Description | Environment Variable | Default
 `-i GENERATED_WITH_IMAGE, --generated-with-image GENERATED_WITH_IMAGE` | Override the tag of the image with which the client code was generated | `APIGENTOOLS_IMAGE` | `None`
 `-s SPEC_DIR, --spec-dir SPEC_DIR` | Path to directory with OpenAPI specs | `APIGENTOOLS_SPEC_DIR` | `spec`
 `-t TEMPLATE_DIR, --template-dir TEMPLATE_DIR` | Path to directory with processed upstream templates | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
+`--clone-repo` | Whether to pull the remote github repository when generating the client | `APIGENTOOLS_PULL_REPO` | `true`
 
 ## `apigentools init`
 
@@ -50,7 +52,13 @@ Argument | Description | Environment Variable | Default
 
 ## `apigentools push`
 
-Currently not operational, please don't use.
+Pushes the content of the generated directory to its target git repository
+The generated directory is left in the branch that was checked out to push the code.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`-h, --help` | Show help message and exit
+`--push-commit-msg` | Commit message to use when pushing the generated clients. || `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <XYZ> of spec repo`
 
 ## `apigentools split`
 
