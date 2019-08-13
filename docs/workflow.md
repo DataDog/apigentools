@@ -7,19 +7,18 @@ This page summarizes the typical workflow that you would use when doing changes 
 Generally, the workflow steps are:
 
 * First time setup:
-  1. Get set up
-  2. Create "Spec Repo"
-
+    1. Get set up
+    2. Create "Spec Repo"
 * Repeated:
-  1. (If necessary) Modify the OpenAPI spec sections
-  2. (If necessary) Modify apigentools configuration
-  3. Validate specs (locally or using Docker)
-  4. (If necessary) Add template patches
-  5. (If necessary) Add downstream templates
-  6. (If necessary) Prepare templates (locally or using Docker)
-  7. Generate client code (locally or using Docker)
-  8. Run tests
-  9. (WIP) Push code
+    1. (If necessary) Modify the OpenAPI spec sections
+    2. (If necessary) Modify apigentools configuration
+    3. Validate specs (locally or using Docker)
+    4. (If necessary) Add template patches
+    5. (If necessary) Add downstream templates
+    6. (If necessary) Prepare templates (locally or using Docker)
+    7. Generate client code (locally or using Docker)
+    8. Run tests
+    9. (WIP) Push code
 
 The following sections explain the individual steps.
 
