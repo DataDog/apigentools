@@ -36,7 +36,9 @@ fi
 # e.g. apigentools/apigentools:0.1.0 or apigentools/apigentools:git-1234abc already
 IMAGE=$1
 if echo "$1" | grep -q ":latest$"; then
-    IMAGE_WITH_GIT_TAG=`docker inspect $1 -f "{{range .RepoTags}}{{println .}}{{end}}" | grep ":git-.......$"`
+    # since inspect wouldn't pull the image (unlike run), we make sure the inspected image is present explicitly
+    docker image inspect $1 > /dev/null 2>&1 || docker image pull $1;
+    IMAGE_WITH_GIT_TAG=`docker image inspect $1 -f "{{range .RepoTags}}{{println .}}{{end}}" | grep ":git-.......$"`
     if [[ "$?" -eq "0" ]]; then
         IMAGE=$IMAGE_WITH_GIT_TAG
     fi
