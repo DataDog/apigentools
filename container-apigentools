@@ -31,7 +31,7 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
 fi
 
 # if the user passed in something like apigentools/apigentools:latest, let's try using
-# a tag of that image that has for of "git-1234abc" - this will get saved to .apigentools-info
+# a tag of that image that has the format of "git-1234abc" - this will get saved to .apigentools-info
 # and is necessary for reproducibility and trackability - otherwise the user passed in
 # e.g. apigentools/apigentools:0.1.0 or apigentools/apigentools:git-1234abc already
 IMAGE=$1
