@@ -260,7 +260,7 @@ class GenerateCommand(Command):
             # after each nested folder has been created
             self.write_dot_apigentools_info(language)
 
-            return 0
+        return 0
 
     def pull_repository(self, language):
         output_dir = self.get_generated_lang_dir(language.language)
