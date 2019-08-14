@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Tag the image also with $SOURCE_COMMIT
+docker tag $IMAGE_NAME $DOCKER_REPO:git-${SOURCE_COMMIT:0:7}
+docker push $DOCKER_REPO:git-${SOURCE_COMMIT:0:7}
