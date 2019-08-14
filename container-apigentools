@@ -30,7 +30,20 @@ if [[ "$1" == "--help" || "$1" == "-h" ]]; then
     exit 0
 fi
 
-IMAGE="$1"
+# if the user passed in something like apigentools/apigentools:latest, let's try using
+# a tag of that image that has the format of "git-1234abc" - this will get saved to .apigentools-info
+# and is necessary for reproducibility and trackability - otherwise the user passed in
+# e.g. apigentools/apigentools:0.1.0 or apigentools/apigentools:git-1234abc already
+IMAGE=$1
+if echo "$1" | grep -q ":latest$"; then
+    # since inspect wouldn't pull the image (unlike run), we make sure the inspected image is present explicitly
+    docker image inspect $1 > /dev/null 2>&1 || docker image pull $1;
+    IMAGE_WITH_GIT_TAG=`docker image inspect $1 -f "{{range .RepoTags}}{{println .}}{{end}}" | grep ":git-.......$"`
+    if [[ "$?" -eq "0" ]]; then
+        IMAGE=$IMAGE_WITH_GIT_TAG
+    fi
+fi
+
 shift
 
 SPEC_REPO_VOLUME="$(pwd)"
