@@ -1,4 +1,0 @@
-#!/bin/bash
-
-# Tag the image both with the $IMAGE_NAME given and with $SOURCE_COMMIT
-docker build -f $DOCKERFILE_PATH -t $IMAGE_NAME -t $DOCKER_REPO:git-${SOURCE_COMMIT:0:7} .
