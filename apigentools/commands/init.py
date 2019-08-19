@@ -75,7 +75,14 @@ class InitCommand(Command):
                         {
                             "components": {
                                 "schemas": {},
-                                "security_schemes": {},
+                                "parameters": {},
+                                "securitySchemes": {},
+                                "requestBodies": {},
+                                "responses": {},
+                                "headers": {},
+                                "examples": {},
+                                "links": {},
+                                "callbacks": {},
                             },
                             "security": [],
                             "tags": [],

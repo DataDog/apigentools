@@ -195,12 +195,19 @@ def write_full_spec(config, spec_dir, version, full_spec_file):
     full_spec = {
         "paths": {},
         "tags": [],
-         "components": {
-             "schemas": {},
-             "securitySchemes": {},
+        "components": {
+            "schemas": {},
+            "parameters": {},
+            "securitySchemes": {},
+            "requestBodies": {},
+            "responses": {},
+            "headers": {},
+            "examples": {},
+            "links": {},
+            "callbacks": {},
          },
-         "servers": [{"url": config.server_base_urls[version]}],
-         "security": []
+        "servers": [{"url": config.server_base_urls[version]}],
+        "security": []
      }
 
     for filename in filenames:
@@ -215,7 +222,14 @@ def write_full_spec(config, spec_dir, version, full_spec_file):
                 full_spec["paths"].update(loaded.get("paths", {}))
                 full_spec["tags"].extend(loaded.get("tags", []))
                 full_spec["components"]["schemas"].update(loaded.get("components", {}).get("schemas", {}))
+                full_spec["components"]["parameters"].update(loaded.get("components", {}).get("parameters", {}))
                 full_spec["components"]["securitySchemes"].update(loaded.get("components", {}).get("securitySchemes", {})),
+                full_spec["components"]["requestBodies"].update(loaded.get("components", {}).get("requestBodies", {})),
+                full_spec["components"]["responses"].update(loaded.get("components", {}).get("responses", {})),
+                full_spec["components"]["headers"].update(loaded.get("components", {}).get("headers", {})),
+                full_spec["components"]["examples"].update(loaded.get("components", {}).get("examples", {})),
+                full_spec["components"]["links"].update(loaded.get("components", {}).get("links", {})),
+                full_spec["components"]["callbacks"].update(loaded.get("components", {}).get("callbacks", {})),
                 full_spec["security"].extend(loaded.get("security", {}))
 
     with open(fs_path, "w", encoding="utf-8") as f:
