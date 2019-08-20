@@ -86,7 +86,6 @@ def get_cli_parser():
         nargs="*",
         help="Additional components to add to the 'apigentoolsStamp' variable passed to templates",
         default=env_or_val("APIGENTOOLS_ADDITIONAL_STAMP", [], __type=list),
-        type=list,
     )
     generate_parser.add_argument(
         "-i", "--generated-with-image",
