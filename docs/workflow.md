@@ -89,7 +89,7 @@ Run e.g. `apigentools templates local-dir /path/to/base/templates`
 
 ### Docker
 
-Run e.g. `container-apigentools apigentools:latest templates openapi-git v4.0.2`
+Run e.g. `container-apigentools apigentools:latest templates openapi-git v4.1.0`
 
 ## Generate Client Code
 
