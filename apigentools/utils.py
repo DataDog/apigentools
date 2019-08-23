@@ -15,6 +15,17 @@ from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME, REDACTE
 
 log = logging.getLogger(__name__)
 
+COMPONENT_FIELDS = [
+    'schemas',
+    'parameters',
+    'securitySchemes',
+    'requestBodies',
+    'responses',
+    'headers',
+    'examples',
+    'links',
+    'callbacks',
+]
 
 def set_log(log):
     fmt = logging.Formatter("%(levelname)s: %(message)s")
@@ -219,20 +230,28 @@ def write_full_spec(config, spec_dir, version, full_spec_file):
             if filename == HEADER_FILE_NAME:
                 full_spec.update(loaded)
             else:
+                validate_duplicates(loaded.get('paths', {}), full_spec["paths"].keys())
                 full_spec["paths"].update(loaded.get("paths", {}))
+
+                validate_duplicates(loaded.get('tags', []), full_spec.get('tags', []))
                 full_spec["tags"].extend(loaded.get("tags", []))
-                full_spec["components"]["schemas"].update(loaded.get("components", {}).get("schemas", {}))
-                full_spec["components"]["parameters"].update(loaded.get("components", {}).get("parameters", {}))
-                full_spec["components"]["securitySchemes"].update(loaded.get("components", {}).get("securitySchemes", {})),
-                full_spec["components"]["requestBodies"].update(loaded.get("components", {}).get("requestBodies", {})),
-                full_spec["components"]["responses"].update(loaded.get("components", {}).get("responses", {})),
-                full_spec["components"]["headers"].update(loaded.get("components", {}).get("headers", {})),
-                full_spec["components"]["examples"].update(loaded.get("components", {}).get("examples", {})),
-                full_spec["components"]["links"].update(loaded.get("components", {}).get("links", {})),
-                full_spec["components"]["callbacks"].update(loaded.get("components", {}).get("callbacks", {})),
-                full_spec["security"].extend(loaded.get("security", {}))
+
+                validate_duplicates(loaded.get('security', []), full_spec.get('security', []))
+                full_spec["security"].extend(loaded.get("security", []))
+
+                for field in COMPONENT_FIELDS:
+                    # Validate there aren't duplicate fields across files
+                    # Note: This won't raise an error if there is a duplicate component in a single file
+                    # That would alredy be deduped by the safe_load above.
+                    validate_duplicates(loaded.get('components', {}).get(field, {}).keys(), full_spec.get('components', {}).get(field).keys())
+                    full_spec["components"][field].update(loaded.get("components", {}).get(field, {}))
 
     with open(fs_path, "w", encoding="utf-8") as f:
         f.write(yaml.dump(full_spec))
         log.debug("Writing the full spec: {}".format(yaml.dump(full_spec)))
     return fs_path
+
+def validate_duplicates(loaded_keys, full_spec_keys):
+    for key in loaded_keys:
+        if key in full_spec_keys:
+            raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
