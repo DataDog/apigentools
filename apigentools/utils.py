@@ -230,20 +230,28 @@ def write_full_spec(config, spec_dir, version, full_spec_file):
             if filename == HEADER_FILE_NAME:
                 full_spec.update(loaded)
             else:
+                validate_duplicates(loaded.get('paths', {}), full_spec["paths"].keys())
                 full_spec["paths"].update(loaded.get("paths", {}))
+
+                validate_duplicates(loaded.get('tags', []), full_spec.get('tags', []))
                 full_spec["tags"].extend(loaded.get("tags", []))
-                full_spec["security"].extend(loaded.get("security", {}))
+
+                validate_duplicates(loaded.get('security', []), full_spec.get('security', []))
+                full_spec["security"].extend(loaded.get("security", []))
 
                 for field in COMPONENT_FIELDS:
                     # Validate there aren't duplicate fields across files
                     # Note: This won't raise an error if there is a duplicate component in a single file
                     # That would alredy be deduped by the safe_load above.
-                    for key in loaded.get('components', {}).get(field, {}).keys():
-                        if key in full_spec.get('components', {}).get(field, {}):
-                            raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
+                    validate_duplicates(loaded.get('components', {}).get(field, {}).keys(), full_spec.get('components', {}).get(field).keys())
                     full_spec["components"][field].update(loaded.get("components", {}).get(field, {}))
 
     with open(fs_path, "w", encoding="utf-8") as f:
         f.write(yaml.dump(full_spec))
         log.debug("Writing the full spec: {}".format(yaml.dump(full_spec)))
     return fs_path
+
+def validate_duplicates(loaded_keys, full_spec_keys):
+    for key in loaded_keys:
+        if key in full_spec_keys:
+            raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
