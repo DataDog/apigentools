@@ -115,6 +115,26 @@ class GenerateCommand(Command):
 
         raise KeyError("no package version found in language config")
 
+    def get_image_name(self):
+        """ Assuming that this invocation of apigentools is running in an image and the specified
+        image tag is `:latest`, this function will replace it with `:git-1234abc`. Otherwise it will
+        return unmodified image name.
+        """
+        image = self.args.generated_with_image
+
+        if image is not None and image.endswith(":latest"):
+            hash_file = os.environ.get("_APIGENTOOLS_GIT_HASH_FILE", "/var/lib/apigentools/git-hash")
+            try:
+                with open(hash_file, "r") as f:
+                    git_hash = f.read().strip()
+                    if git_hash:
+                        tag = "git-{}".format(git_hash[:7])
+                        image = image[:-len("latest")] + tag
+            except Exception as e:
+                log.debug("Failed reading git hash from {}: {}".format(hash_file, str(e)))
+
+        return image
+
     def get_stamp(self):
         """ Get string for "stamping" files for trackability
 
@@ -123,10 +143,10 @@ class GenerateCommand(Command):
         :rtype: ``str``
         """
         stamp = "Generated with: apigentools version {version}".format(version=__version__)
-        if self.args.generated_with_image is None:
+        if self.get_image_name() is None:
             stamp += " (non-container run)"
         else:
-            stamp += " (image: '{image}')".format(image=self.args.generated_with_image)
+            stamp += " (image: '{image}')".format(image=self.get_image_name())
         spec_repo_commit = get_current_commit(self.args.spec_repo_dir)
         stamp = [stamp]
         if spec_repo_commit:
@@ -164,7 +184,7 @@ class GenerateCommand(Command):
             "apigentools_version": __version__,
             "codegen_version": self.get_codegen_version(),
             "info_version": "1",
-            "image": self.args.generated_with_image,
+            "image": self.get_image_name(),
             "spec_repo_commit": get_current_commit(self.args.spec_repo_dir),
         }
         with open(outfile, "w") as f:
