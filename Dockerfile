@@ -2,7 +2,7 @@ FROM fedora:30
 
 ENV APIGENTOOLS_SPEC_REPO_DIR=/var/lib/apigentools/spec-repo
 
-ENV OPENAPI_GENERATOR_VERSION=4.1.0 \
+ENV OPENAPI_GENERATOR_VERSION=4.1.1 \
     PACKAGES="docker findutils git golang-googlecode-tools-goimports java npm patch python3 python3-pip unzip"
 
 VOLUME ${APIGENTOOLS_SPEC_REPO_DIR}
