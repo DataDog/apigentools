@@ -5,6 +5,7 @@ nav:
   - Spec Repo: spec_repo.md
   - Reproducibility: reproducible.md
   - CLI Reference: cli.md
+  - Changelog: changelog.md
 markdown_extensions:
   - toc:
       permalink: 
