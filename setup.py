@@ -22,7 +22,7 @@ install_requires = get_requirements("requirements.txt")
 
 setup(
     name="apigentools",
-    version="0.2.0",
+    version="0.3.0.dev1",
     description=description,
     long_description=description,
     keywords="openapi,api,client,openapi-generator",
