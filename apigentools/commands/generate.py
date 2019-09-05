@@ -96,6 +96,8 @@ class GenerateCommand(Command):
                     self.get_generated_lang_dir(language),
                     relative_path,
                 )
+                # build the full path to the target if doesn't exist
+                os.makedirs(os.path.dirname(target_path), exist_ok=True)
                 log.info("Writing {target}".format(target=target_path))
                 with open(template_path) as temp, open(target_path, "w") as target:
                     target.write(chevron.render(temp, settings))
