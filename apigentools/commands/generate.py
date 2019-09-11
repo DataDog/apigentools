@@ -21,7 +21,7 @@ from apigentools.utils import change_cwd, get_current_commit, run_command, write
 log = logging.getLogger(__name__)
 
 REPO_SSH_URL = 'git@github.com:{}/{}.git'
-REPO_HTTPS_URL = 'https://github.com/{}/{}.git'
+REPO_HTTPS_URL = 'https://{}github.com/{}/{}.git'
 
 
 class GenerateCommand(Command):
@@ -287,7 +287,14 @@ class GenerateCommand(Command):
     def pull_repository(self, language):
         output_dir = self.get_generated_lang_dir(language.language)
         if self.args.git_via_https:
-            repo = REPO_HTTPS_URL.format(language.github_org, language.github_repo)
+            oauth_url = ''
+            if self.args.git_via_https_oauth_token:
+                oauth_url = '{}:x-oauth-basic@'.format(self.args.git_via_https_oauth_token)
+            repo = REPO_HTTPS_URL.format(
+                oauth_url,
+                language.github_org,
+                language.github_repo
+            )
         else:
             repo = REPO_SSH_URL.format(language.github_org, language.github_repo)
 

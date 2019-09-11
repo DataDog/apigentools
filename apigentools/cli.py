@@ -27,6 +27,11 @@ def get_cli_parser():
         help='Use HTTPS for interacting with the git repositories. Otherwise use SSH.'
     )
     p.add_argument(
+        '--git-via-https-oauth-token',
+        default=env_or_val('APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN', ''),
+        help='Insert OAuth token in the repo URL when using HTTPS for interacting with the git repositories.'
+    )
+    p.add_argument(
         "-r", "--spec-repo-dir",
         default=env_or_val("APIGENTOOLS_SPEC_REPO_DIR", "."),
         help="Switch to this directory before doing anything else",
