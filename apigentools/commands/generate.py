@@ -288,8 +288,8 @@ class GenerateCommand(Command):
         output_dir = self.get_generated_lang_dir(language.language)
         if self.args.git_via_https:
             oauth_url = ''
-            if self.args.git_via_https_token:
-                oauth_url = '{}:x-oauth-basic@'.format(self.args.git_via_https_token)
+            if self.args.git_via_https_oauth_token:
+                oauth_url = '{}:x-oauth-basic@'.format(self.args.git_via_https_oauth_token)
             repo = REPO_HTTPS_URL.format(
                 oauth_url,
                 language.github_org,
