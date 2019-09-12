@@ -59,7 +59,9 @@ The generated directory is left in the branch that was checked out to push the c
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `-h, --help` | Show help message and exit
-`--push-commit-msg` | Commit message to use when pushing the generated clients. || `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <XYZ> of spec repo`
+`--default-branch` | Default branch of client repo - if it doesn't exist, it will be created and pushed to instead of a new feature branch | `APIGENTOOLS_DEFAULT_PUSH_BRANCH` | `master`
+`--dry-run` | Do a dry run (do not actualy create branches/commits or push) | | `False`
+`--push-commit-msg` | Commit message to use when pushing the generated clients. | `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <XYZ> of spec repo`
 
 ## `apigentools split`
 

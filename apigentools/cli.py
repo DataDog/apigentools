@@ -240,6 +240,17 @@ def get_cli_parser():
         help='Message to use for the commit when pushing the auto generated clients',
         default=env_or_val("APIGENTOOLS_COMMIT_MSG", '')
     )
+    push_parser.add_argument(
+        "--default-branch",
+        help="Default branch of client repo - if it doesn't exist, it will be created and pushed to instead of a new feature branch",
+        default=env_or_val("APIGENTOOLS_DEFAULT_PUSH_BRANCH", "master"),
+    )
+    push_parser.add_argument(
+        "--dry-run",
+        help="Do a dry run of push (don't actually create and push new branches)",
+        action="store_true",
+        default=False,
+    )
 
     init_parser = sp.add_parser(
         "init",

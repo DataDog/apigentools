@@ -109,7 +109,7 @@ def get_current_commit(repo_path):
         return res.stdout.strip()
 
 
-def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_err=False):
+def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_err=False, dry_run=False):
     """ Wrapper for running subprocesses with reasonable logging.
 
     :param cmd: Command to run as subprocess. Members are either strings (directly used
@@ -127,6 +127,9 @@ def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_er
         into a single stream (more human readable when they're interleaved),
         defaults to `False`
     :type combine_out_err: ``bool``
+    :param dry_run: Whether or not this is a dry run (``True``, commands are not executed, just logged)
+        or real run (``False``)
+    :type dry_run: ``bool``
     :return: Result of the called subprocess
     :rtype: ``subprocess.CompletedProcess``
     """
@@ -143,13 +146,19 @@ def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_er
         env = copy.deepcopy(os.environ)
         if additional_env:
             env.update(additional_env)
-        log.log(log_level, "Running command '{}'".format(" ".join(cmd_logstr)))
-        stdout=subprocess.PIPE
-        stderr=subprocess.STDOUT if combine_out_err else subprocess.PIPE
-        result = subprocess.run(cmd_strlist, stdout=stdout, stderr=stderr, check=True, text=True, env=env)
-        log.log(log_level, "Command result:\n{}".format(
-            fmt_cmd_out_for_log(result, combine_out_err)
-        ))
+        log.log(log_level, "%sRunning command '%s'",
+            "(DRYRUN) " if dry_run else "",
+            " ".join(cmd_logstr)
+        )
+        if dry_run:
+            result = subprocess.CompletedProcess(cmd_strlist, 0)
+        else:
+            stdout=subprocess.PIPE
+            stderr=subprocess.STDOUT if combine_out_err else subprocess.PIPE
+            result = subprocess.run(cmd_strlist, stdout=stdout, stderr=stderr, check=True, text=True, env=env)
+            log.log(log_level, "Command result:\n{}".format(
+                fmt_cmd_out_for_log(result, combine_out_err)
+            ))
     except subprocess.CalledProcessError as e:
         log.log(
             log_level,
