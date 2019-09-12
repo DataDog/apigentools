@@ -14,6 +14,24 @@ log = logging.getLogger(__name__)
 
 
 class PushCommand(Command):
+    def get_push_branch(self, lang_name):
+        """ Get name of branch to create and push. If the default branch doesn't exist,
+        it will be returned, otherwise a new feature branch name will be returned.
+
+        :param lang_name: Name of language to include in a new feature branch
+        :type language: ``str``
+        :return: Name of the branch to create and push
+        :rtype: ``str``
+        """
+        push_branch = self.args.default_branch
+        try:
+            run_command(["git", "rev-parse", "--verify", push_branch])
+            # if the default branch exists, we'll create and push a new feature branch
+            push_branch = "{}/{}".format(lang_name, time.time())
+        except subprocess.CalledProcessError:
+            # if the default branch doesn't exist, we'll create and push it
+            pass
+        return push_branch
 
     def run(self):
         created_branches = {}
@@ -33,12 +51,12 @@ class PushCommand(Command):
             # This is done by default in the `generate` command.
             with change_cwd(gen_dir):
                 repo = "{}/{}".format(lang_config.github_org, lang_config.github_repo)
-                branch_name = '{}/{}'.format(lang_name, time.time())
+                branch_name = self.get_push_branch(lang_name)
                 try:
-                    run_command(['git', 'checkout', '-b', branch_name])
-                    run_command(['git', 'add', '-A'])
-                    run_command(['git', 'commit', '-a', '-m', commit_msg])
-                    run_command(['git', 'push', 'origin', 'HEAD'])
+                    run_command(['git', 'checkout', '-b', branch_name], dry_run=self.args.dry_run)
+                    run_command(['git', 'add', '-A'], dry_run=self.args.dry_run)
+                    run_command(['git', 'commit', '-a', '-m', commit_msg], dry_run=self.args.dry_run)
+                    run_command(['git', 'push', 'origin', 'HEAD'], dry_run=self.args.dry_run)
                     created_branches[repo] = branch_name
                 except subprocess.CalledProcessError as e:
                     log.error("Error running git commands: {}".format(e))
