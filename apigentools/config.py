@@ -61,7 +61,7 @@ class LanguageConfig:
         return self.raw_dict.get("upstream_templates_dir", self.language)
 
     def __getattr__(self, attr):
-        return self.raw_dict[attr]
+        return self.raw_dict.get(attr)
 
     def get_stage_commands(self, stage):
         cmds = self.raw_dict.get("commands", {}).get(stage, [])

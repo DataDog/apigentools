@@ -266,6 +266,9 @@ class GenerateCommand(Command):
                 if not self.args.builtin_templates:
                     generate_cmd.extend(["-t", os.path.join(self.args.template_dir, language)])
 
+                if language_config.generate_extra_args:
+                    generate_cmd.extend(language_config.generate_extra_args)
+
                 os.makedirs(version_output_dir, exist_ok=True)
                 self.run_language_commands(language, "pre", version_output_dir)
 
