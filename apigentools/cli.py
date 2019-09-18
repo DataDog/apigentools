@@ -55,7 +55,7 @@ def get_cli_parser():
     p.add_argument(
         "-l", "--languages",
         action="append",
-        default=env_or_val("APIGENTOOLS_LANG", None),
+        default=env_or_val("APIGENTOOLS_LANG", None, __type=list),
         help="The language to run the specified action against. These must match what the config in the spec repo contains. Ex: 'apigentools -l go -l java test' (Default: None to run all)",
     )
     p.add_argument(
