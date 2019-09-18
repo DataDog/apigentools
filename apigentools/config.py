@@ -61,7 +61,7 @@ class LanguageConfig:
         return self.raw_dict.get("upstream_templates_dir", self.language)
 
     def __getattr__(self, attr):
-        return self.raw_dict.get(attr)
+        return self.raw_dict[attr]
 
     def get_stage_commands(self, stage):
         cmds = self.raw_dict.get("commands", {}).get(stage, [])
@@ -81,6 +81,10 @@ class LanguageConfig:
     @property
     def command_env(self):
         return self.raw_dict.get("command_env", {})
+
+    @property
+    def generate_extra_args(self):
+        return self.raw_dict.get("generate_extra_args", [])
 
 
 class LanguageCommand:
