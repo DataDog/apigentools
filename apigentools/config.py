@@ -82,6 +82,10 @@ class LanguageConfig:
     def command_env(self):
         return self.raw_dict.get("command_env", {})
 
+    @property
+    def generate_extra_args(self):
+        return self.raw_dict.get("generate_extra_args", [])
+
 
 class LanguageCommand:
     def __init__(self, stage, config):
