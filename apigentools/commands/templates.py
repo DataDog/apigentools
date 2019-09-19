@@ -34,7 +34,7 @@ class TemplatesCommand(Command):
                             self.args.local_path, lang_upstream_templates_dir, self.args.local_path
                         )
                         return 1
-                    shutil.copytree(local_lang_dir, os.path.join(td, lang))
+                    shutil.copytree(local_lang_dir, os.path.join(td, lang_upstream_templates_dir))
             else:
                 patch_in = copy_from = os.path.join(
                     td, "modules", "openapi-generator", "src", "main", "resources"
@@ -67,7 +67,7 @@ class TemplatesCommand(Command):
             # copy the processed templates from the temporary dir to templates dir
             languages = self.args.languages or self.config.languages
             for lang in languages:
-                upstream_templatedir = self.config.languages[lang].get("upstream_templates_dir", lang)
+                upstream_templatedir = self.config.get_language_config(lang).upstream_templates_dir
                 outlang_dir = os.path.join(self.args.output_dir, lang)
                 if os.path.exists(outlang_dir):
                     shutil.rmtree(outlang_dir)
