@@ -84,8 +84,8 @@ def get_cli_parser():
     generate_parser.add_argument(
         '--clone-repo',
         action='store_true',
-        default=env_or_val('APIGENTOOLS_SKIP_PULL_REPO', False, __type=bool),
-        help="When specified, generate the client without first cloning the target repository",
+        default=env_or_val('APIGENTOOLS_PULL_REPO', False, __type=bool),
+        help="When specified, clones the client repository before running code generation",
     )
     generate_parser.add_argument(
         "-f", "--full-spec-file",
