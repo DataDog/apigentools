@@ -26,10 +26,16 @@ def get_cli_parser():
         default=env_or_val('APIGENTOOLS_GIT_VIA_HTTPS', False, __type=bool),
         help='Use HTTPS for interacting with the git repositories. Otherwise use SSH.'
     )
-    p.add_argument(
+    git_token_group = p.add_mutually_exclusive_group()
+    git_token_group.add_argument(
         '--git-via-https-oauth-token',
         default=env_or_val('APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN', ''),
         help='Insert OAuth token in the repo URL when using HTTPS for interacting with the git repositories.'
+    )
+    git_token_group.add_argument(
+        "--git-via-https-installation-access-token",
+        default=env_or_val("APIGENTOOLS_GIT_VIA_HTTPS_INSTALLATION_ACCESS_TOKEN", ""),
+        help="Insert installation access token (authenticate as Github app) in the repo URL when using HTTPS for interacting with the git repositories.",
     )
     p.add_argument(
         "-r", "--spec-repo-dir",

@@ -23,7 +23,8 @@ Argument | Description | Environment Variable | Default
 `-l LANGUAGES, --languages LANGUAGES` | Languages to run the specified action against. These must match what the config in the spec repo contains. Example: `apigentools -l go -l java test` | `APIGENTOOLS_LANG` | `None` to run against all
 `-r SPEC_REPO_DIR, --spec-repo-dir SPEC_REPO_DIR` | Switch to this directory before doing anything else | `APIGENTOOLS_SPEC_REPO_DIR` | `.`
 `--git-via-https` | Whether to use https (or ssh) for git actions | `APIGENTOOLS_GIT_VIA_HTTPS` | `false`
-`--git-via-https-oauth-token` | Use OAuth over HTTPS passing this token for git actions | `APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN` |
+`--git-via-https-installation-access-token` | Use installation access token (authenticating a Github app) for git actions. Mutually exclusive with `--git-via-https-oauth-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_INSTALLATION_ACCESS_TOKEN` |
+`--git-via-https-oauth-token` | Use OAuth over HTTPS passing this token for git actions. Mutually exclusive with `--git-via-https-installation-access-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN` |
 `-v, --verbose` | Whether or not to log the generation in verbose mode
 
 ## `apigentools generate`
