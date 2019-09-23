@@ -41,9 +41,10 @@ class PushCommand(Command):
             line = line.strip()
             if line:
                 k, v = line.split(maxsplit=1)
-                result[k] = v
+                result.setdefault(k, [])
+                result[k].append(v)
 
-        if result == {} or result == {"M": ".apigentools"}:
+        if result == {} or result == {"M": [".apigentools-info"]}:
             return True
         return False
 

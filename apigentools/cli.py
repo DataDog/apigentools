@@ -259,7 +259,7 @@ def get_cli_parser():
     )
     push_parser.add_argument(
         "--skip-if-no-changes",
-        help="Skip committing/pushing for all repositories where only .apigentools has changed",
+        help="Skip committing/pushing for all repositories where only .apigentools-info has changed",
         action="store_true",
         default=env_or_val("APIGENTOOLS_SKIP_IF_NO_CHANGES", False, __type=bool),
     )
