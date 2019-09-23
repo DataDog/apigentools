@@ -290,11 +290,13 @@ class GenerateCommand(Command):
     def pull_repository(self, language):
         output_dir = self.get_generated_lang_dir(language.language)
         if self.args.git_via_https:
-            oauth_url = ''
+            checkout_url = ""
             if self.args.git_via_https_oauth_token:
-                oauth_url = '{}:x-oauth-basic@'.format(self.args.git_via_https_oauth_token)
+                checkout_url = "{}:x-oauth-basic@".format(self.args.git_via_https_oauth_token)
+            elif self.args.git_via_https_installation_access_token:
+                checkout_url = "x-access-token:{}@".format(self.args.git_via_https_installation_access_token)
             repo = REPO_HTTPS_URL.format(
-                oauth_url,
+                checkout_url,
                 language.github_org,
                 language.github_repo
             )
