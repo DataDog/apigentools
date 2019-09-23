@@ -1,0 +1,29 @@
+trigger:
+  batch: false
+  branches:
+    include:
+    - master
+
+pr:
+  branches:
+    include:
+    - master
+
+jobs:
+- job: UnitTests
+  pool:
+    vmImage: "Ubuntu-16.04"
+  strategy:
+    matrix:
+      Py37:
+        PYTHON_VERSION: "3.7"
+        TOXENV: "py37"
+  steps:
+    - task: UsePythonVersion@0
+      displayName: Use python $(PYTHON_VERSION)
+      inputs:
+        versionSpec: $(PYTHON_VERSION)
+    - script: pip install -r requirements-tests.txt
+      displayName: Install test dependencies
+    - script: pytest
+      displayName: Run the test via Pytest
