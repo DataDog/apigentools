@@ -8,6 +8,9 @@ pr:
   branches:
     include:
     - master
+
+jobs:
+- job: UnitTests
   pool:
     vmImage: "Ubuntu-16.04"
   strategy:
