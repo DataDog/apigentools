@@ -33,6 +33,21 @@ class PushCommand(Command):
             pass
         return push_branch
 
+    def git_status_empty(self):
+        # I hope that `--porcelain` doesn't mean this is fragile ¯\_(ツ)_/¯
+        status = run_command(["git", "status", "--porcelain"])
+        result = {}
+        for line in status.stdout.splitlines():
+            line = line.strip()
+            if line:
+                k, v = line.split(maxsplit=1)
+                result.setdefault(k, [])
+                result[k].append(v)
+
+        if result == {} or result == {"M": [".apigentools-info"]}:
+            return True
+        return False
+
     def run(self):
         created_branches = {}
         cmd_result = 0
@@ -45,6 +60,7 @@ class PushCommand(Command):
             # Skip any languages not specified by the user
             if lang_name not in languages:
                 continue
+            log.info("Running push for language {}".format(lang_name))
 
             gen_dir = self.get_generated_lang_dir(lang_name)
             # Assumes all generated changes are in the gen_dir directory
@@ -53,6 +69,9 @@ class PushCommand(Command):
                 repo = "{}/{}".format(lang_config.github_org, lang_config.github_repo)
                 branch_name = self.get_push_branch(lang_name)
                 try:
+                    if self.args.skip_if_no_changes and self.git_status_empty():
+                        log.info("Only .apigentools file changed for language {}, skipping".format(lang_name))
+                        continue
                     run_command(['git', 'checkout', '-b', branch_name], dry_run=self.args.dry_run)
                     run_command(['git', 'add', '-A'], dry_run=self.args.dry_run)
                     run_command(['git', 'commit', '-a', '-m', commit_msg], dry_run=self.args.dry_run)

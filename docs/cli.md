@@ -63,6 +63,7 @@ Argument | Description | Environment Variable | Default
 `--default-branch` | Default branch of client repo - if it doesn't exist, it will be created and pushed to instead of a new feature branch | `APIGENTOOLS_DEFAULT_PUSH_BRANCH` | `master`
 `--dry-run` | Do a dry run (do not actualy create branches/commits or push) | | `False`
 `--push-commit-msg` | Commit message to use when pushing the generated clients. | `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <XYZ> of spec repo`
+`--skip-if-no-changes` | Skip committing/pushing for all repositories where only `.apigentools-info` has changed | `APIGENTOOLS_SKIP_IF_NO_CHANGES` | `False`
 
 ## `apigentools split`
 
