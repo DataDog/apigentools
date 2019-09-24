@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0
+
+* [Security] OAuth tokens and installation access tokens are no longer logged.
+
 ## 0.3.0
 
 * [Feature] Added `--dry-run` option to the `push` command
