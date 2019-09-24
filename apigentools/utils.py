@@ -148,7 +148,7 @@ def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_er
     :type dry_run: ``bool``
     :param sensitive_output: Whether or not the output of the called subprocess is sensitive or not.
         If true, all logging will be suppressed and if a subprocess.CalledProcessError is raised,
-        its attributes will be empty
+        its attributes will be empty (note that this has no effect when ``dry_run=True``)
     :type sensitive_output: ``bool``
     :return: Result of the called subprocess
     :rtype: ``subprocess.CompletedProcess``
@@ -165,7 +165,8 @@ def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_er
         else:
             cmd_strlist.append(member)
             cmd_logstr.append(member)
-    with logging_enabled(not sensitive_output):
+    do_log = dry_run or not sensitive_output
+    with logging_enabled(do_log):
         try:
             env = copy.deepcopy(os.environ)
             if additional_env:
