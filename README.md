@@ -1,6 +1,6 @@
 #  apigentools - Generate API Clients with Ease
 
-![Build status](https://travis-ci.com/DataDog/apigentools.svg?branch=master)
+[![Build Status](https://dev.azure.com/datadoghq/apigentools/_apis/build/status/Unit%20Tests?branchName=master)](https://dev.azure.com/datadoghq/apigentools/_build/latest?definitionId=11&branchName=master)
 
 ## Purpose
 
