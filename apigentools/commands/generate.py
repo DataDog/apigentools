@@ -289,12 +289,15 @@ class GenerateCommand(Command):
 
     def pull_repository(self, language):
         output_dir = self.get_generated_lang_dir(language.language)
+        secret_repo_url = False
         if self.args.git_via_https:
             checkout_url = ""
             if self.args.git_via_https_oauth_token:
                 checkout_url = "{}:x-oauth-basic@".format(self.args.git_via_https_oauth_token)
             elif self.args.git_via_https_installation_access_token:
                 checkout_url = "x-access-token:{}@".format(self.args.git_via_https_installation_access_token)
+            if checkout_url:
+                secret_repo_url = True
             repo = REPO_HTTPS_URL.format(
                 checkout_url,
                 language.github_org,
@@ -304,9 +307,12 @@ class GenerateCommand(Command):
             repo = REPO_SSH_URL.format(language.github_org, language.github_repo)
 
         try:
-            run_command(['git', 'clone', '--depth=2', repo, output_dir])
+            log_repo = "{}/{}".format(language.github_org, language.github_repo) if secret_repo_url else repo
+            log.info("Pulling repository %s", log_repo)
+            run_command(
+                ['git', 'clone', '--depth=2', {"item": repo, "secret": secret_repo_url}, output_dir],
+                sensitive_output=True
+            )
         except subprocess.CalledProcessError as e:
-            # Git doesn't allow you to clone into a non empty dir
-            # Throw a helpful error if this happens
-            log.error("Error cloning repo {0} into {1}. Make sure {1} is empty first".format(repo, output_dir))
+            log.error("Error cloning repo {0} into {1}. Make sure {1} is empty first".format(log_repo, output_dir))
             raise e

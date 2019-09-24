@@ -109,7 +109,23 @@ def get_current_commit(repo_path):
         return res.stdout.strip()
 
 
-def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_err=False, dry_run=False):
+@contextlib.contextmanager
+def logging_enabled(enabled):
+    """ A context manager to turn of logging temporarily
+
+    :param enabled: If ``True``, logging will be on, if ``False``, logging will be off
+    :type enabled: ``bool``
+    """
+    if not enabled:
+        logging.disable(logging.CRITICAL)
+    try:
+        yield
+    finally:
+        logging.disable(logging.NOTSET)
+
+
+def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_err=False, dry_run=False,
+                sensitive_output=False):
     """ Wrapper for running subprocesses with reasonable logging.
 
     :param cmd: Command to run as subprocess. Members are either strings (directly used
@@ -130,43 +146,59 @@ def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_er
     :param dry_run: Whether or not this is a dry run (``True``, commands are not executed, just logged)
         or real run (``False``)
     :type dry_run: ``bool``
+    :param sensitive_output: Whether or not the output of the called subprocess is sensitive or not.
+        If true, all logging will be suppressed and if a subprocess.CalledProcessError is raised,
+        its attributes will be empty (note that this has no effect when ``dry_run=True``)
+    :type sensitive_output: ``bool``
     :return: Result of the called subprocess
     :rtype: ``subprocess.CompletedProcess``
     """
     cmd_strlist = []
     cmd_logstr = []
     for member in cmd:
-        if isinstance(member, dict) and member.get("secret", False):
+        if isinstance(member, dict):
             cmd_strlist.append(member["item"])
-            cmd_logstr.append(REDACTED_OUT_SECRET)
+            if member.get("secret", False):
+                cmd_logstr.append(REDACTED_OUT_SECRET)
+            else:
+                cmd_logstr.append(member["item"])
         else:
             cmd_strlist.append(member)
             cmd_logstr.append(member)
-    try:
-        env = copy.deepcopy(os.environ)
-        if additional_env:
-            env.update(additional_env)
-        log.log(log_level, "%sRunning command '%s'",
-            "(DRYRUN) " if dry_run else "",
-            " ".join(cmd_logstr)
-        )
-        if dry_run:
-            result = subprocess.CompletedProcess(cmd_strlist, 0)
-        else:
-            stdout=subprocess.PIPE
-            stderr=subprocess.STDOUT if combine_out_err else subprocess.PIPE
-            result = subprocess.run(cmd_strlist, stdout=stdout, stderr=stderr, check=True, text=True, env=env)
-            log.log(log_level, "Command result:\n{}".format(
-                fmt_cmd_out_for_log(result, combine_out_err)
-            ))
-    except subprocess.CalledProcessError as e:
-        log.log(
-            log_level,
-            "Error in called process:\n{}".format(fmt_cmd_out_for_log(e, combine_out_err))
-        )
-        raise
+    do_log = dry_run or not sensitive_output
+    with logging_enabled(do_log):
+        try:
+            env = copy.deepcopy(os.environ)
+            if additional_env:
+                env.update(additional_env)
+            log.log(log_level, "%sRunning command '%s'",
+                "(DRYRUN) " if dry_run else "",
+                " ".join(cmd_logstr)
+            )
+            if dry_run:
+                result = subprocess.CompletedProcess(cmd_strlist, 0)
+            else:
+                stdout=subprocess.PIPE
+                stderr=subprocess.STDOUT if combine_out_err else subprocess.PIPE
+                result = subprocess.run(cmd_strlist, stdout=stdout, stderr=stderr, check=True, text=True, env=env)
+                log.log(log_level, "Command result:\n{}".format(
+                    fmt_cmd_out_for_log(result, combine_out_err)
+                ))
+        except subprocess.CalledProcessError as e:
+            if sensitive_output:
+                raise subprocess.CalledProcessError(
+                    e.returncode,
+                    ["command with sensitive output"],
+                    output=None,
+                    stderr=None
+                ) from None  # use `from None to prevent exception chaining if there is sensitive output`
+            log.log(
+                log_level,
+                "Error in called process:\n{}".format(fmt_cmd_out_for_log(e, combine_out_err))
+            )
+            raise
 
-    return result
+        return result
 
 
 def fmt_cmd_out_for_log(result_or_error, combine_out_err):
