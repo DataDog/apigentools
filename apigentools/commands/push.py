@@ -72,6 +72,14 @@ class PushCommand(Command):
                     if self.args.skip_if_no_changes and self.git_status_empty():
                         log.info("Only .apigentools file changed for language {}, skipping".format(lang_name))
                         continue
+
+                    # Update git config for this repository to use the provided author's email/name
+                    # If not specified, use the setup from the system/global
+                    if self.args.git_email:
+                        run_command(['git', 'config', 'user.email', self.args.git_email])
+                    if self.args.git_name:
+                        run_command(['git', 'config', 'user.name', self.args.git_name])
+
                     run_command(['git', 'checkout', '-b', branch_name], dry_run=self.args.dry_run)
                     run_command(['git', 'add', '-A'], dry_run=self.args.dry_run)
                     run_command(['git', 'commit', '-a', '-m', commit_msg], dry_run=self.args.dry_run)

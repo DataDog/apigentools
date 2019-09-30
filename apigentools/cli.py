@@ -242,11 +242,6 @@ def get_cli_parser():
         help="Push the generated source code into each git repository specified in the config",
     )
     push_parser.add_argument(
-        '--push-commit-msg',
-        help='Message to use for the commit when pushing the auto generated clients',
-        default=env_or_val("APIGENTOOLS_COMMIT_MSG", '')
-    )
-    push_parser.add_argument(
         "--default-branch",
         help="Default branch of client repo - if it doesn't exist, it will be created and pushed to instead of a new feature branch",
         default=env_or_val("APIGENTOOLS_DEFAULT_PUSH_BRANCH", "master"),
@@ -258,11 +253,27 @@ def get_cli_parser():
         default=False,
     )
     push_parser.add_argument(
+        '--push-commit-msg',
+        help='Message to use for the commit when pushing the auto generated clients',
+        default=env_or_val("APIGENTOOLS_COMMIT_MSG", '')
+    )
+    push_parser.add_argument(
         "--skip-if-no-changes",
         help="Skip committing/pushing for all repositories where only .apigentools-info has changed",
         action="store_true",
         default=env_or_val("APIGENTOOLS_SKIP_IF_NO_CHANGES", False, __type=bool),
     )
+    push_parser.add_argument(
+        "--git-email",
+        help="Email of the user to author git commits as",
+        default=env_or_val("APIGENTOOLS_GIT_EMAIL", None),
+    )
+    push_parser.add_argument(
+        "--git-name",
+        help="Name of the user to author git commits as",
+        default=env_or_val("APIGENTOOLS_GIT_NAME", None),
+    )
+
 
     init_parser = sp.add_parser(
         "init",
