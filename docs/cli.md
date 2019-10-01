@@ -67,7 +67,7 @@ Argument | Description | Environment Variable | Default
 `--git-email` | Email of the user to author git commits as | `APIGENTOOLS_GIT_AUTHOR_EMAIL` | `None`
 `--git-name` | Name of the user to author git commits as | `APIGENTOOLSGIT_AUTHOR_NAME` | `None`
 
-**Note** Specifying the `--git-*` flags will modify the .gitc/onfig settings of each local repository pushed to via apigentools. This will not modify the global .gitc/onfig.
+**Note** Specifying the `--git-*` flags will modify the .git/config settings of each local repository pushed to via apigentools. This will not modify the global .git/config.
 
 ## `apigentools split`
 
