@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.0
+
+[Feature] When patching upstream templates, run `patch` with `--fuzz 0` to prevent unexpected/hard to debug errors.
+[Feature] Allow setting author name and email on commits created by `apigentools push`.
+
 ## 0.4.0
 
 * [Security] OAuth tokens and installation access tokens are no longer logged.
