@@ -64,10 +64,10 @@ Argument | Description | Environment Variable | Default
 `--dry-run` | Do a dry run (do not actualy create branches/commits or push) | | `False`
 `--push-commit-msg` | Commit message to use when pushing the generated clients. | `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <XYZ> of spec repo`
 `--skip-if-no-changes` | Skip committing/pushing for all repositories where only `.apigentools-info` has changed | `APIGENTOOLS_SKIP_IF_NO_CHANGES` | `False`
-`--git-email` | Email of the user to author git commits as | `APIGENTOOLS_GIT_EMAIL` | `None`
-`--git-name` | Name of the user to author git commits as | `APIGENTOOLS_GIT_NAME` | `None`
+`--git-email` | Email of the user to author git commits as | `APIGENTOOLS_GIT_AUTHOR_EMAIL` | `None`
+`--git-name` | Name of the user to author git commits as | `APIGENTOOLSGIT_AUTHOR_NAME` | `None`
 
-**Note** Specifying the `--git-*` flags will modify the .gitconfig settings of each local repository pushed to via apigentools. This will not modify the global .gitconfig.
+**Note** Specifying the `--git-*` flags will modify the .gitc/onfig settings of each local repository pushed to via apigentools. This will not modify the global .gitc/onfig.
 
 ## `apigentools split`
 

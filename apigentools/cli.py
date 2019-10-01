@@ -265,13 +265,13 @@ def get_cli_parser():
     )
     push_parser.add_argument(
         "--git-email",
-        help="Email of the user to author git commits as",
-        default=env_or_val("APIGENTOOLS_GIT_EMAIL", None),
+        help="Email of the user to author git commits as. Note this will permanently modify the local repos git config to use this author",
+        default=env_or_val("APIGENTOOLS_GIT_AUTHOR_EMAIL", None),
     )
     push_parser.add_argument(
         "--git-name",
-        help="Name of the user to author git commits as",
-        default=env_or_val("APIGENTOOLS_GIT_NAME", None),
+        help="Name of the user to author git commits as. Note this will permanently modify the local repos git config to use this author",
+        default=env_or_val("APIGENTOOLS_GIT_AUTHOR_NAME", None),
     )
 
 
