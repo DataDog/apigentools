@@ -49,6 +49,8 @@ class TemplatesCommand(Command):
                     try:
                         run_command([
                             "patch",
+                            "--fuzz",
+                            "0",
                             "--no-backup-if-mismatch",
                             "-p1",
                             "-i",
