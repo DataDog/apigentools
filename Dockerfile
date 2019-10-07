@@ -6,7 +6,7 @@ ENV APIGENTOOLS_BASE_DIR=/var/lib/apigentools
 ENV APIGENTOOLS_SPEC_REPO_DIR=${APIGENTOOLS_BASE_DIR}/spec-repo \
     _APIGENTOOLS_GIT_HASH_FILE=${APIGENTOOLS_BASE_DIR}/git-hash
 
-ENV OPENAPI_GENERATOR_VERSION=4.1.1 \
+ENV OPENAPI_GENERATOR_VERSION=4.1.3 \
     PACKAGES="docker findutils git golang-googlecode-tools-goimports java npm patch python3 python3-pip unzip"
 
 VOLUME ${APIGENTOOLS_SPEC_REPO_DIR}
