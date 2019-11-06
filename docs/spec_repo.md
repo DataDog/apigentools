@@ -45,7 +45,7 @@ This is a directory containing [config.json](#configconfigjson), which is a conf
 
 ### config/languages/
 
-This directory contains openapi-generator configuration files. There must be one file for every language and major API version configuration in your `config/config.yaml`. For information on what keys can go in these files, use `openapi-generator config-help -g <language>`.
+This directory contains openapi-generator configuration files. There must be one file for every language and major API version configuration in your `config/config.yaml`. For information on what keys can go in these files, use `openapi-generator config-help -g <LANGUAGE>`.
 
 ### downstream-templates/
 

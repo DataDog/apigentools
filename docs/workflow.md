@@ -77,7 +77,7 @@ All files with the `.patch` extension from `template-patches` directory are appl
 
 ## Add Downstream Templates
 
-If you wish to add your own templates that need to be rendered in a different context, and have different usages than those provided in openapi-generator upstream, you can add these in the `downstream-templates/<language>` directory. This is best used to add files that are top-level for each of the generated repositories, as the openapi-generator is used to render only per-major-API-version subdirectories with the actual code.
+If you wish to add your own templates that need to be rendered in a different context, and have different usages than those provided in openapi-generator upstream, you can add these in the `downstream-templates/<LANGUAGE>` directory. This is best used to add files that are top-level for each of the generated repositories, as the openapi-generator is used to render only per-major-API-version subdirectories with the actual code.
 
 Note that downstream templates are rendered after the code generation is done, and may overwrite files written by previous code generation. Downstream templates are [mustache templates](https://mustache.github.io/).
 

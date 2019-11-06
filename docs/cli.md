@@ -3,7 +3,7 @@
 Basic usage:
 
 ```
-apigentools <apigentools-args> <SUBCOMMAND> <subcommand args>
+apigentools <APIGENTOOLS_ARGS> <SUBCOMMAND> <SUBCOMMAND_ARGS>
 ```
 
 Many arguments take values from environment variables and coded-in defaults. In this case, the actual value is obtained like this:
@@ -61,7 +61,7 @@ Argument | Description | Environment Variable | Default
 `-h, --help` | Show help message and exit.
 `--default-branch` | Default branch of client repo. If this branch does not exist, it is created and pushed to instead of a new feature branch | `APIGENTOOLS_DEFAULT_PUSH_BRANCH` | `master`
 `--dry-run` | Do a dry run (do not actualy create branches/commits or push). | | `False`
-`--push-commit-msg` | Commit message to use when pushing the generated clients. | `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <XYZ> of spec repo`
+`--push-commit-msg` | Commit message to use when pushing the generated clients. | `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <COMMIT_ID> of spec repo`
 `--skip-if-no-changes` | Skip committing/pushing for all repositories where only `.apigentools-info` has changed. | `APIGENTOOLS_SKIP_IF_NO_CHANGES` | `False`
 `--git-email` | Email of the git commit author. | `APIGENTOOLS_GIT_AUTHOR_EMAIL` | `None`
 `--git-name` | Name of the git commit author. | `APIGENTOOLSGIT_AUTHOR_NAME` | `None`
