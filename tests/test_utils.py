@@ -8,7 +8,7 @@ import flexmock
 import pytest
 
 from apigentools.constants import REDACTED_OUT_SECRET
-from apigentools.utils import change_cwd, env_or_val, log, run_command, set_log
+from apigentools.utils import change_cwd, env_or_val, get_current_commit, log, run_command, set_log
 
 
 @pytest.mark.parametrize("env_var, default, args, typ, kwargs, set_env_to, expected", [
@@ -75,12 +75,19 @@ def test_change_cwd():
             assert os.getcwd() == os.path.realpath(target_dir)
         assert os.getcwd() == present_dir
 
+def test_get_current_commit(caplog):
+    current_commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"],text=True, capture_output=True)
+    # import pdb; pdb.set_trace()
+    assert current_commit.stdout.strip() == get_current_commit(".")
+    with caplog.at_level(logging.WARNING):
+        with tempfile.TemporaryDirectory() as target_dir:
+            get_current_commit(target_dir)
+            for record in caplog.records:
+                assert "Failed getting current git commit" in record
 
 
 
 
-
-def test_validate_duplicates():
 
 
 
