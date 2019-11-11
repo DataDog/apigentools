@@ -30,7 +30,6 @@ def test_env_or_val(env_var, default, args, typ, kwargs, set_env_to, expected):
 
     assert env_or_val(env_var, default, *args, __type=typ, **kwargs) == expected
 
-
 def test_run_command(caplog):
     cmd = ["run", "this"]
     log_level = logging.INFO
@@ -66,7 +65,6 @@ def test_run_command(caplog):
     assert secret not in caplog.text
     assert REDACTED_OUT_SECRET in caplog.text
 
-
 def test_change_cwd():
     present_dir = os.getcwd()
     with tempfile.TemporaryDirectory() as target_dir:
@@ -74,34 +72,31 @@ def test_change_cwd():
             assert os.getcwd() == os.path.realpath(target_dir)
         assert os.getcwd() == present_dir
 
-
 def test_get_current_commit(caplog):
-    current_commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"],text=True, capture_output=True)
-    assert current_commit.stdout.strip() == get_current_commit(".")
     with caplog.at_level(logging.WARNING):
         with tempfile.TemporaryDirectory() as target_dir:
             get_current_commit(target_dir)
             for record in caplog.records:
                 assert "Failed getting current git commit" in record
-
+    flexmock(subprocess).should_receive("run").and_return(subprocess.CompletedProcess(1, 0, "some_hash"))
+    assert get_current_commit(".") == "some_hash"
 
 def test_validate_duplicates():
     with pytest.raises(ValueError) as err:
         validate_duplicates(["a", "b"], ["b", "c"])
         assert "Duplicate field" in str(err.value)
 
-
-
 def test_fmt_cmd_out_for_log():
     fake_CalledProcessError = flexmock.flexmock(returncode=1, stdout="stdout", stderr="stderr")
     result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=True)
     assert result == 'RETCODE: 1\nOUTPUT:\nstdout'
+
     result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=False)
     assert result == 'RETCODE: 1\nSTDOUT:\nstdoutSTDERR:\nstderr'
-    fake_CompletedProcessError = flexmock.flexmock(returncode=1, stdout="stdout", stderr="stderr")
+
+    fake_CompletedProcessError = fake_CalledProcessError
     result = fmt_cmd_out_for_log(fake_CompletedProcessError, combine_out_err=True)
     assert result == 'RETCODE: 1\nOUTPUT:\nstdout'
-
 
 def test_logging_enabled(caplog):
     with logging_enabled(enabled=False):
@@ -112,14 +107,24 @@ def test_logging_enabled(caplog):
         for record in caplog.records:
             assert "CRITICAL" in record
 
-
 def test_set_log_level(caplog):
     set_log_level(log, "INFO")
     for record in caplog.records:
         assert "INFO" in record
+        assert "DEBUG" not in record
 
+def test_set_log_level_critical(caplog):
+    set_log_level(log, "CRITICAL")
+    for record in caplog.records:
+        assert "CRITICAL" in record
+        assert "INFO" not in record
 
-def test_set_log(caplog):
+def test_set_log_default(caplog):
     set_log(log)
     for record in caplog.records:
         assert "INFO" in record
+
+
+
+
+
