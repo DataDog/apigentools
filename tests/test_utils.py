@@ -123,4 +123,3 @@ def test_set_log(caplog):
     set_log(log)
     for record in caplog.records:
         assert "INFO" in record
-
