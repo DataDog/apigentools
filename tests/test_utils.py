@@ -2,12 +2,13 @@ import copy
 import logging
 import os
 import subprocess
+import tempfile
 
 import flexmock
 import pytest
 
 from apigentools.constants import REDACTED_OUT_SECRET
-from apigentools.utils import env_or_val, log, run_command, set_log
+from apigentools.utils import change_cwd, env_or_val, log, run_command, set_log
 
 
 @pytest.mark.parametrize("env_var, default, args, typ, kwargs, set_env_to, expected", [
@@ -65,3 +66,27 @@ def test_run_command(caplog):
     res = run_command(cmd, log_level=log_level, additional_env=additional_env, combine_out_err=combine_out_err)
     assert secret not in caplog.text
     assert REDACTED_OUT_SECRET in caplog.text
+
+
+def test_change_cwd():
+    present_dir = os.getcwd()
+    with tempfile.TemporaryDirectory() as target_dir:
+        with change_cwd(target_dir):
+            assert os.getcwd() == os.path.realpath(target_dir)
+        assert os.getcwd() == present_dir
+
+
+
+
+
+
+def test_validate_duplicates():
+
+
+
+
+
+
+
+
+
