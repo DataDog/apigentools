@@ -86,8 +86,9 @@ def test_get_current_commit(caplog):
 
 
 def test_validate_duplicates():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError) as err:
         validate_duplicates(["a", "b"], ["b", "c"])
+        assert "Duplicate field" in str(err.value)
 
 
 
