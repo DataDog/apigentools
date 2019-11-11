@@ -8,7 +8,7 @@ import flexmock
 import pytest
 
 from apigentools.constants import REDACTED_OUT_SECRET
-from apigentools.utils import change_cwd, env_or_val, get_current_commit, log, run_command, set_log, validate_duplicates
+from apigentools.utils import change_cwd, env_or_val, fmt_cmd_out_for_log, get_current_commit, log, run_command, set_log, validate_duplicates
 
 
 @pytest.mark.parametrize("env_var, default, args, typ, kwargs, set_env_to, expected", [
@@ -77,7 +77,6 @@ def test_change_cwd():
 
 def test_get_current_commit(caplog):
     current_commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"],text=True, capture_output=True)
-    # import pdb; pdb.set_trace()
     assert current_commit.stdout.strip() == get_current_commit(".")
     with caplog.at_level(logging.WARNING):
         with tempfile.TemporaryDirectory() as target_dir:
@@ -91,6 +90,16 @@ def test_validate_duplicates():
         validate_duplicates(["a", "b"], ["b", "c"])
 
 
+
+def test_fmt_cmd_out_for_log():
+    fake_CalledProcessError = flexmock.flexmock(returncode=1, stdout="stdout", stderr="stderr")
+    result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=True)
+    assert result == 'RETCODE: 1\nOUTPUT:\nstdout'
+    result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=False)
+    assert result == 'RETCODE: 1\nSTDOUT:\nstdoutSTDERR:\nstderr'
+    fake_CompletedProcessError = flexmock.flexmock(returncode=1, stdout="stdout", stderr="stderr")
+    result = fmt_cmd_out_for_log(fake_CompletedProcessError, combine_out_err=True)
+    assert result == 'RETCODE: 1\nOUTPUT:\nstdout'
 
 
 
