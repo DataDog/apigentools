@@ -8,8 +8,7 @@ import flexmock
 import pytest
 
 from apigentools.constants import REDACTED_OUT_SECRET
-from apigentools.utils import change_cwd, env_or_val, fmt_cmd_out_for_log, get_current_commit, log, run_command, set_log, validate_duplicates
-
+from apigentools.utils import change_cwd, env_or_val, fmt_cmd_out_for_log, get_current_commit, log, logging_enabled, run_command, set_log, set_log_level, validate_duplicates
 
 @pytest.mark.parametrize("env_var, default, args, typ, kwargs, set_env_to, expected", [
     ("APIGENTOOLS_TEST", "default", [], str, {}, None, "default"),
@@ -75,6 +74,7 @@ def test_change_cwd():
             assert os.getcwd() == os.path.realpath(target_dir)
         assert os.getcwd() == present_dir
 
+
 def test_get_current_commit(caplog):
     current_commit = subprocess.run(["git", "rev-parse", "--short", "HEAD"],text=True, capture_output=True)
     assert current_commit.stdout.strip() == get_current_commit(".")
@@ -103,13 +103,26 @@ def test_fmt_cmd_out_for_log():
     assert result == 'RETCODE: 1\nOUTPUT:\nstdout'
 
 
+def test_logging_enabled(caplog):
+    with logging_enabled(enabled=False):
+        for record in caplog.records:
+            assert "NOTSET" in record
+
+    with logging_enabled(enabled=True):
+        for record in caplog.records:
+            assert "CRITICAL" in record
 
 
+def test_set_log_level(caplog):
+    set_log_level(log, "INFO")
+    for record in caplog.records:
+        assert "INFO" in record
 
 
-
-
-
+def test_set_log(caplog):
+    set_log(log)
+    for record in caplog.records:
+        assert "INFO" in record
 
 
 
