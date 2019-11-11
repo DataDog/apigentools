@@ -8,7 +8,7 @@ import flexmock
 import pytest
 
 from apigentools.constants import REDACTED_OUT_SECRET
-from apigentools.utils import change_cwd, env_or_val, get_current_commit, log, run_command, set_log
+from apigentools.utils import change_cwd, env_or_val, get_current_commit, log, run_command, set_log, validate_duplicates
 
 
 @pytest.mark.parametrize("env_var, default, args, typ, kwargs, set_env_to, expected", [
@@ -84,6 +84,15 @@ def test_get_current_commit(caplog):
             get_current_commit(target_dir)
             for record in caplog.records:
                 assert "Failed getting current git commit" in record
+
+
+def test_validate_duplicates():
+    with pytest.raises(ValueError):
+        validate_duplicates(["a", "b"], ["b", "c"])
+
+
+
+
 
 
 
