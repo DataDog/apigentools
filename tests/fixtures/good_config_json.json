@@ -1,0 +1,13 @@
+{
+        "languages": {
+            "java": {
+                "upstream_templates_dir": "Java",
+                "commands": {
+                    "pre": [
+                        {"commandline": ["some", "cmd"], "description": "Some command"}
+                    ]
+                }
+            }
+        },
+        "user_agent_client_name": "MyClient"
+    }
