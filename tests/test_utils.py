@@ -94,8 +94,7 @@ def test_fmt_cmd_out_for_log():
     result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=False)
     assert result == 'RETCODE: 1\nSTDOUT:\nstdoutSTDERR:\nstderr'
 
-    fake_CompletedProcessError = fake_CalledProcessError
-    result = fmt_cmd_out_for_log(fake_CompletedProcessError, combine_out_err=True)
+    result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=True)
     assert result == 'RETCODE: 1\nOUTPUT:\nstdout'
 
 def test_logging_enabled(caplog):
@@ -123,8 +122,3 @@ def test_set_log_default(caplog):
     set_log(log)
     for record in caplog.records:
         assert "INFO" in record
-
-
-
-
-
