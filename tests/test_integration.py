@@ -4,8 +4,8 @@ import tempfile
 
 import pytest
 
-#openapi-generator mocked repo
 
+# in case I need this later
 FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
     'fixtures',)
 
