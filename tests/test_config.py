@@ -1,6 +1,11 @@
+import os
+
 import pytest
 
 from apigentools.config import Config, LanguageConfig, LanguageCommand
+
+FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+    'fixtures',)
 
 
 def test_config():
@@ -35,3 +40,10 @@ def test_config():
     assert type(pre) == LanguageCommand
     assert pre.description == "Some command"
     assert pre.commandline == ["some", "cmd"]
+
+
+def test_config_from_file():
+    c = Config.from_file(os.path.join(FIXTURE_DIR,"good_config_json.json"))
+    assert c.user_agent_client_name == "MyClient"
+    assert c.codegen_exec == "openapi-generator"
+
