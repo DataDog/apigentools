@@ -11,7 +11,7 @@ FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
 
 def test_setup():
     #pip install apigentools locally
-    os.chdir("../apigentools")
+    # os.chdir("../apigentools") # dir is root of repo? - re
     result = subprocess.run(["pip", "install", "-e", os.curdir], check=True)
     assert result.returncode == 0
 
