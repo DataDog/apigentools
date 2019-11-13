@@ -40,9 +40,9 @@ apigentools init myapispec
 
 ## Modify the OpenAPI Spec Sections
 
-To add or change the behavior of your generated clients, modify the [spec sections](spec_repo.md#section-files) for the relevant major version of your API under `spec/<MAJOR_VERSION>`. 
+To add or change the behavior of your generated clients, modify the [spec sections](spec_repo.md#section-files) for the relevant major version of your API under `spec/<MAJOR_VERSION>`.
 
-If you are adding new section files, also add them in `spec_sections` in `config/config.json`. 
+If you are adding new section files, also add them in `spec_sections` in `config/config.json`.
 
 If you are adding a new major API version, also add it in the top-level `spec_versions` and then in per-language `spec_versions` in `config/config.yaml`. With this, you can choose which languages generate code for which major API versions.
 
@@ -60,7 +60,7 @@ Run `apigentools validate`.
 
 ### Docker
 
-Run `container-apigentools apigentools:latest validate`.
+Run `container-apigentools apigentools/apigentools:latest validate`.
 
 ## Add Template Patches
 
@@ -91,7 +91,7 @@ Example: `apigentools templates local-dir /path/to/base/templates`
 
 ### Docker
 
-Example: `container-apigentools apigentools:latest templates openapi-git v4.1.0`
+Example: `container-apigentools apigentools/apigentools:latest templates openapi-git v4.1.0`
 
 ## Generate Client Code
 
@@ -103,7 +103,7 @@ Run `apigentools generate`.
 
 ### Docker
 
-Run `container-apigentools apigentools:latest generate`.
+Run `container-apigentools apigentools/apigentools:latest generate`.
 
 ## Run Tests
 
