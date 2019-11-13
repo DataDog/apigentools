@@ -15,9 +15,12 @@ log = logging.getLogger(__name__)
 
 class TestCommand(Command):
     def get_test_df_name(self, lang, version):
+        fname = "Dockerfile.test"
+        if version is not None:
+            fname += ".{}".format(version)
         return os.path.join(
             self.get_generated_lang_dir(lang),
-            "Dockerfile.test.{}".format(version)
+            fname,
         )
 
     def build_test_image(self, df_path, img_name):
@@ -59,17 +62,19 @@ class TestCommand(Command):
             # Skip any non user provided languages
             if lang_name not in languages:
                 continue
-            for version in lang_config.spec_versions:
+            # we consider `None` version to represent the `Dockerfile.test` file (without prefix)
+            for version in [None] + lang_config.spec_versions:
+                spec_version_loggable = "non-version tests" if version is None else "spec version {}".format(version)
                 # Skip any non user provided versions
-                if version not in versions:
+                if version is not None and version not in versions:
                     continue
                 df_path = self.get_test_df_name(lang_name, version)
                 img_name = "apigentools-test-{lang}-{version}".format(
                     lang=lang_name, version=version
                 )
                 log.info(
-                    "Looking up %s to test language %s, version %s",
-                    df_path, lang_name, version
+                    "Looking up %s to test language %s, %s",
+                    df_path, lang_name, spec_version_loggable
                 )
 
                 # first, try building the image
@@ -81,8 +86,8 @@ class TestCommand(Command):
                     log.info("SUCCESS: built %s", img_name)
                 except subprocess.CalledProcessError:
                     log.error(
-                        "FAIL: Failed to build testing image for language %s, spec version %s",
-                        lang_name, version
+                        "FAIL: Failed to build testing image for language %s, %s",
+                        lang_name, spec_version_loggable
                     )
                     cmd_result = 1
                     continue
@@ -93,8 +98,8 @@ class TestCommand(Command):
                     log.info("SUCCESS: ran %s", img_name)
                 except subprocess.CalledProcessError:
                     log.error(
-                        "ERROR: Testing failed for language %s, spec version %s",
-                        lang_name, version
+                        "ERROR: Testing failed for language %s, %s",
+                        lang_name, spec_version_loggable
                     )
                     cmd_result =  1
                 except ValueError as e:
