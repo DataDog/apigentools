@@ -52,13 +52,16 @@ class InitCommand(Command):
                                 "security": [],
                                 "tags": [],
                             }
-        self.gitignore = "!generated\n \
-                    generated/*\n \
-                    !generated/.gitkeep\n \
-                    spec/*/full_spec.yaml\n \
-                    !templates\n \
-                    templates/*\n  \
-                    !templates/.gitkeep"
+        self.gitignore = [
+        "!generated\n",
+        "generated/*\n",
+        "!generated/.gitkeep\n",
+        "spec/*/full_spec.yaml\n",
+        "!templates\n",
+        "templates/*\n",
+        "templates/\n",
+        ".gitkeep/n"
+        ]
         super().__init__(config, args)
 
     def run(self):
@@ -100,5 +103,5 @@ class InitCommand(Command):
                         pass
                 if not os.path.exists(".gitignore"):
                     with open(".gitignore", "w") as f:
-                        f.write(self.gitignore)
+                        f.writelines(self.gitignore)
         return cmd_result
