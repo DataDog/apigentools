@@ -21,5 +21,4 @@ def test_init():
         #TODO - check that subdirectories and yaml are also correct
         with os.scandir(temp_dir) as scan_results:
             dir_entry_list = [dir_entry.name for dir_entry in scan_results if dir_entry.is_dir() is True]
-        import pdb; pdb.set_trace()
         assert sorted(dir_names) == sorted(dir_entry_list)
