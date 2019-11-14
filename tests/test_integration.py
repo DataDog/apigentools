@@ -20,6 +20,9 @@ def test_init():
             cmd_instance.run()
             #sets do not presume the output of os.walk() will be ordered
             dir_entries = set(dir_entry[0] for dir_entry in os.walk("."))
+            # the layout of git repos has changed over time, this dir may or may not be present
+            if "./.git/branches" in dir_entries:
+                dir_entries.remove("./.git/branches")
             assert dir_entries == {'.', './generated', './template-patches', './config', './config/languages', './downstream-templates', './spec', './spec/v1', './templates', './.git', './.git/objects', './.git/objects/pack', './.git/objects/info', './.git/info', './.git/hooks', './.git/refs', './.git/refs/heads', './.git/refs/tags'}
 
         # move back to original dir since tempdir is deleted on exiting with block
