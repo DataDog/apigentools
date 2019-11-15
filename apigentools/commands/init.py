@@ -17,40 +17,40 @@ log = logging.getLogger(__name__)
 
 class InitCommand(Command):
     config_file_json = {
-                        "codegen_exec": "openapi-generator",
-                        "languages": {},
-                        "server_base_urls": {
-                                "v1": "https://api.myserver.com/v1",
-                            },
-                        "spec_sections": {
-                                "v1": [],
-                            },
-                        "spec_versions": ["v1"],
-                            }
+                    "codegen_exec": "openapi-generator",
+                    "languages": {},
+                    "server_base_urls": {
+                        "v1": "https://api.myserver.com/v1",
+                        },
+                    "spec_sections": {
+                        "v1": [],
+                        },
+                    "spec_versions": ["v1"],
+    }
     v1_header_json = {
-                            "info": {
-                                "contact": {},
-                                "description": "Collection of all public API endpoints.",
-                                "title": "My API endpoints",
-                                "version": "1.0"
-                            },
-                            "openapi": "3.0.0",
-                        }
+                    "info": {
+                        "contact": {},
+                        "description": "Collection of all public API endpoints.",
+                        "title": "My API endpoints",
+                        "version": "1.0"
+                    },
+                    "openapi": "3.0.0",
+    }
     v1_shared_json = {
-                            "components": {
-                                "schemas": {},
-                                "parameters": {},
-                                "securitySchemes": {},
-                                "requestBodies": {},
-                                "responses": {},
-                                "headers": {},
-                                "examples": {},
-                                "links": {},
-                                "callbacks": {},
-                            },
-                            "security": [],
-                            "tags": [],
-                        }
+                    "components": {
+                        "schemas": {},
+                        "parameters": {},
+                        "securitySchemes": {},
+                        "requestBodies": {},
+                        "responses": {},
+                        "headers": {},
+                        "examples": {},
+                        "links": {},
+                        "callbacks": {},
+                    },
+                    "security": [],
+                    "tags": [],
+    }
     gitignore = [
         "!generated\n",
         "generated/*\n",
@@ -84,7 +84,7 @@ class InitCommand(Command):
             config_file = os.path.join(dirs["config_dir"], constants.DEFAULT_CONFIG_FILE)
             if not os.path.exists(config_file):
                 with open(config_file, "w") as f:
-                    json.dump(self.config_file_json,f,indent=4)
+                    json.dump(self.config_file_json, f, indent=4)
             v1_header = os.path.join(dirs["spec_v1_dir"], constants.HEADER_FILE_NAME)
             v1_shared = os.path.join(dirs["spec_v1_dir"], constants.SHARED_SECTION_NAME + ".yaml")
             if not os.path.exists(v1_header):
