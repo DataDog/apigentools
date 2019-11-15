@@ -2,7 +2,6 @@ import copy
 import logging
 import os
 import subprocess
-import tempfile
 
 import flexmock
 import pytest
@@ -65,19 +64,19 @@ def test_run_command(caplog):
     assert secret not in caplog.text
     assert REDACTED_OUT_SECRET in caplog.text
 
-def test_change_cwd():
+def test_change_cwd(tmpdir):
     present_dir = os.getcwd()
-    with tempfile.TemporaryDirectory() as target_dir:
-        with change_cwd(target_dir):
-            assert os.getcwd() == os.path.realpath(target_dir)
-        assert os.getcwd() == present_dir
+    target_dir = tmpdir.mkdir("target_dir")
+    with change_cwd(target_dir):
+        assert os.getcwd() == os.path.realpath(target_dir)
+    assert os.getcwd() == present_dir
 
-def test_get_current_commit(caplog):
+def test_get_current_commit(caplog, tmpdir):
     with caplog.at_level(logging.WARNING):
-        with tempfile.TemporaryDirectory() as target_dir:
-            get_current_commit(target_dir)
-            for record in caplog.records:
-                assert "Failed getting current git commit" in record
+        target_dir = tmpdir.mkdir("target_dir")
+        get_current_commit(target_dir)
+        for record in caplog.records:
+            assert "Failed getting current git commit" in record
     flexmock(subprocess).should_receive("run").and_return(subprocess.CompletedProcess(1, 0, "some_hash"))
     assert get_current_commit(".") == "some_hash"
 
