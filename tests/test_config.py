@@ -51,3 +51,5 @@ def test_config_from_file():
     assert c.get_language_config("java").spec_versions == ["v1", "v2"]
     assert c.get_language_config("java").spec_sections["v1"] == ["user.yaml"]
     assert c.get_language_config("java").spec_sections["v2"] == ["user.yaml", "permission.yaml"]
+    assert c.get_language_config("java").generate_extra_args == ["--skip-overwrite", "--generate-alias-as-model"]
+    assert c.get_language_config("go").generate_extra_args == ["--generate-alias-as-model"]

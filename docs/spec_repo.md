@@ -88,7 +88,8 @@ Example:
                 "v1": ["accounts.yaml"]
             }
             "spec_versions": ["v1", "v2"],
-            "version_path_template": "myapi_{{spec_version}}"
+            "version_path_template": "myapi_{{spec_version}}",
+            "generate_extra_args": ["--skip-overwrite", "--generate-model-as-alias"]
         }
     },
     "server_base_urls": {
@@ -99,6 +100,7 @@ Example:
         "v2": ["users.yaml"]
     },
     "spec_versions": ["v1", "v2"],
+    "generate_extra_args": ["--generate-model-as-alias"],
     "user_agent_client_name": "MyCompany"
 }
 ```
@@ -123,10 +125,12 @@ The structure of the general config file is as follows, starting with top level 
     * `spec_versions` - Same as top-level `spec_versions`. Use to override the subset of major versions to generate for this language. If not specified, the top-level `spec_versions` value is used.
     * `upstream_templates_dir` - Name of the directory in openapi-generator that holds templates for this language. This is optional and, by default, the name of the language is used.
     * `version_path_template` - Mustache template for the name of the subdirectory in the Github repo where code for individual major versions of the API will end up, e.g. with `myapi_{{spec_version}}` as value and a `github_repo_name` of value `my-java-client`, the code for `v1` of the API will end up in `myapi-java-client/myapi_v1`
+    * `generate_extra_args` - Same as top-level `generate_extra_args`. Use to override the additional arguments to pass to the `openapi-generator` call for this language.
 * `server_base_urls` - Mapping of major spec versions (these must be in `spec_versions`) to URLs of servers that provide them.
 * `spec_sections` - Mapping of major spec versions (these must be in `spec_versions`) to lists of files with paths/tags/components definitions to merge when creating full spec. Files not explicitly listed here are ignored.
 * `spec_versions` - List of major versions currently known and operated on. These must be subdirectories of the `spec` directory.
 * `user_agent_client_name` - The HTTP User Agent string will be set to `{user_agent_client_name}/{package_version}/{language}`.
+* `generate_extra_args` - Additional arguments to pass to the `openapi-generator` call.
 
 ### Functions in Language Phase Commands
 
