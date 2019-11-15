@@ -52,14 +52,14 @@ class InitCommand(Command):
                             "tags": [],
                         }
     gitignore = [
-    "!generated\n",
-    "generated/*\n",
-    "!generated/.gitkeep\n",
-    "spec/*/full_spec.yaml\n",
-    "!templates\n",
-    "templates/*\n",
-    "templates/\n",
-    ".gitkeep/n"
+        "!generated\n",
+        "generated/*\n",
+        "!generated/.gitkeep\n",
+        "spec/*/full_spec.yaml\n",
+        "!templates\n",
+        "templates/*\n",
+        "templates/\n",
+        ".gitkeep/n"
     ]
 
     def run(self):
