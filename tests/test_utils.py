@@ -77,7 +77,8 @@ def test_get_current_commit(caplog, tmpdir):
         get_current_commit(target_dir)
         for record in caplog.records:
             assert "Failed getting current git commit" in record
-    flexmock(subprocess).should_receive("run").and_return(subprocess.CompletedProcess(1, 0, "some_hash"))
+    flexmock(subprocess).should_receive("run").\
+        and_return(subprocess.CompletedProcess(1, 0, "some_hash"))
     assert get_current_commit(".") == "some_hash"
 
 def test_validate_duplicates():
