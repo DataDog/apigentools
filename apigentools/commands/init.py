@@ -16,53 +16,51 @@ log = logging.getLogger(__name__)
 
 
 class InitCommand(Command):
-    def __init__(self, config, args):
-        self.config_file_json = {
-                                "codegen_exec": "openapi-generator",
-                                "languages": {},
-                                "server_base_urls": {
-                                    "v1": "https://api.myserver.com/v1",
-                                },
-                                "spec_sections": {
-                                    "v1": [],
-                                },
-                                "spec_versions": ["v1"],
+    config_file_json = {
+                        "codegen_exec": "openapi-generator",
+                        "languages": {},
+                        "server_base_urls": {
+                                "v1": "https://api.myserver.com/v1",
+                            },
+                        "spec_sections": {
+                                "v1": [],
+                            },
+                        "spec_versions": ["v1"],
                             }
-        self.v1_header_json = {
-                                "info": {
-                                    "contact": {},
-                                    "description": "Collection of all public API endpoints.",
-                                    "title": "My API endpoints",
-                                    "version": "1.0"
-                                },
-                                "openapi": "3.0.0",
-                            }
-        self.v1_shared_json = {
-                                "components": {
-                                    "schemas": {},
-                                    "parameters": {},
-                                    "securitySchemes": {},
-                                    "requestBodies": {},
-                                    "responses": {},
-                                    "headers": {},
-                                    "examples": {},
-                                    "links": {},
-                                    "callbacks": {},
-                                },
-                                "security": [],
-                                "tags": [],
-                            }
-        self.gitignore = [
-        "!generated\n",
-        "generated/*\n",
-        "!generated/.gitkeep\n",
-        "spec/*/full_spec.yaml\n",
-        "!templates\n",
-        "templates/*\n",
-        "templates/\n",
-        ".gitkeep/n"
-        ]
-        super().__init__(config, args)
+    v1_header_json = {
+                            "info": {
+                                "contact": {},
+                                "description": "Collection of all public API endpoints.",
+                                "title": "My API endpoints",
+                                "version": "1.0"
+                            },
+                            "openapi": "3.0.0",
+                        }
+    v1_shared_json = {
+                            "components": {
+                                "schemas": {},
+                                "parameters": {},
+                                "securitySchemes": {},
+                                "requestBodies": {},
+                                "responses": {},
+                                "headers": {},
+                                "examples": {},
+                                "links": {},
+                                "callbacks": {},
+                            },
+                            "security": [],
+                            "tags": [],
+                        }
+    gitignore = [
+    "!generated\n",
+    "generated/*\n",
+    "!generated/.gitkeep\n",
+    "spec/*/full_spec.yaml\n",
+    "!templates\n",
+    "templates/*\n",
+    "templates/\n",
+    ".gitkeep/n"
+    ]
 
     def run(self):
         cmd_result = 0
