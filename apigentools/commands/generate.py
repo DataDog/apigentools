@@ -16,7 +16,7 @@ import chevron
 from apigentools import __version__
 from apigentools.commands.command import Command
 from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
-from apigentools.utils import change_cwd, get_current_commit, run_command, write_full_spec
+from apigentools.utils import change_cwd, get_current_commit, run_command, write_full_specs
 
 log = logging.getLogger(__name__)
 
@@ -208,8 +208,8 @@ class GenerateCommand(Command):
 
         # first, generate full spec for all major versions of the API
         for version in versions:
-            fs_paths[version] = write_full_spec(
-                self.config, self.args.spec_dir, version, self.args.full_spec_file
+            fs_paths[version] = write_full_specs(
+                self.config, languages, self.args.spec_dir, version, self.args.full_spec_file
             )
 
         missing_templates = self.get_missing_templates(languages)
@@ -246,6 +246,8 @@ class GenerateCommand(Command):
                     language_oapi_config = json.load(lcp)
                 version_output_dir = self.get_generated_lang_version_dir(language, version)
 
+                # get the language-specific spec if it exists, fallback to the general one
+                input_spec = fs_paths[version].get(language, fs_paths[version].get(None))
                 generate_cmd = [
                     self.config.codegen_exec,
                     "generate",
@@ -257,7 +259,7 @@ class GenerateCommand(Command):
                     ),
                     "-g", language,
                     "-c", language_oapi_config_path,
-                    "-i", fs_paths[version],
+                    "-i", input_spec,
                     "-o", version_output_dir,
                     "--additional-properties",
                     "apigentoolsStamp='{stamp}'".format(stamp=self.get_stamp()),

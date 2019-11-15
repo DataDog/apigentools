@@ -226,7 +226,70 @@ def fmt_cmd_out_for_log(result_or_error, combine_out_err):
         )
 
 
-def write_full_spec(config, spec_dir, version, full_spec_file):
+def get_full_spec_file_name(default_fsf, l):
+    """ Get full-spec filename for given language
+
+    * General spec is always named exactly as ``default_fsf``
+    * If there's at least one ``.`` in ``default_fsf``, then the right-most one
+      is replaced by ``.{language}.``, e.g. ``full_spec.yaml`` becomes
+      ``full_spec.java.yaml``
+    * If there's no dot in ``default_fsf``, then ``.{language}`` is appended,
+      e.g. ``full_spec`` becomes ``full_spec.java``
+
+    :param default_fsf: a filename for the general spec
+    :type default_fsf: ``str``
+    :param l: language to construct the spec name for
+    :type l: ``str`` or ``NoneType``
+    """
+    if l is None:
+        return default_fsf
+
+    if "." in default_fsf:
+        # since there's no "replace one occurence from right" in Python, we
+        # 1) reverse the original string, 2) replace the first dot with `.{language}.`
+        # 3) reverse the result
+        return default_fsf[::-1].replace(".", ".{}.".format(l[::-1]), 1)[::-1]
+
+    return "{}.{}".format(default_fsf, l)
+
+
+def write_full_specs(config, languages, spec_dir, spec_version, full_spec_file):
+    """ Write full OpenAPI spec files for all given languages
+
+    :param config: apigentools config
+    :type config: ``apigentools.config.Config``
+    :param languages: list of languages to construct specs for
+    :type languages: ``list`` of ``str``
+    :param spec_dir: Directory containing per-major-version subdirectories
+        with parts of OpenAPI spec to combine
+    :type spec_dir: ``str``
+    :param spec_version: Version of spec to construct full spec file for
+    :type spec_version: ``str``
+    :param full_spec_file: Name of the output file for the combined OpenAPI spec
+    :type full_spec_file: ``str``
+    :return: Dictionary with language names as keys and paths to specs as values
+        Note that a language will only have its name present as a key if it
+        overrides spec sections for the given ``version``. If it doesn't override,
+        it uses the default full spec present under the ``None`` key
+    :rtype: ``dict``
+    """
+    ret = {}
+
+    construct_specs_for = {None: config.spec_sections}
+    for language in languages:
+        lang_sections = config.get_language_config(language).spec_sections
+        if lang_sections != config.spec_sections:
+            construct_specs_for[language] = lang_sections
+
+    for l, sections in construct_specs_for.items():
+        fsf = get_full_spec_file_name(full_spec_file, l)
+        log.info("Writing %s OpenAPI spec for API version %s to %s", (l or "general"), spec_version, fsf)
+        ret[l] = write_full_spec(config, spec_dir, spec_version, sections, fsf)
+
+    return ret
+
+
+def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_file):
     """ Write a full OpenAPI spec file
 
     :param config: apigentools config
@@ -234,16 +297,19 @@ def write_full_spec(config, spec_dir, version, full_spec_file):
     :param spec_dir: Directory containing per-major-version subdirectories
         with parts of OpenAPI spec to combine
     :type spec_dir: ``str``
+    :param spec_version: Version of spec to construct full spec file for
+    :type spec_version: ``str``
+    :param spec_sections: List of spec sections to combine
+    :type spec_sections: ``list`` of ``str``
     :param full_spec_file: Name of the output file for the combined OpenAPI spec
     :type full_spec_file: ``str``
     :return: Path to the written combined OpenAPI spec file
     :rtype: ``str``
     """
-    spec_version_dir = os.path.join(spec_dir, version)
+    spec_version_dir = os.path.join(spec_dir, spec_version)
     fs_path = os.path.join(spec_version_dir, full_spec_file)
-    log.info("Writing OpenAPI spec to %s", fs_path)
 
-    filenames = config.spec_sections[version] + [SHARED_SECTION_NAME + ".yaml", HEADER_FILE_NAME]
+    filenames = spec_sections[spec_version] + [SHARED_SECTION_NAME + ".yaml", HEADER_FILE_NAME]
     full_spec = {
         "paths": {},
         "tags": [],
@@ -258,7 +324,7 @@ def write_full_spec(config, spec_dir, version, full_spec_file):
             "links": {},
             "callbacks": {},
          },
-        "servers": [{"url": config.server_base_urls[version]}],
+        "servers": [{"url": config.server_base_urls[spec_version]}],
         "security": []
      }
 

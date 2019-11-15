@@ -47,3 +47,7 @@ def test_config_from_file():
     assert c.user_agent_client_name == "MyClient"
     assert c.codegen_exec == "openapi-generator"
 
+    # check the "inheritance" of "spec_versions" and "spec_sections"
+    assert c.get_language_config("java").spec_versions == ["v1", "v2"]
+    assert c.get_language_config("java").spec_sections["v1"] == ["user.yaml"]
+    assert c.get_language_config("java").spec_sections["v2"] == ["user.yaml", "permission.yaml"]
