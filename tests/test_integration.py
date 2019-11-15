@@ -32,9 +32,7 @@ def test_init():
                 './.git/refs', './.git/refs/heads', './.git/refs/tags'
                 }
 
-        # move back to original dir since tempdir is deleted on exiting with block
-    except Exception as e:
-        raise e
+    # move back to original dir since temp_dir is deleted on exiting with block
     finally:
         os.chdir(original_dir)
 
@@ -51,8 +49,7 @@ def test_init():
                 './config/languages', './downstream-templates', './spec',
                 './spec/v1', './templates'
                 }
-    except Exception as e:
-        raise e
+
     finally:
         os.chdir(original_dir)
 
