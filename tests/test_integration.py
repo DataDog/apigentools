@@ -38,17 +38,17 @@ def test_init(tmpdir):
 
     #test --no-git-repo
     try:
-        with tempfile.TemporaryDirectory() as temp_dir:
-            os.chdir(temp_dir)
-            args = flexmock.flexmock(no_git_repo=True, projectdir=temp_dir)
-            cmd_instance = InitCommand({}, args)
-            cmd_instance.run()
-            dir_entries = set(dir_entry[0] for dir_entry in os.walk("."))
-            assert dir_entries == {
-                '.', './generated', './template-patches', './config',
-                './config/languages', './downstream-templates', './spec',
-                './spec/v1', './templates'
-                }
+        temp_dir = tmpdir.mkdir("test_init_no_git_dir")
+        os.chdir(temp_dir)
+        args = flexmock.flexmock(no_git_repo=True, projectdir=temp_dir)
+        cmd_instance = InitCommand({}, args)
+        cmd_instance.run()
+        dir_entries = set(dir_entry[0] for dir_entry in os.walk("."))
+        assert dir_entries == {
+            '.', './generated', './template-patches', './config',
+            './config/languages', './downstream-templates', './spec',
+            './spec/v1', './templates'
+            }
 
     finally:
         os.chdir(original_dir)
