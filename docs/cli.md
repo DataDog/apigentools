@@ -36,7 +36,7 @@ Argument | Description | Environment Variable | Default
 `--additional-stamp [ADDITIONAL_STAMP [ADDITIONAL_STAMP ...]]` | Additional components to add to the `apigentoolsStamp` variable passed to templates. | `APIGENTOOLS_ADDITIONAL_STAMP` | `[]`
 `--builtin-templates` | Use unpatched upstream templates. | | `false`
 `-d DOWNSTREAM_TEMPLATES_DIR, --downstream-templates-dir DOWNSTREAM_TEMPLATES_DIR` | Path to directory with downstream templates. | `APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR` | `downstream-templates`
-`-f FULL_SPEC_FILE, --full-spec-file FULL_SPEC_FILE` | Name of the OpenAPI full spec file to write. | `APIGENTOOLS_FULL_SPEC_FILE` | `full_spec.yaml`
+`-f FULL_SPEC_FILE, --full-spec-file FULL_SPEC_FILE` | Name of the OpenAPI full spec file to write. Note that if some languages override config's spec_sections, additional files will be generated with name pattern `full_spec.<lang>.yaml`. | `APIGENTOOLS_FULL_SPEC_FILE` | `full_spec.yaml`
 `-h, --help` | Show help message and exit.
 `-i GENERATED_WITH_IMAGE, --generated-with-image GENERATED_WITH_IMAGE` | Override the tag of the image with which the client code was generated. | `APIGENTOOLS_IMAGE` | `None`
 `-s SPEC_DIR, --spec-dir SPEC_DIR` | Path to directory with OpenAPI specs. | `APIGENTOOLS_SPEC_DIR` | `spec`

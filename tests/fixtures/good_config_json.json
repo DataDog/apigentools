@@ -6,8 +6,22 @@
                     "pre": [
                         {"commandline": ["some", "cmd"], "description": "Some command"}
                     ]
+                },
+                "spec_sections": {
+                    "v1": ["user.yaml"]
                 }
             }
         },
-        "user_agent_client_name": "MyClient"
+        "user_agent_client_name": "MyClient",
+        "spec_versions": ["v1", "v2"],
+        "spec_sections": {
+            "v1": [
+                "user.yaml",
+                "project.yaml"
+            ],
+            "v2": [
+                "user.yaml",
+                "permission.yaml"
+            ]
     }
+}

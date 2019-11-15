@@ -84,7 +84,10 @@ Example:
         "java": {
             "github_org_name": "my-github-org",
             "github_repo_name": "my-java-client",
-            "spec_versions": ["v1"],
+            "spec_sections": {
+                "v1": ["accounts.yaml"]
+            }
+            "spec_versions": ["v1", "v2"],
             "version_path_template": "myapi_{{spec_version}}"
         }
     },
@@ -92,9 +95,10 @@ Example:
         "v1": "https://api.myserver.com/v1"
     },
     "spec_sections": {
-        "v1": ["accounts.yaml"]
+        "v1": ["accounts.yaml", "users.yaml"],
+        "v2": ["users.yaml"]
     },
-    "spec_versions": ["v1"],
+    "spec_versions": ["v1", "v2"],
     "user_agent_client_name": "MyCompany"
 }
 ```
@@ -115,7 +119,8 @@ The structure of the general config file is as follows, starting with top level 
     * `command_env` - Additional environment values with which both commands from `commands` and code generation itself are executed (mapping of environment variable names to their values)
     * `github_org_name` - Name of the Github organization of the client for this language.
     * `github_repo_name` - Name of the Github repository of the client for this language.
-    * `spec_versions` - List of spec versions to generate client modules for. Must be a subset of top-level `spec_versions`.
+    * `spec_sections` - Same as top-level `spec_sections`. Use to override the subset of spec sections to generate for each spec version of this language. For every spec version not specified as a key, the top-level list of sections for this spec version is used.
+    * `spec_versions` - Same as top-level `spec_versions`. Use to override the subset of major versions to generate for this language. If not specified, the top-level `spec_versions` value is used.
     * `upstream_templates_dir` - Name of the directory in openapi-generator that holds templates for this language. This is optional and, by default, the name of the language is used.
     * `version_path_template` - Mustache template for the name of the subdirectory in the Github repo where code for individual major versions of the API will end up, e.g. with `myapi_{{spec_version}}` as value and a `github_repo_name` of value `my-java-client`, the code for `v1` of the API will end up in `myapi-java-client/myapi_v1`
 * `server_base_urls` - Mapping of major spec versions (these must be in `spec_versions`) to URLs of servers that provide them.

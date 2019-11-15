@@ -18,7 +18,7 @@ class Config:
         }
         self.language_configs = {}
         for lang, conf in raw_dict.get("languages", {}).items():
-            self.language_configs[lang] = LanguageConfig(lang, conf)
+            self.language_configs[lang] = LanguageConfig(lang, conf, self)
 
     def __getattr__(self, attr):
         if attr not in self.raw_dict:
@@ -44,9 +44,10 @@ class Config:
 
 
 class LanguageConfig:
-    def __init__(self, language, raw_dict):
+    def __init__(self, language, raw_dict, top_level_config):
         self.language = language
         self.raw_dict = raw_dict
+        self.top_level_config = top_level_config
 
     @property
     def post_commands(self):
@@ -85,6 +86,25 @@ class LanguageConfig:
     @property
     def generate_extra_args(self):
         return self.raw_dict.get("generate_extra_args", [])
+
+    @property
+    def spec_versions(self):
+        return self.raw_dict.get("spec_versions", self.top_level_config.spec_versions)
+
+    @property
+    def spec_sections(self):
+        # This goes through all spec versions defined for the language; if spec sections
+        # for a spec version aren't defined in language's spec_sections, they're taken
+        # from the top-level spec_sections
+        res = {}
+        lang_sections = self.raw_dict.get("spec_sections", {})
+        top_sections = self.top_level_config.spec_sections
+        for sv in self.spec_versions:
+            if sv in lang_sections:
+                res[sv] = lang_sections[sv]
+            else:
+                res[sv] = top_sections[sv]
+        return res
 
 
 class LanguageCommand:

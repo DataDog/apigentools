@@ -90,7 +90,9 @@ def get_cli_parser():
     generate_parser.add_argument(
         "-f", "--full-spec-file",
         default=env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
-        help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml')",
+        help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml'). " +
+             "Note that if some languages override config's spec_sections, additional " +
+             "files will be generated with name pattern 'full_spec.<lang>.yaml'",
     )
     generate_parser.add_argument(
         "--additional-stamp",
@@ -188,7 +190,9 @@ def get_cli_parser():
     validate_parser.add_argument(
         "-f", "--full-spec-file",
         default=env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
-        help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml')",
+        help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml'). " +
+             "Note that if some languages override config's spec_sections, additional " +
+             "files will be generated with name pattern 'full_spec.<lang>.yaml'",
     )
 
     test_parser = sp.add_parser(
