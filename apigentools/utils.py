@@ -254,7 +254,7 @@ def get_full_spec_file_name(default_fsf, l):
 
 
 def write_full_specs(config, languages, spec_dir, spec_version, full_spec_file):
-    """ Write fulle OpenAPI spec files for all given languages
+    """ Write full OpenAPI spec files for all given languages
 
     :param config: apigentools config
     :type config: ``apigentools.config.Config``
