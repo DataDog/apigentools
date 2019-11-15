@@ -1,14 +1,9 @@
-import json
 import os
-import tempfile
 
 import flexmock
 import pytest
 
 from apigentools.commands.init import InitCommand
-# in case I need this later
-FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-    'fixtures',)
 
 def test_init(tmpdir):
     original_dir = os.getcwd()
@@ -52,4 +47,3 @@ def test_init(tmpdir):
 
     finally:
         os.chdir(original_dir)
-
