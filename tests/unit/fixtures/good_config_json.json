@@ -1,0 +1,35 @@
+{
+    "languages": {
+        "java": {
+            "upstream_templates_dir": "Java",
+            "commands": {
+                "pre": [
+                    {"commandline": ["some", "cmd"], "description": "Some command"}
+                ]
+            },
+            "spec_sections": {
+                "v1": ["user.yaml"]
+            },
+            "generate_extra_args": ["--skip-overwrite", "--generate-alias-as-model"]
+        },
+        "go": {
+            "upstream_templates_dir": "Go",
+            "spec_sections": {
+                "v1": ["user.yaml"]
+            }
+        }
+    },
+    "user_agent_client_name": "MyClient",
+    "spec_versions": ["v1", "v2"],
+    "spec_sections": {
+        "v1": [
+            "user.yaml",
+            "project.yaml"
+        ],
+        "v2": [
+            "user.yaml",
+            "permission.yaml"
+        ]
+    },
+    "generate_extra_args": ["--generate-alias-as-model"]
+}
