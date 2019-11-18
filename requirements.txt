@@ -1,2 +1,0 @@
-chevron == 0.13.1
-PyYAML == 5.1
