@@ -21,10 +21,10 @@ class InitCommand(Command):
         "languages": {},
         "server_base_urls": {
             "v1": "https://api.myserver.com/v1",
-            },
+        },
         "spec_sections": {
             "v1": [],
-            },
+        },
         "spec_versions": ["v1"],
     }
     V1_HEADER_JSON = {
