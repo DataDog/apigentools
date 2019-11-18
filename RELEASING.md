@@ -17,6 +17,7 @@ Accepting new code should only be allowed after the [post release](#post-release
 
 * Create a PR that bumps version from `X.Y.Z.devN` to `X.Y.Z` and get it reviewed and merged in
   * You need to change the version both in `setup.py` and `apigentools/__init__.py`
+  * Also include any relevant user-facing changes in `docs/changelog.md`
 * Pull the merged PR locally and tag the latest commit: `git tag -a "vX.Y.Z" -m "Version X.Y.Z"`
   * Note that the `v` in `-a "vX.Y.Z"` is important, our Dockerhub setup recognizes a tag like this and automatically builds image `apigentools/apigentools:X.Y.X` from it
   * Push the tag with `git push --tags`
