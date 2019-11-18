@@ -26,9 +26,8 @@ def test_init(tmpdir):
     dir_entries = set(dir_entry[0] for dir_entry in os.walk(temp_dir))
     # create a set of expected directory names to test against
     test_dirs = set(os.path.join(temp_dir, name) for name in directory_names)
-    # the contents of git repos has changed over time, so only look for the top
+    # the contents of git repos may change again
     test_dirs.add(os.path.join(temp_dir, '.git'))
-    # import pdb; pdb.set_trace()
     assert test_dirs.issubset(dir_entries)
 
     # test --no-git-repo
