@@ -7,43 +7,27 @@ from apigentools.commands.init import InitCommand
 
 def test_init(tmpdir):
     original_dir = os.getcwd()
-    try:
-        temp_dir = tmpdir.mkdir("test_init_git_dir")
-        os.chdir(temp_dir)
-        args = flexmock.flexmock(no_git_repo=False, projectdir=temp_dir)
-        cmd_instance = InitCommand({}, args)
-        cmd_instance.run()
-        #sets do not presume the output of os.walk() will be ordered
-        dir_entries = set(dir_entry[0] for dir_entry in os.walk("."))
-        # the layout of git repos has changed over time, this dir may or may not be present
-        if "./.git/branches" in dir_entries:
-            dir_entries.remove("./.git/branches")
-        assert dir_entries == {
-            '.', './generated', './template-patches',
-            './config', './config/languages', './downstream-templates',
-            './spec', './spec/v1', './templates', './.git',
-            './.git/objects', './.git/objects/pack',
-            './.git/objects/info', './.git/info', './.git/hooks',
-            './.git/refs', './.git/refs/heads', './.git/refs/tags'
-                }
-
-    # move back to original dir since temp_dir is deleted on exiting with block
-    finally:
-        os.chdir(original_dir)
+    temp_dir = tmpdir.mkdir("test_init_git_dir")
+    args = flexmock.flexmock(no_git_repo=False, projectdir=temp_dir)
+    cmd_instance = InitCommand({}, args)
+    cmd_instance.run()
+    #sets do not presume the output of os.walk() will be ordered
+    dir_entries = set(dir_entry[0] for dir_entry in os.walk(temp_dir))
+    # the layout of git repos has changed over time, so only look for the top .git directory
+    test_dirs = {
+        os.path.join(temp_dir,'generated'), os.path.join(temp_dir,'template-patches'), os.path.join(temp_dir,'config'),
+        os.path.join(temp_dir,'config/languages'), os.path.join(temp_dir,'downstream-templates'),
+        os.path.join(temp_dir,'spec'), os.path.join(temp_dir,'spec/v1'), os.path.join(temp_dir,'templates'), os.path.join(temp_dir,'.git')}
+    assert test_dirs.issubset(dir_entries)
 
     #test --no-git-repo
-    try:
-        temp_dir = tmpdir.mkdir("test_init_no_git_dir")
-        os.chdir(temp_dir)
-        args = flexmock.flexmock(no_git_repo=True, projectdir=temp_dir)
-        cmd_instance = InitCommand({}, args)
-        cmd_instance.run()
-        dir_entries = set(dir_entry[0] for dir_entry in os.walk("."))
-        assert dir_entries == {
-            '.', './generated', './template-patches', './config',
-            './config/languages', './downstream-templates', './spec',
-            './spec/v1', './templates'
-            }
-
-    finally:
-        os.chdir(original_dir)
+    temp_dir = tmpdir.mkdir("test_init_no_git_dir")
+    args = flexmock.flexmock(no_git_repo=True, projectdir=temp_dir)
+    cmd_instance = InitCommand({}, args)
+    cmd_instance.run()
+    dir_entries = set(dir_entry[0] for dir_entry in os.walk(temp_dir))
+    test_dirs = {
+        os.path.join(temp_dir,'generated'), os.path.join(temp_dir,'template-patches'), os.path.join(temp_dir,'config'),
+        os.path.join(temp_dir,'config/languages'), os.path.join(temp_dir,'downstream-templates'), temp_dir,
+        os.path.join(temp_dir,'spec'), os.path.join(temp_dir,'spec/v1'), os.path.join(temp_dir,'templates')}
+    assert dir_entries == test_dirs
