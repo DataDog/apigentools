@@ -16,17 +16,17 @@ def test_init(tmpdir):
     # the layout of git repos has changed over time, so only look for the top
     # .git directory
     test_dirs = {
-        temp_dir,
-        os.path.join(temp_dir, 'generated'),
-        os.path.join(temp_dir, 'template-patches'),
-        os.path.join(temp_dir, 'config'),
-        os.path.join(temp_dir, 'config/languages'),
-        os.path.join(temp_dir, 'downstream-templates'),
-        os.path.join(temp_dir, 'spec'),
-        os.path.join(temp_dir, 'spec/v1'),
-        os.path.join(temp_dir, 'templates'),
-        os.path.join(temp_dir, '.git'),
-        }
+    temp_dir,
+    os.path.join(temp_dir, 'generated'),
+    os.path.join(temp_dir, 'template-patches'),
+    os.path.join(temp_dir, 'config'),
+    os.path.join(temp_dir, 'config/languages'),
+    os.path.join(temp_dir, 'downstream-templates'),
+    os.path.join(temp_dir, 'spec'),
+    os.path.join(temp_dir, 'spec/v1'),
+    os.path.join(temp_dir, 'templates'),
+    os.path.join(temp_dir, '.git'),
+    }
 
     assert test_dirs.issubset(dir_entries)
 
@@ -37,14 +37,14 @@ def test_init(tmpdir):
     cmd_instance.run()
     dir_entries = set(dir_entry[0] for dir_entry in os.walk(temp_dir))
     test_dirs = {
-        temp_dir,
-        os.path.join(temp_dir, 'generated'),
-        os.path.join(temp_dir, 'template-patches'),
-        os.path.join(temp_dir, 'config'),
-        os.path.join(temp_dir, 'config/languages'),
-        os.path.join(temp_dir, 'downstream-templates'),
-        os.path.join(temp_dir, 'spec'),
-        os.path.join(temp_dir, 'spec/v1'),
-        os.path.join(temp_dir, 'templates')
+    temp_dir,
+    os.path.join(temp_dir, 'generated'),
+    os.path.join(temp_dir, 'template-patches'),
+    os.path.join(temp_dir, 'config'),
+    os.path.join(temp_dir, 'config/languages'),
+    os.path.join(temp_dir, 'downstream-templates'),
+    os.path.join(temp_dir, 'spec'),
+    os.path.join(temp_dir, 'spec/v1'),
+    os.path.join(temp_dir, 'templates')
         }
     assert dir_entries == test_dirs
