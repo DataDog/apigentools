@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.8.0
+
+[Feature] Allow overriding spec sections for individual languages
+[Feature] Add `generate_extra_args` as top level config value in `config.json`
+[Improvement] Many documentation fixes/tweaks
+
+## 0.7.0
+
+[Improvement] Bump openapi-generator in container image to 4.2.0
+
+## 0.6.0
+
+[Improvement] Bump openapi-generator in container image to 4.1.3
+
 ## 0.5.0
 
 [Feature] When patching upstream templates, run `patch` with `--fuzz 0` to prevent unexpected/hard to debug errors.
