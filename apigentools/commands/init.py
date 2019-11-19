@@ -16,6 +16,52 @@ log = logging.getLogger(__name__)
 
 
 class InitCommand(Command):
+    CONFIG_FILE_JSON = {
+        "codegen_exec": "openapi-generator",
+        "languages": {},
+        "server_base_urls": {
+            "v1": "https://api.myserver.com/v1",
+        },
+        "spec_sections": {
+            "v1": [],
+        },
+        "spec_versions": ["v1"],
+    }
+    V1_HEADER_JSON = {
+        "info": {
+            "contact": {},
+            "description": "Collection of all public API endpoints.",
+            "title": "My API endpoints",
+            "version": "1.0"
+        },
+        "openapi": "3.0.0",
+    }
+    V1_SHARED_JSON = {
+        "components": {
+            "schemas": {},
+            "parameters": {},
+            "securitySchemes": {},
+            "requestBodies": {},
+            "responses": {},
+            "headers": {},
+            "examples": {},
+            "links": {},
+            "callbacks": {},
+        },
+        "security": [],
+        "tags": [],
+    }
+    GITIGNORE = [
+        "!generated\n",
+        "generated/*\n",
+        "!generated/.gitkeep\n",
+        "spec/*/full_spec.yaml\n",
+        "!templates\n",
+        "templates/*\n",
+        "templates/\n",
+        ".gitkeep/n"
+    ]
+
     def run(self):
         cmd_result = 0
         log.info("Initializing a new project directory")
@@ -38,58 +84,15 @@ class InitCommand(Command):
             config_file = os.path.join(dirs["config_dir"], constants.DEFAULT_CONFIG_FILE)
             if not os.path.exists(config_file):
                 with open(config_file, "w") as f:
-                    json.dump(
-                        {
-                            "codegen_exec": "openapi-generator",
-                            "languages": {},
-                            "server_base_urls": {
-                                "v1": "https://api.myserver.com/v1",
-                            },
-                            "spec_sections": {
-                                "v1": [],
-                            },
-                            "spec_versions": ["v1"],
-                        },
-                        f,
-                        indent=4,
-                    )
+                    json.dump(self.CONFIG_FILE_JSON, f, indent=4)
             v1_header = os.path.join(dirs["spec_v1_dir"], constants.HEADER_FILE_NAME)
             v1_shared = os.path.join(dirs["spec_v1_dir"], constants.SHARED_SECTION_NAME + ".yaml")
             if not os.path.exists(v1_header):
                 with open(v1_header, "w") as f:
-                    yaml.dump(
-                        {
-                            "info": {
-                                "contact": {},
-                                "description": "Collection of all public API endpoints.",
-                                "title": "My API endpoints",
-                                "version": "1.0"
-                            },
-                            "openapi": "3.0.0",
-                        },
-                        f
-                    )
+                    yaml.dump(self.V1_HEADER_JSON, f)
             if not os.path.exists(v1_shared):
                 with open(v1_shared, "w") as f:
-                    yaml.dump(
-                        {
-                            "components": {
-                                "schemas": {},
-                                "parameters": {},
-                                "securitySchemes": {},
-                                "requestBodies": {},
-                                "responses": {},
-                                "headers": {},
-                                "examples": {},
-                                "links": {},
-                                "callbacks": {},
-                            },
-                            "security": [],
-                            "tags": [],
-                        },
-                        f
-                    )
-
+                    yaml.dump(self.V1_SHARED_JSON, f)
             if is_repo:
                 log.info("Creating a git repo in the new spec project directory")
                 run_command(["git", "init"], log_level=logging.DEBUG)
@@ -98,14 +101,5 @@ class InitCommand(Command):
                         pass
                 if not os.path.exists(".gitignore"):
                     with open(".gitignore", "w") as f:
-                        f.write(
-                            "!generated\n"
-                            "generated/*\n"
-                            "!generated/.gitkeep\n"
-                            "spec/*/full_spec.yaml\n"
-                            "!templates\n"
-                            "templates/*\n"
-                            "!templates/.gitkeep"
-                        )
-
+                        f.writelines(self.GITIGNORE)
         return cmd_result
