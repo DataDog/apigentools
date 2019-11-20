@@ -23,6 +23,11 @@ class TestCommand(Command):
             fname,
         )
 
+    def get_test_image_name(self, lang, version):
+        if version is None:
+            return f"apigentools-test-{lang}"
+        return f"apigentools-test-{lang}-{version}"
+
     def build_test_image(self, df_path, img_name):
         if os.path.exists(df_path):
             build = [
@@ -69,9 +74,7 @@ class TestCommand(Command):
                 if version is not None and version not in versions:
                     continue
                 df_path = self.get_test_df_name(lang_name, version)
-                img_name = "apigentools-test-{lang}-{version}".format(
-                    lang=lang_name, version=version
-                )
+                img_name = self.get_test_image_name(lang_name, version)
                 log.info(
                     "Looking up %s to test language %s, %s",
                     df_path, lang_name, spec_version_loggable
