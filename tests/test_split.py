@@ -136,6 +136,9 @@ def test_update_section_components():
         "securitySchemes": {},
     }
 
+    args = flexmock.flexmock()
+    cmd = SplitCommand({}, args)
+    # import pdb; pdb.set_trace()
 
 def test_get_tag_object():
     pass
