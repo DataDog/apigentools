@@ -23,7 +23,7 @@ jobs:
       displayName: Use python $(PYTHON_VERSION)
       inputs:
         versionSpec: $(PYTHON_VERSION)
-    - script: pip install -r requirements-tests.txt
+    - script: pip install -e .[tests]
       displayName: Install test dependencies
     - script: pytest
       displayName: Run the test via Pytest
