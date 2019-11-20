@@ -5,12 +5,13 @@ import flexmock
 import pytest
 
 from apigentools.commands.split import SplitCommand
+from apigentools.constants import SHARED_SECTION_NAME
 
 # in case I need this
 FIXTURES_DIR = os.path.join(
     os.path.dirname(os.path.realpath(__file__)), "fixtures")
 
-# deduplicate_tags
+
 # deduplicate_components
 # get_tag_object
 # update_section_components
@@ -62,8 +63,9 @@ def test_get_section_output_path():
     assert expected_path == "spec/v1/soups.yaml"
 
 
-SHARED_SECTION_NAME = "shared"
+
 def test_deduplicate_tags():
+    #uses petstore.yaml; should probably change that
     args = flexmock.flexmock()
     cmd = SplitCommand({}, args)
     with open(os.path.join(FIXTURES_DIR, "petstore.yaml")) as f:
@@ -77,13 +79,12 @@ def test_deduplicate_tags():
         section = {"paths": {}, "components": {"schemas": {}}, "tags": []}
         for endpoint in endpoints:
             section["paths"][endpoint] = paths[endpoint]
-
-    #tags = [{'name': 'pet', 'description': 'Everything about your Pets'}, {'name': 'store', 'description': 'Access to Petstore orders'}, {'name': 'user', 'description': 'Operations about user'}, {'name': 'user', 'description': 'Operations about user'}]
-
-    # expected tags = [{'name': 'pet', 'description': 'Everything about your Pets'}, {'name': 'store', 'description': 'Access to Petstore orders'}, {'name': 'user', 'description': 'Operations about user'}, {'name': 'user', 'description': 'Operations about user'}]
+    expected_tags = [{'name': 'pet', 'description': 'Everything about your Pets'}, {'name': 'store', 'description': 'Access to Petstore orders'}, {'name': 'user', 'description': 'Operations about user'}, {'name': 'user', 'description': 'Operations about user'}]
+    assert tags == expected_tags
 
 
-    import pdb; pdb.set_trace()
+
+
 
 
 
