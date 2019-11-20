@@ -141,6 +141,7 @@ def run_command(
     combine_out_err=False,
     dry_run=False,
     sensitive_output=False,
+    **kwargs
 ):
     """ Wrapper for running subprocesses with reasonable logging.
 
@@ -205,6 +206,7 @@ def run_command(
                     check=True,
                     text=True,
                     env=env,
+                    **kwargs
                 )
                 log.log(
                     log_level,

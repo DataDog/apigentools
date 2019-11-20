@@ -249,7 +249,7 @@ class GenerateCommand(Command):
 
             # Clone the language target repo into the output directory
             if pull_repo:
-                self.pull_repository(language_config)
+                self.pull_repository(language_config, branch=self.args.branch)
 
             for version in language_config.spec_versions:
                 log.info("Generation in %s, spec version %s", language, version)
@@ -314,7 +314,7 @@ class GenerateCommand(Command):
 
         return 0
 
-    def pull_repository(self, language):
+    def pull_repository(self, language, branch=None):
         output_dir = self.get_generated_lang_dir(language.language)
         secret_repo_url = False
         if self.args.git_via_https:
@@ -352,6 +352,12 @@ class GenerateCommand(Command):
                 ],
                 sensitive_output=True,
             )
+            if branch is not None:
+                try:
+                    run_command(["git", "checkout", "--", branch], cwd=output_dir)
+                except subprocess.CalledProcessError:
+                    # if the branch doesn't exist, we stay in the default one
+                    pass
         except subprocess.CalledProcessError as e:
             log.error(
                 "Error cloning repo {0} into {1}. Make sure {1} is empty first".format(

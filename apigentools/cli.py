@@ -101,6 +101,11 @@ def get_cli_parser():
         help="When specified, clones the client repository before running code generation",
     )
     generate_parser.add_argument(
+        "--branch",
+        default=env_or_val("APIGENTOOLS_PULL_REPO_BRANCH", None),
+        help="When specified, changes the client repository branch before running code generation",
+    )
+    generate_parser.add_argument(
         "-f",
         "--full-spec-file",
         default=env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
