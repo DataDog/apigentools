@@ -139,8 +139,7 @@ def test_update_section_components():
     ) as f:
         components = json.loads(f.read())
 
-        # adds schemas to ``section["components"]["schemas"]`` -> starts as {}
-
+    # adds schemas to ``section["components"]["schemas"]`` -> starts as {}
     args = flexmock.flexmock()
     cmd = SplitCommand({}, args)
     cmd.update_section_components(section, components)

@@ -1,1 +1,85 @@
-{"shared": {"components": {"schemas": {}}, "tags": []}, "/book": {"paths": {"/book": {"post": {"tags": ["book"], "summary": "Add a new book to the store", "description": "", "operationId": "addBook", "responses": {"405": {"description": "Invalid input"}}, "security": [{"bookstore_auth": ["write:books", "read:books"]}], "requestBody": {"$ref": "#/components/requestBodies/Book"}}}}, "components": {"schemas": {"Book": {"title": "a Book", "description": "A book for sale", "type": "object", "required": ["name", "photoUrls"], "properties": {"id": {"type": "integer", "format": "int64"}, "photoUrls": {"type": "array", "xml": {"name": "photoUrl", "wrapped": true}, "items": {"type": "string"}}, "status": {"type": "string", "description": "pet status in the store", "enum": ["available", "pending", "sold"]}}, "xml": {"name": "Book"}}}}, "tags": [{"name": "book", "description": "book information"}]}}
+{
+  "/book": {
+    "components": {
+      "schemas": {
+        "Book": {
+          "description": "A book for sale",
+          "properties": {
+            "id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "photoUrls": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "xml": {
+                "name": "photoUrl",
+                "wrapped": true
+              }
+            },
+            "status": {
+              "description": "pet status in the store",
+              "enum": [
+                "available",
+                "pending",
+                "sold"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "photoUrls"
+          ],
+          "title": "a Book",
+          "type": "object",
+          "xml": {
+            "name": "Book"
+          }
+        }
+      }
+    },
+    "paths": {
+      "/book": {
+        "post": {
+          "description": "",
+          "operationId": "addBook",
+          "requestBody": {
+            "$ref": "#/components/requestBodies/Book"
+          },
+          "responses": {
+            "405": {
+              "description": "Invalid input"
+            }
+          },
+          "security": [
+            {
+              "bookstore_auth": [
+                "write:books",
+                "read:books"
+              ]
+            }
+          ],
+          "summary": "Add a new book to the store",
+          "tags": [
+            "book"
+          ]
+        }
+      }
+    },
+    "tags": [
+      {
+        "description": "book information",
+        "name": "book"
+      }
+    ]
+  },
+  "shared": {
+    "components": {
+      "schemas": {}
+    },
+    "tags": []
+  }
+}
