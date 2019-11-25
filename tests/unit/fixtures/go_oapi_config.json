@@ -1,0 +1,8 @@
+{
+    "gitUserId": "myorg",
+    "gitRepoId": "my-api-client-go",
+    "isGoSubmodule": true,
+    "packageName": "myapi_v1",
+    "packageVersion": "0.0.1",
+    "withGoCodegenComment": true
+}
