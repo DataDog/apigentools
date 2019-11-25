@@ -15,7 +15,6 @@ FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)),
 
 # pull_repository
 # write dot apitgentools info
-# get stamp
 # render_downstream_templates
 # run_language_commands
 
@@ -26,7 +25,6 @@ def test_get_missing_templates(tmpdir):
     args = flexmock(template_dir=temp_dir)
     cmd = GenerateCommand({}, args)
     missing = cmd.get_missing_templates(languages)
-    #what if order is different?
     assert missing == languages
 
 def test_get_version_from_lang_oapi_config():
@@ -61,10 +59,38 @@ def test_get_codegen_version():
      # this is the version of openapi-generator we are using
     assert cmd.get_codegen_version() == expected_result
 
+
+def test_get_stamp():
+    args = flexmock(generated_with_image=None, spec_repo_dir=".", additional_stamp=[])
+    cfg = Config({
+        "codegen_exec": "openapi-generator",
+        "languages": {},
+        "server_base_urls": {},
+        "spec_sections": {},
+        "spec_versions": [],
+        "generate_extra_args": [],
+        "user_agent_client_name": "OpenAPI"
+    })
+    cmd = GenerateCommand(cfg, args)
+    stamp = cmd.get_stamp()
+    # import pdb; pdb.set_trace()
+    assert "Generated with" in stamp
+    assert "codegen version" in stamp
+
 # def test_pull_repository(tmpdir):
+#     #how/where are config languages set?
 #     temp_dir = tmpdir.mkdir("generated_lang_dir")
+#     cfg = Config({
+#         "codegen_exec": "openapi-generator",
+#         "languages": {},
+#         "server_base_urls": {},
+#         "spec_sections": {},
+#         "spec_versions": [],
+#         "generate_extra_args": [],
+#         "user_agent_client_name": "OpenAPI"
+#     })
 #     args = flexmock(git_via_https=True, generated_code_dir=temp_dir)
-#     cmd = GenerateCommand({}, args) # config dir needs get_language_config?
+#     cmd = GenerateCommand(cfg, args) # config dir needs get_language_config?
 #     language = flexmock(language="python")
 #     dir_contents = cmd.pull_repository(language)
 #     dir_contents = [el for el in dir_contents]
@@ -76,8 +102,8 @@ def test_get_codegen_version():
 #     temp_dir = tmpdir.mkdir("downstream-templates")
 #     args = flexmock()
 #     cmd = GenerateCommand({}, args)
-#     langage = "python"
-#     cmd.render_downstream_templates(langage, temp_dir)
+#     language = "python"
+#     cmd.render_downstream_templates(language, temp_dir)
 #     dir_walk = os.walk(temp_dir)
 #     dir_walk = [dir for dir in dir_walk]
 
@@ -86,30 +112,20 @@ def test_get_codegen_version():
 # def test_write_dot_apigentools_info(tmpdir):
 #     temp_dir = tmpdir.mkdir("dot_apigentools")
 #     args = flexmock(generated_code_dir=temp_dir)
-#     cmd = GenerateCommand({}, args)
-#     raw_dict = {
-#     "codegen_exec": "openapi-generator",
-#     "languages": {
-#         "go": {
-#             "github_repo_name": "my-api-client-go",
-#             "github_org_name": "myorg",
-#             "spec_versions": ["v1"],
-#             "version_path_template": "myapi_{{spec_version}}"
-#         }
-#     },
-#     "server_base_urls": {
-#         "v1": "https://api.myserver.com/v1"
-#     },
-#     "spec_sections": {
-#         "v1": ["users.yaml"]
-#     },
-#     "spec_versions": [
-#         "v1"
-#     ]
-# }
+#     cfg = Config({
+#         "codegen_exec": "openapi-generator",
+#         "languages": {},
+#         "server_base_urls": {},
+#         "spec_sections": {},
+#         "spec_versions": [],
+#         "generate_extra_args": [],
+#         "user_agent_client_name": "OpenAPI"
+#     })
+#     cmd = GenerateCommand(cfg, args)
 #     language = "python"
 #     top_level_config = flexmock()
-#     cfg = LanguageConfig(language=language, raw_dict=raw_dict, top_level_config=top_level_config)
+#     raw_dict = {}
+#     language_cfg = LanguageConfig(language=language, raw_dict=raw_dict, top_level_config=top_level_config)
 #     cmd.write_dot_apigentools_info(language)
 
 
