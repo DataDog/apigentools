@@ -222,7 +222,7 @@ class SplitCommand(Command):
 
     def run(self):
         vc = ValidateCommand(self.config, self.args)
-        if not vc.validate_spec(self.args.input_file):
+        if not vc.validate_spec(self.args.input_file, None, None):
             log.error("Input OpenAPI spec is not valid, can't proceed with splitting.")
             sys.exit(1)
         log.info("Input OpenAPI spec is valid, proceeding with splitting.")

@@ -1,0 +1,101 @@
+
+openapi: 3.0.0
+servers:
+  - url: 'http://nile.com/v1'
+info:
+  description: >-
+    Defines an api for a bookstore
+  version: 1.0.0
+  title: Nile bookstore
+  license:
+    name: BSD
+    url: 'https://github.com/DataDog/apigentools/blob/master/LICENSE'
+tags:
+  - name: book
+    description: book information
+paths:
+  /book:
+    post:
+      tags:
+        - book
+      summary: Add a new book to the store
+      description: ''
+      operationId: addBook
+      responses:
+        '405':
+          description: Invalid input
+      security:
+        - bookstore_auth:
+            - 'write:books'
+            - 'read:books'
+      requestBody:
+        $ref: '#/components/requestBodies/Book'
+externalDocs:
+  description: More on apigentools
+  url: 'https://github.com/DataDog/apigentools'
+components:
+  requestBodies:
+    UserArray:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+      description: List of user object
+      required: true
+    Book:
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Book'
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Book'
+      description: Book to add to the store
+      required: true
+  securitySchemes:
+    bookstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: 'http://Nile.com/api/oauth/dialog'
+          scopes:
+            'write:books': modify books
+            'read:books': read book data
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
+    auth_cookie:
+      type: apiKey
+      name: AUTH_KEY
+      in: cookie
+  schemas:
+    Book:
+      title: a Book
+      description: A book for sale
+      type: object
+      required:
+        - name
+        - photoUrls
+      properties:
+        id:
+          type: integer
+          format: int64
+        photoUrls:
+          type: array
+          xml:
+            name: photoUrl
+            wrapped: true
+          items:
+            type: string
+        status:
+          type: string
+          description: pet status in the store
+          enum:
+            - available
+            - pending
+            - sold
+      xml:
+        name: Book

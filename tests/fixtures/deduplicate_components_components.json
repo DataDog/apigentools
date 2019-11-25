@@ -1,0 +1,97 @@
+{
+  "requestBodies": {
+    "Book": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "$ref": "#/components/schemas/Book"
+          }
+        },
+        "application/xml": {
+          "schema": {
+            "$ref": "#/components/schemas/Book"
+          }
+        }
+      },
+      "description": "Book to add to the store",
+      "required": true
+    },
+    "UserArray": {
+      "content": {
+        "application/json": {
+          "schema": {
+            "items": {
+              "$ref": "#/components/schemas/User"
+            },
+            "type": "array"
+          }
+        }
+      },
+      "description": "List of user object",
+      "required": true
+    }
+  },
+  "schemas": {
+    "Book": {
+      "description": "A book for sale",
+      "properties": {
+        "id": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "photoUrls": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array",
+          "xml": {
+            "name": "photoUrl",
+            "wrapped": true
+          }
+        },
+        "status": {
+          "description": "pet status in the store",
+          "enum": [
+            "available",
+            "pending",
+            "sold"
+          ],
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "photoUrls"
+      ],
+      "title": "a Book",
+      "type": "object",
+      "xml": {
+        "name": "Book"
+      }
+    }
+  },
+  "securitySchemes": {
+    "api_key": {
+      "in": "header",
+      "name": "api_key",
+      "type": "apiKey"
+    },
+    "auth_cookie": {
+      "in": "cookie",
+      "name": "AUTH_KEY",
+      "type": "apiKey"
+    },
+    "bookstore_auth": {
+      "flows": {
+        "implicit": {
+          "authorizationUrl": "http://Nile.com/api/oauth/dialog",
+          "scopes": {
+            "read:books": "read book data",
+            "write:books": "modify books"
+          }
+        }
+      },
+      "type": "oauth2"
+    }
+  }
+}

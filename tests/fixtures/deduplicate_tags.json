@@ -1,0 +1,85 @@
+{
+  "/book": {
+    "components": {
+      "schemas": {
+        "Book": {
+          "description": "A book for sale",
+          "properties": {
+            "id": {
+              "format": "int64",
+              "type": "integer"
+            },
+            "photoUrls": {
+              "items": {
+                "type": "string"
+              },
+              "type": "array",
+              "xml": {
+                "name": "photoUrl",
+                "wrapped": true
+              }
+            },
+            "status": {
+              "description": "pet status in the store",
+              "enum": [
+                "available",
+                "pending",
+                "sold"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "name",
+            "photoUrls"
+          ],
+          "title": "a Book",
+          "type": "object",
+          "xml": {
+            "name": "Book"
+          }
+        }
+      }
+    },
+    "paths": {
+      "/book": {
+        "post": {
+          "description": "",
+          "operationId": "addBook",
+          "requestBody": {
+            "$ref": "#/components/requestBodies/Book"
+          },
+          "responses": {
+            "405": {
+              "description": "Invalid input"
+            }
+          },
+          "security": [
+            {
+              "bookstore_auth": [
+                "write:books",
+                "read:books"
+              ]
+            }
+          ],
+          "summary": "Add a new book to the store",
+          "tags": [
+            "book"
+          ]
+        }
+      }
+    },
+    "tags": [
+      {
+        "description": "book information",
+        "name": "book"
+      }
+    ]
+  },
+  "shared": {
+    "components": {
+      "schemas": {}
+    },
+    "tags": []
+  }
+}
