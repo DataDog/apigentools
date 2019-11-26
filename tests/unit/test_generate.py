@@ -114,21 +114,24 @@ def test_get_stamp():
 
 #     import pdb; pdb.set_trace()
 
-# def test_write_dot_apigentools_info(tmpdir):
-#     temp_dir = tmpdir.mkdir("dot_apigentools")
-#     args = flexmock(generated_code_dir=temp_dir)
-#     cfg = Config({
-#         "codegen_exec": "openapi-generator",
-#         "languages": {},
-#         "server_base_urls": {},
-#         "spec_sections": {},
-#         "spec_versions": [],
-#         "generate_extra_args": [],
-#         "user_agent_client_name": "OpenAPI"
-#     })
-#     cmd = GenerateCommand(cfg, args)
-#     language = "python"
-#     top_level_config = flexmock()
-#     raw_dict = {}
-#     language_cfg = LanguageConfig(language=language, raw_dict=raw_dict, top_level_config=top_level_config)
-#     cmd.write_dot_apigentools_info(language)
+
+# not working?
+def test_write_dot_apigentools_info(tmpdir):
+    temp_dir = tmpdir.mkdir("generated")
+    repo_dir = tmpdir.mkdir("generated/repo_name")
+
+    args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir='downstream-templates', full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=False, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="repo_name")
+    raw_dict = {
+        "codegen_exec": "openapi-generator",
+        "languages": {"java":{"github_repo_name": "repo_name"}},
+        "server_base_urls": {},
+        "spec_sections": {},
+        "spec_versions": [],
+        "generate_extra_args": [],
+        "user_agent_client_name": "OpenAPI",
+    }
+    cfg = Config(raw_dict)
+    cmd = GenerateCommand(cfg, args)
+    language = "java"
+    language_cfg = LanguageConfig(language=language, raw_dict=raw_dict, top_level_config=cfg)
+    cmd.write_dot_apigentools_info(language)
