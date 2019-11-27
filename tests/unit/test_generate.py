@@ -67,7 +67,27 @@ def test_get_stamp():
 
 def test_pull_repository(tmpdir):
     temp_dir = tmpdir.mkdir("generated_lang_dir")
-    args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir=temp_dir, full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=True, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="apigentools")
+    args = flexmock(
+        action="generate",
+        additional_stamp=[],
+        api_versions=None,
+        builtin_templates=False,
+        clone_repo=False,
+        config_dir="config",
+        downstream_templates_dir=temp_dir,
+        full_spec_file="full_spec.yaml",
+        generated_code_dir=temp_dir,
+        generated_with_image=None,
+        git_via_https=True,
+        git_via_https_installation_access_token="",
+        git_via_https_oauth_token="",
+        languages=None,
+        spec_dir="spec",
+        spec_repo_dir=".",
+        template_dir="templates",
+        verbose=False,
+        github_repo_name="apigentools",
+    )
     with open(os.path.join(FIXTURE_DIR, "raw_dict.json"), "r") as f:
         raw_dict = json.loads(f.read())
     cfg = Config(raw_dict)
@@ -77,22 +97,49 @@ def test_pull_repository(tmpdir):
     cmd.pull_repository(language)
     # make a list of the names of the directories from the repo
     dir_contents = [el[1] for el in os.walk(temp_dir)]
-    assert ['.azure-pipelines', 'apigentools', 'tests', 'docs', 'hooks', '.github', '.git'] in dir_contents
-
-
-
+    assert [
+        ".azure-pipelines",
+        "apigentools",
+        "tests",
+        "docs",
+        "hooks",
+        ".github",
+        ".git",
+    ] in dir_contents
 
 
 def test_write_dot_apigentools_info(tmpdir):
     temp_dir = tmpdir.mkdir("generated")
     repo_dir = tmpdir.mkdir("generated/DataDog")
 
-    args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir='downstream-templates', full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=False, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="repo_name")
+    args = flexmock(
+        action="generate",
+        additional_stamp=[],
+        api_versions=None,
+        builtin_templates=False,
+        clone_repo=False,
+        config_dir="config",
+        downstream_templates_dir="downstream-templates",
+        full_spec_file="full_spec.yaml",
+        generated_code_dir=temp_dir,
+        generated_with_image=None,
+        git_via_https=False,
+        git_via_https_installation_access_token="",
+        git_via_https_oauth_token="",
+        languages=None,
+        spec_dir="spec",
+        spec_repo_dir=".",
+        template_dir="templates",
+        verbose=False,
+        github_repo_name="repo_name",
+    )
     with open(os.path.join(FIXTURE_DIR, "raw_dict.json"), "r") as f:
         raw_dict = json.loads(f.read())
     cfg = Config(raw_dict)
     cmd = GenerateCommand(cfg, args)
-    language_cfg = LanguageConfig(language="java", raw_dict=raw_dict, top_level_config=cfg)
+    language_cfg = LanguageConfig(
+        language="java", raw_dict=raw_dict, top_level_config=cfg
+    )
     cmd.write_dot_apigentools_info("java")
     with open(os.path.join(repo_dir, ".apigentools-info"), "r") as f:
         info = f.read()
@@ -100,4 +147,5 @@ def test_write_dot_apigentools_info(tmpdir):
     assert "additional_stamps" in info
     assert "apigentools_version" in info
     assert "codegen_version" in info
+
 
