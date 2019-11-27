@@ -82,34 +82,27 @@ def test_get_stamp():
     assert "codegen version" in stamp
 
 
-def test_pull_repository(tmpdir):
-    #how/where are config languages set?
-    temp_dir = tmpdir.mkdir("generated_lang_dir")
-    cfg = Config({
-        "codegen_exec": "openapi-generator",
-        "languages": {"java":{"github_repo_name": "repo_name"}},
-        "server_base_urls": {},
-        "spec_sections": {},
-        "spec_versions": [],
-        "generate_extra_args": [],
-        "user_agent_client_name": "OpenAPI"
-    })
-    args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir=temp_dir, full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=False, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="repo_name")
-    cmd = GenerateCommand(cfg, args) # config dir needs get_language_config?
-    language = flexmock(language="java")
-    dir_contents = cmd.pull_repository(language)
-    dir_contents = [el for el in dir_contents]
+# def test_pull_repository(tmpdir):
+#     #how/where are config languages set?
+#     temp_dir = tmpdir.mkdir("generated_lang_dir")
+#     cfg = Config({
+#         "codegen_exec": "openapi-generator",
+#         "languages": {"java":{"github_repo_name": "repo_name"}},
+#         "server_base_urls": {},
+#         "spec_sections": {},
+#         "spec_versions": [],
+#         "generate_extra_args": [],
+#         "user_agent_client_name": "OpenAPI"
+#     })
+#     args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir=temp_dir, full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=False, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="repo_name")
+#     cmd = GenerateCommand(cfg, args) # config dir needs get_language_config?
+#     language = flexmock(language="java")
+#     dir_contents = cmd.pull_repository(language)
+#     dir_contents = [el for el in dir_contents]
     # import pdb; pdb.set_trace()
 
 #github_org attribute is missing
-def test_render_downstream_templates(tmpdir):
-    temp_dir = tmpdir.mkdir("downstream-templates")
-    args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir=temp_dir, full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=False, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="repo_name")
-    cmd = GenerateCommand({}, args)
-    language = "python"
-    cmd.render_downstream_templates(language, temp_dir)
-    dir_walk = os.walk(temp_dir)
-    dir_walk = [dir for dir in dir_walk]
+ #
 
     # import pdb; pdb.set_trace()
 
@@ -134,6 +127,10 @@ def test_write_dot_apigentools_info(tmpdir):
     language = "java"
     language_cfg = LanguageConfig(language=language, raw_dict=raw_dict, top_level_config=cfg)
     cmd.write_dot_apigentools_info(language)
-    # with open(os.path.join(temp_dir, repo_dir, ".apigentools")) as f:
-    #     info = f.read()
+    with open(os.path.join(repo_dir, ".apigentools-info"), "r") as f:
+        info = f.read()
+    # testing that some of the keys are present in the .apigentools-info file
+    assert "additional_stamps" in info
+    assert "apigentools_version" in info
+    assert "codegen_version" in info
 
