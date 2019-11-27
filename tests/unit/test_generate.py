@@ -1,5 +1,6 @@
 import json
 import os
+import subprocess
 
 import flexmock
 import pytest
@@ -81,33 +82,37 @@ def test_get_stamp():
     assert "Generated with" in stamp
     assert "codegen version" in stamp
 
+# @pytest.mark.skip
+# mock git pull command
+def test_pull_repository(tmpdir):
+    temp_dir = tmpdir.mkdir("generated_lang_dir")
+    args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir=temp_dir, full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=True, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="apigentools")
+    raw_dict = {
+        "codegen_exec": "openapi-generator",
+        "languages": {"java":{"github_repo_name": "repo_name"}},
+        "server_base_urls": {},
+        "spec_sections": {},
+        "spec_versions": [],
+        "generate_extra_args": [],
+        "user_agent_client_name": "OpenAPI",
+        "github_repo_name" : "apigentools",
+        "github_org_name" : "DataDog"
+    }
+    cfg = Config(raw_dict)
+    language = LanguageConfig(language="java", raw_dict=raw_dict, top_level_config=cfg)
+    # flexmock(subprocess).should_receive("run").\
+    # and_return(subprocess.CompletedProcess(1, 0))
+    cmd = GenerateCommand(cfg, args)
+    # git pull of https://github.com/DataDog/apigentools.git
+    cmd.pull_repository(language)
+    # make a list of the names of the directories in the repo
+    dir_contents = [el[1] for el in os.walk(temp_dir)]
+    assert ['.azure-pipelines', 'apigentools', 'tests', 'docs', 'hooks', '.github', '.git'] in dir_contents
 
-# def test_pull_repository(tmpdir):
-#     #how/where are config languages set?
-#     temp_dir = tmpdir.mkdir("generated_lang_dir")
-#     cfg = Config({
-#         "codegen_exec": "openapi-generator",
-#         "languages": {"java":{"github_repo_name": "repo_name"}},
-#         "server_base_urls": {},
-#         "spec_sections": {},
-#         "spec_versions": [],
-#         "generate_extra_args": [],
-#         "user_agent_client_name": "OpenAPI"
-#     })
-#     args = flexmock(action='generate', additional_stamp=[], api_versions=None, builtin_templates=False, clone_repo=False, config_dir='config', downstream_templates_dir=temp_dir, full_spec_file='full_spec.yaml', generated_code_dir=temp_dir, generated_with_image=None, git_via_https=False, git_via_https_installation_access_token='', git_via_https_oauth_token='', languages=None, spec_dir='spec', spec_repo_dir='.', template_dir='templates', verbose=False, github_repo_name="repo_name")
-#     cmd = GenerateCommand(cfg, args) # config dir needs get_language_config?
-#     language = flexmock(language="java")
-#     dir_contents = cmd.pull_repository(language)
-#     dir_contents = [el for el in dir_contents]
-    # import pdb; pdb.set_trace()
-
-#github_org attribute is missing
- #
-
-    # import pdb; pdb.set_trace()
 
 
-# Why can't the .apigentools file be opened?
+
+
 def test_write_dot_apigentools_info(tmpdir):
     temp_dir = tmpdir.mkdir("generated")
     repo_dir = tmpdir.mkdir("generated/repo_name")
@@ -124,9 +129,8 @@ def test_write_dot_apigentools_info(tmpdir):
     }
     cfg = Config(raw_dict)
     cmd = GenerateCommand(cfg, args)
-    language = "java"
-    language_cfg = LanguageConfig(language=language, raw_dict=raw_dict, top_level_config=cfg)
-    cmd.write_dot_apigentools_info(language)
+    language_cfg = LanguageConfig(language="java", raw_dict=raw_dict, top_level_config=cfg)
+    cmd.write_dot_apigentools_info("java")
     with open(os.path.join(repo_dir, ".apigentools-info"), "r") as f:
         info = f.read()
     # testing that some of the keys are present in the .apigentools-info file
