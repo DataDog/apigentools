@@ -148,4 +148,72 @@ def test_write_dot_apigentools_info(tmpdir):
     assert "apigentools_version" in info
     assert "codegen_version" in info
 
+def test_run_language_commands(tmpdir):
+    temp_dir = tmpdir.mkdir("temp_dir")
+    phase = 'pre'
+    language = "java"
+    args = flexmock(
+        action="generate",
+        additional_stamp=[],
+        api_versions=None,
+        builtin_templates=False,
+        clone_repo=False,
+        config_dir="config",
+        downstream_templates_dir="downstream-templates",
+        full_spec_file="full_spec.yaml",
+        generated_code_dir=temp_dir,
+        generated_with_image=None,
+        git_via_https=False,
+        git_via_https_installation_access_token="",
+        git_via_https_oauth_token="",
+        languages=None,
+        spec_dir="spec",
+        spec_repo_dir=".",
+        template_dir="templates",
+        verbose=False,
+        github_repo_name="repo_name",
+    )
+    with open(os.path.join(FIXTURE_DIR, "raw_dict.json"), "r") as f:
+        raw_dict = json.loads(f.read())
+    cfg = Config(raw_dict)
+    cmd = GenerateCommand(cfg, args)
+    cmd.run_language_commands(language, phase, temp_dir)
+    # this runs, but I'm not sure what the commands are?
+
+@pytest.mark.skip
+def test_render_downstream_templates(tmpdir):
+    temp_dir = tmpdir.mkdir("downstream-templates")
+    with open(os.path.join(FIXTURE_DIR, "raw_dict.json"), "r") as f:
+        raw_dict = json.loads(f.read())
+    language = "java"
+    args = flexmock(
+        action="generate",
+        additional_stamp=[],
+        api_versions=None,
+        builtin_templates=False,
+        clone_repo=False,
+        config_dir="config",
+        downstream_templates_dir="downstream-templates",
+        full_spec_file="full_spec.yaml",
+        generated_code_dir=temp_dir,
+        generated_with_image=None,
+        git_via_https=False,
+        git_via_https_installation_access_token="",
+        git_via_https_oauth_token="",
+        languages=None,
+        spec_dir="spec",
+        spec_repo_dir=".",
+        template_dir="templates",
+        verbose=False,
+        github_repo_name="repo_name",
+    )
+    cfg = Config(raw_dict)
+    cmd = GenerateCommand(cfg, args)
+    cmd.render_downstream_templates(language, temp_dir)
+    walk = os.walk(os.path.join(temp_dir, language))
+    import pdb; pdb.set_trace()
+
+
+
+
 
