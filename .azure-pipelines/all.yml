@@ -25,7 +25,8 @@ jobs:
         versionSpec: $(PYTHON_VERSION)
     - script: pip install -e .[tests]
       displayName: Install test dependencies
-    - script: mkdir ./node_modules
+    - script: sudo chown -R $(whoami) ~/.npm
+    - script: sudo chown -R $(whoami) /usr/local/lib/node_modules
     - script: npm install @openapitools/openapi-generator-cli
       displayName: Install openapi-generator
     - script: pytest
