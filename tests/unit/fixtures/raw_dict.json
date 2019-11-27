@@ -1,0 +1,15 @@
+{
+  "codegen_exec": "openapi-generator",
+  "generate_extra_args": [],
+  "github_org_name": "DataDog",
+  "github_repo_name": "apigentools",
+  "languages": {
+    "java": {
+      "github_repo_name": "DataDog"
+    }
+  },
+  "server_base_urls": {},
+  "spec_sections": {},
+  "spec_versions": [],
+  "user_agent_client_name": "OpenAPI"
+}
