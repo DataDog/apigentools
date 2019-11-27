@@ -75,3 +75,59 @@ class TemplatesCommand(Command):
                     shutil.rmtree(outlang_dir)
                 shutil.copytree(os.path.join(copy_from, upstream_templatedir), outlang_dir)
         return 0
+
+
+
+    templates_parser = sp.add_parser(
+        "templates",
+        help="Get upstream templates and apply downstream patches",
+    )
+    templates_parser.add_argument(
+        "-o", "--output-dir",
+        envvar="APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
+        help="Path to directory where to put processed upstream templates (default: {})".format(constants.DEFAULT_TEMPLATES_DIR),
+    )
+    templates_parser.add_argument(
+        "-p", "--template-patches-dir",
+        envvar="APIGENTOOLS_TEMPLATE_PATCHES_DIR", constants.DEFAULT_TEMPLATE_PATCHES_DIR),
+        help="Directory with patches for upstream templates (default: '{}')".format(constants.DEFAULT_TEMPLATE_PATCHES_DIR),
+    )
+    templates_source = templates_parser.add_subparsers(
+        dest="templates_source",
+        required=True,
+        help="Source of upstream templates"
+    )
+
+    jar_parser = templates_source.add_parser(
+        "openapi-jar",
+        help="Obtain upstream templates from openapi-generator jar",
+    )
+    jar_parser.add_argument(
+        "jar_path",
+        nargs="?",
+        envvar="APIGENTOOLS_OPENAPI_JAR", constants.OPENAPI_JAR),
+        help="Path to openapi-generator jar file",
+    )
+    local_parser = templates_source.add_parser(
+        "local-dir",
+        help="Obtain upstream templates from a local directory (e.g. an openapi-generator git checkout)",
+    )
+    local_parser.add_argument(
+        "local_path",
+        help="Path to directory with openapi-generator upstream templates",
+    )
+    git_parser = templates_source.add_parser(
+        "openapi-git",
+        help="Obtain upstream templates from openapi-generator git repository",
+    )
+    git_parser.add_argument(
+        "-u", "--repo_url",
+        default=constants.OPENAPI_GENERATOR_GIT,
+        help="URL of the openapi-generator repo (default: '{}')".format(constants.OPENAPI_GENERATOR_GIT),
+    )
+    git_parser.add_argument(
+        "git_committish",
+        default="master",
+        nargs="?",
+        help="Git 'committish' to check out before obtaining templates (default: 'master')"
+    )

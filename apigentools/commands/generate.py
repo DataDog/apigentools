@@ -318,3 +318,56 @@ class GenerateCommand(Command):
         except subprocess.CalledProcessError as e:
             log.error("Error cloning repo {0} into {1}. Make sure {1} is empty first".format(log_repo, output_dir))
             raise e
+
+
+
+    generate_parser = sp.add_parser(
+        "generate",
+        help="Generate client code"
+    )
+    generate_parser.add_argument(
+        "-s", "--spec-dir",
+        envvar="APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
+        help="Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
+    )
+    generate_parser.add_argument(
+        '--clone-repo',
+        action='store_true',
+        envvar='APIGENTOOLS_PULL_REPO', False, __type=bool),
+        help="When specified, clones the client repository before running code generation",
+    )
+    generate_parser.add_argument(
+        "-f", "--full-spec-file",
+        envvar="APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
+        help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml'). " +
+             "Note that if some languages override config's spec_sections, additional " +
+             "files will be generated with name pattern 'full_spec.<lang>.yaml'",
+    )
+    generate_parser.add_argument(
+        "--additional-stamp",
+        nargs="*",
+        help="Additional components to add to the 'apigentoolsStamp' variable passed to templates",
+        envvar="APIGENTOOLS_ADDITIONAL_STAMP", [], __type=list),
+    )
+    generate_parser.add_argument(
+        "-i", "--generated-with-image",
+        envvar="APIGENTOOLS_IMAGE", None),
+        help="Override the tag of the image with which the client code was generated",
+    )
+    generate_parser.add_argument(
+        "-d", "--downstream-templates-dir",
+        envvar="APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR", constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR),
+        help="Path to directory with downstream templates (default: '{}')".format(constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR),
+    )
+    template_group = generate_parser.add_mutually_exclusive_group()
+    template_group.add_argument(
+        "-t", "--template-dir",
+        envvar="APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
+        help="Path to directory with processed upstream templates (default: '{}')".format(constants.DEFAULT_TEMPLATES_DIR),
+    )
+    template_group.add_argument(
+        "--builtin-templates",
+        action="store_true",
+        default=False,
+        help="Use unpatched upstream templates",
+    )

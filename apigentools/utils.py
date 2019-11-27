@@ -40,6 +40,15 @@ def set_log_level(log, level):
     log.setLevel(level)
 
 
+def _set_log_level(ctx, param, value):
+    """Option callback for --verbose."""
+    toplog = logging.getLogger(__name__.split(".")[0])
+    set_log(toplog)
+    if value:
+        set_log_level(toplog, logging.DEBUG)
+
+
+
 @contextlib.contextmanager
 def change_cwd(change_to):
     """ A context manager to temporarily change current working directory

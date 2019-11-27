@@ -53,7 +53,9 @@ class PushCommand(Command):
         cmd_result = 0
 
         languages = self.args.languages or self.config.languages
-        commit_msg = "Regenerate client from commit {} of spec repo".format(get_current_commit(self.args.spec_repo_dir))
+        commit_msg = "Regenerate client from commit {} of spec repo".format(
+            get_current_commit(self.args.spec_repo_dir)
+        )
         commit_msg = self.args.push_commit_msg or commit_msg
 
         for lang_name, lang_config in self.config.language_configs.items():
@@ -70,25 +72,47 @@ class PushCommand(Command):
                 branch_name = self.get_push_branch(lang_name)
                 try:
                     if self.args.skip_if_no_changes and self.git_status_empty():
-                        log.info("Only .apigentools file changed for language {}, skipping".format(lang_name))
+                        log.info(
+                            "Only .apigentools file changed for language {}, skipping".format(
+                                lang_name
+                            )
+                        )
                         continue
 
                     # Update git config for this repository to use the provided author's email/name
                     # If not specified, use the setup from the system/global
                     if self.args.git_email:
-                        run_command(['git', 'config', 'user.email', self.args.git_email], dry_run=self.args.dry_run)
+                        run_command(
+                            ["git", "config", "user.email", self.args.git_email],
+                            dry_run=self.args.dry_run,
+                        )
                     if self.args.git_name:
-                        run_command(['git', 'config', 'user.name', self.args.git_name], dry_run=self.args.dry_run)
+                        run_command(
+                            ["git", "config", "user.name", self.args.git_name],
+                            dry_run=self.args.dry_run,
+                        )
 
-                    run_command(['git', 'checkout', '-b', branch_name], dry_run=self.args.dry_run)
-                    run_command(['git', 'add', '-A'], dry_run=self.args.dry_run)
-                    run_command(['git', 'commit', '-a', '-m', commit_msg], dry_run=self.args.dry_run)
-                    run_command(['git', 'push', 'origin', 'HEAD'], dry_run=self.args.dry_run)
+                    run_command(
+                        ["git", "checkout", "-b", branch_name],
+                        dry_run=self.args.dry_run,
+                    )
+                    run_command(["git", "add", "-A"], dry_run=self.args.dry_run)
+                    run_command(
+                        ["git", "commit", "-a", "-m", commit_msg],
+                        dry_run=self.args.dry_run,
+                    )
+                    run_command(
+                        ["git", "push", "origin", "HEAD"], dry_run=self.args.dry_run
+                    )
                     created_branches[repo] = branch_name
                 except subprocess.CalledProcessError as e:
                     log.error("Error running git commands: {}".format(e))
-                    cmd_result+=1
+                    cmd_result += 1
                     continue
-        log.info('Apigentools created the following branches:')
-        log.info('\n'.join('{} : {}'.format(key, value) for key, value in created_branches.items()))
+        log.info("Apigentools created the following branches:")
+        log.info(
+            "\n".join(
+                "{} : {}".format(key, value) for key, value in created_branches.items()
+            )
+        )
         return cmd_result

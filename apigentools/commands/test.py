@@ -18,10 +18,7 @@ class TestCommand(Command):
         fname = "Dockerfile.test"
         if version is not None:
             fname += ".{}".format(version)
-        return os.path.join(
-            self.get_generated_lang_dir(lang),
-            fname,
-        )
+        return os.path.join(self.get_generated_lang_dir(lang), fname,)
 
     def get_test_image_name(self, lang, version):
         if version is None:
@@ -51,7 +48,9 @@ class TestCommand(Command):
         for i, ce in enumerate(self.args.container_env):
             split = ce.split("=", 1)
             if len(split) != 2:
-                raise ValueError("{} (passed in on position {})".format(REDACTED_OUT_SECRET, i))
+                raise ValueError(
+                    "{} (passed in on position {})".format(REDACTED_OUT_SECRET, i)
+                )
             cmd.append("-e")
             cmd.append({"item": "{}={}".format(split[0], split[1]), "secret": True})
         cmd.append(img_name)
@@ -69,7 +68,11 @@ class TestCommand(Command):
                 continue
             # we consider `None` version to represent the `Dockerfile.test` file (without prefix)
             for version in [None] + lang_config.spec_versions:
-                spec_version_loggable = "non-version tests" if version is None else "spec version {}".format(version)
+                spec_version_loggable = (
+                    "non-version tests"
+                    if version is None
+                    else "spec version {}".format(version)
+                )
                 # Skip any non user provided versions
                 if version is not None and version not in versions:
                     continue
@@ -77,7 +80,9 @@ class TestCommand(Command):
                 img_name = self.get_test_image_name(lang_name, version)
                 log.info(
                     "Looking up %s to test language %s, %s",
-                    df_path, lang_name, spec_version_loggable
+                    df_path,
+                    lang_name,
+                    spec_version_loggable,
                 )
 
                 # first, try building the image
@@ -90,7 +95,8 @@ class TestCommand(Command):
                 except subprocess.CalledProcessError:
                     log.error(
                         "FAIL: Failed to build testing image for language %s, %s",
-                        lang_name, spec_version_loggable
+                        lang_name,
+                        spec_version_loggable,
                     )
                     cmd_result = 1
                     continue
@@ -102,10 +108,13 @@ class TestCommand(Command):
                 except subprocess.CalledProcessError:
                     log.error(
                         "ERROR: Testing failed for language %s, %s",
-                        lang_name, spec_version_loggable
+                        lang_name,
+                        spec_version_loggable,
                     )
-                    cmd_result =  1
+                    cmd_result = 1
                 except ValueError as e:
-                    log.error("Bad container env '%s', must be in form KEY=VALUE", str(e))
+                    log.error(
+                        "Bad container env '%s', must be in form KEY=VALUE", str(e)
+                    )
 
         return cmd_result
