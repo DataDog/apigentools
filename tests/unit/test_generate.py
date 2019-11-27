@@ -148,9 +148,10 @@ def test_write_dot_apigentools_info(tmpdir):
     assert "apigentools_version" in info
     assert "codegen_version" in info
 
+
 def test_run_language_commands(tmpdir):
     temp_dir = tmpdir.mkdir("temp_dir")
-    phase = 'pre'
+    phase = "pre"
     language = "java"
     args = flexmock(
         action="generate",
@@ -179,6 +180,7 @@ def test_run_language_commands(tmpdir):
     cmd = GenerateCommand(cfg, args)
     cmd.run_language_commands(language, phase, temp_dir)
     # this runs, but I'm not sure what the commands are?
+
 
 @pytest.mark.skip
 def test_render_downstream_templates(tmpdir):
@@ -211,9 +213,3 @@ def test_render_downstream_templates(tmpdir):
     cmd = GenerateCommand(cfg, args)
     cmd.render_downstream_templates(language, temp_dir)
     walk = os.walk(os.path.join(temp_dir, language))
-    import pdb; pdb.set_trace()
-
-
-
-
-
