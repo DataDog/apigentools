@@ -7,6 +7,7 @@ import os
 
 import chevron
 
+
 class Command(abc.ABC):
     def __init__(self, config, args):
         self.config = config
@@ -22,7 +23,7 @@ class Command(abc.ABC):
         """
         return os.path.join(
             self.args.generated_code_dir,
-            self.config.get_language_config(lang).github_repo_name
+            self.config.get_language_config(lang).github_repo_name,
         )
 
     def get_generated_lang_version_dir(self, lang, version):
@@ -39,7 +40,7 @@ class Command(abc.ABC):
         lc = self.config.get_language_config(lang)
         return os.path.join(
             self.get_generated_lang_dir(lang),
-            chevron.render(lc.version_path_template, {'spec_version': version}),
+            chevron.render(lc.version_path_template, {"spec_version": version}),
         )
 
     @abc.abstractmethod

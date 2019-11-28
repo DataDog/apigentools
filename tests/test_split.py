@@ -1,13 +1,12 @@
 import json
 import os
-import yaml
 
 import flexmock
 import pytest
+import yaml
 
 from apigentools.commands.split import SplitCommand
 from apigentools.constants import SHARED_SECTION_NAME
-
 
 FIXTURES_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
 

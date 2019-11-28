@@ -18,8 +18,8 @@ __version__ = {version!r}
 
 setup(
     use_scm_version={
-        'local_scheme': 'dirty-tag',
-        'write_to': os.path.join('apigentools', 'version.py'),
-        'write_to_template': version_template,
-    },
+        "local_scheme": "dirty-tag",
+        "write_to": os.path.join("apigentools", "version.py"),
+        "write_to_template": version_template,
+    }
 )

@@ -1,12 +1,12 @@
 import json
 import os
-import yaml
 
 import flexmock
 import pytest
+import yaml
 
-from apigentools.commands.init import InitCommand
 from apigentools import constants
+from apigentools.commands.init import InitCommand
 
 
 def test_init(tmpdir):
@@ -15,9 +15,7 @@ def test_init(tmpdir):
         constants.DEFAULT_GENERATED_CODE_DIR,
         constants.DEFAULT_TEMPLATE_PATCHES_DIR,
         constants.DEFAULT_CONFIG_DIR,
-        os.path.join(
-            constants.DEFAULT_CONFIG_DIR, constants.LANGUAGE_OAPI_CONFIGS
-        ),
+        os.path.join(constants.DEFAULT_CONFIG_DIR, constants.LANGUAGE_OAPI_CONFIGS),
         constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,
         constants.DEFAULT_SPEC_DIR,
         os.path.join(constants.DEFAULT_SPEC_DIR, "v1"),
@@ -32,9 +30,7 @@ def test_init(tmpdir):
     # sets do not presume the output of os.walk() will be ordered
     dir_entries = set(dir_entry[0] for dir_entry in os.walk(temp_dir))
     # create a set of expected directory names to test against
-    test_dirs = set(
-        os.path.join(temp_dir, name) for name in EXPECTED_DIRECTORY_NAMES
-    )
+    test_dirs = set(os.path.join(temp_dir, name) for name in EXPECTED_DIRECTORY_NAMES)
     # the directories created in git repos have changed in the past, so only
     # checking for the root .git directory
     test_dirs.add(os.path.join(temp_dir, ".git"))
@@ -44,19 +40,14 @@ def test_init(tmpdir):
     # test that file contents are what they are supposed to be
     with open(
         os.path.join(
-            temp_dir,
-            constants.DEFAULT_CONFIG_DIR,
-            constants.DEFAULT_CONFIG_FILE,
+            temp_dir, constants.DEFAULT_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE
         )
     ) as f:
         assert cmd_instance.CONFIG_FILE_JSON == json.loads(f.read())
 
     with open(
         os.path.join(
-            temp_dir,
-            constants.DEFAULT_SPEC_DIR,
-            "v1",
-            constants.HEADER_FILE_NAME,
+            temp_dir, constants.DEFAULT_SPEC_DIR, "v1", constants.HEADER_FILE_NAME
         )
     ) as f:
         assert yaml.dump(cmd_instance.V1_HEADER_JSON) == f.read()
@@ -83,9 +74,7 @@ def test_init(tmpdir):
     dir_entries = set(dir_entry[0] for dir_entry in os.walk(temp_dir))
     # create a set of expected directory names to test against, and add the
     # root temp_dir since it's in the output of `os.walk()`
-    test_dirs = set(
-        os.path.join(temp_dir, name) for name in EXPECTED_DIRECTORY_NAMES
-    )
+    test_dirs = set(os.path.join(temp_dir, name) for name in EXPECTED_DIRECTORY_NAMES)
     test_dirs.add(temp_dir)
 
     assert dir_entries == test_dirs

@@ -11,21 +11,26 @@ import sys
 
 import yaml
 
-from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME, REDACTED_OUT_SECRET
+from apigentools.constants import (
+    HEADER_FILE_NAME,
+    REDACTED_OUT_SECRET,
+    SHARED_SECTION_NAME,
+)
 
 log = logging.getLogger(__name__)
 
 COMPONENT_FIELDS = [
-    'schemas',
-    'parameters',
-    'securitySchemes',
-    'requestBodies',
-    'responses',
-    'headers',
-    'examples',
-    'links',
-    'callbacks',
+    "schemas",
+    "parameters",
+    "securitySchemes",
+    "requestBodies",
+    "responses",
+    "headers",
+    "examples",
+    "links",
+    "callbacks",
 ]
+
 
 def set_log(log):
     fmt = logging.Formatter("%(levelname)s: %(message)s")
@@ -101,10 +106,15 @@ def get_current_commit(repo_path):
     log.debug("Getting current commit for stamping ...")
     with change_cwd(repo_path):
         try:
-            res = run_command(["git", "rev-parse", "--short", "HEAD"], log_level=logging.DEBUG)
+            res = run_command(
+                ["git", "rev-parse", "--short", "HEAD"], log_level=logging.DEBUG
+            )
         except subprocess.CalledProcessError:
             # not a git repository
-            log.debug("Failed getting current git commit for %s, not a git repository", repo_path)
+            log.debug(
+                "Failed getting current git commit for %s, not a git repository",
+                repo_path,
+            )
             return None
         return res.stdout.strip()
 
@@ -124,8 +134,14 @@ def logging_enabled(enabled):
         logging.disable(logging.NOTSET)
 
 
-def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_err=False, dry_run=False,
-                sensitive_output=False):
+def run_command(
+    cmd,
+    log_level=logging.INFO,
+    additional_env=None,
+    combine_out_err=False,
+    dry_run=False,
+    sensitive_output=False,
+):
     """ Wrapper for running subprocesses with reasonable logging.
 
     :param cmd: Command to run as subprocess. Members are either strings (directly used
@@ -171,30 +187,44 @@ def run_command(cmd, log_level=logging.INFO, additional_env=None, combine_out_er
             env = copy.deepcopy(os.environ)
             if additional_env:
                 env.update(additional_env)
-            log.log(log_level, "%sRunning command '%s'",
+            log.log(
+                log_level,
+                "%sRunning command '%s'",
                 "(DRYRUN) " if dry_run else "",
-                " ".join(cmd_logstr)
+                " ".join(cmd_logstr),
             )
             if dry_run:
                 result = subprocess.CompletedProcess(cmd_strlist, 0)
             else:
-                stdout=subprocess.PIPE
-                stderr=subprocess.STDOUT if combine_out_err else subprocess.PIPE
-                result = subprocess.run(cmd_strlist, stdout=stdout, stderr=stderr, check=True, text=True, env=env)
-                log.log(log_level, "Command result:\n{}".format(
-                    fmt_cmd_out_for_log(result, combine_out_err)
-                ))
+                stdout = subprocess.PIPE
+                stderr = subprocess.STDOUT if combine_out_err else subprocess.PIPE
+                result = subprocess.run(
+                    cmd_strlist,
+                    stdout=stdout,
+                    stderr=stderr,
+                    check=True,
+                    text=True,
+                    env=env,
+                )
+                log.log(
+                    log_level,
+                    "Command result:\n{}".format(
+                        fmt_cmd_out_for_log(result, combine_out_err)
+                    ),
+                )
         except subprocess.CalledProcessError as e:
             if sensitive_output:
                 raise subprocess.CalledProcessError(
                     e.returncode,
                     ["command with sensitive output"],
                     output=None,
-                    stderr=None
+                    stderr=None,
                 ) from None  # use `from None to prevent exception chaining if there is sensitive output`
             log.log(
                 log_level,
-                "Error in called process:\n{}".format(fmt_cmd_out_for_log(e, combine_out_err))
+                "Error in called process:\n{}".format(
+                    fmt_cmd_out_for_log(e, combine_out_err)
+                ),
             )
             raise
 
@@ -215,8 +245,7 @@ def fmt_cmd_out_for_log(result_or_error, combine_out_err):
     """
     if combine_out_err:
         return "RETCODE: {rc}\nOUTPUT:\n{o}".format(
-            rc=result_or_error.returncode,
-            o=result_or_error.stdout,
+            rc=result_or_error.returncode, o=result_or_error.stdout
         )
     else:
         return "RETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
@@ -283,7 +312,12 @@ def write_full_specs(config, languages, spec_dir, spec_version, full_spec_file):
 
     for l, sections in construct_specs_for.items():
         fsf = get_full_spec_file_name(full_spec_file, l)
-        log.info("Writing %s OpenAPI spec for API version %s to %s", (l or "general"), spec_version, fsf)
+        log.info(
+            "Writing %s OpenAPI spec for API version %s to %s",
+            (l or "general"),
+            spec_version,
+            fsf,
+        )
         ret[l] = write_full_spec(config, spec_dir, spec_version, sections, fsf)
 
     return ret
@@ -309,7 +343,10 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
     spec_version_dir = os.path.join(spec_dir, spec_version)
     fs_path = os.path.join(spec_version_dir, full_spec_file)
 
-    filenames = spec_sections[spec_version] + [SHARED_SECTION_NAME + ".yaml", HEADER_FILE_NAME]
+    filenames = spec_sections[spec_version] + [
+        SHARED_SECTION_NAME + ".yaml",
+        HEADER_FILE_NAME,
+    ]
     full_spec = {
         "paths": {},
         "tags": [],
@@ -323,10 +360,10 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
             "examples": {},
             "links": {},
             "callbacks": {},
-         },
+        },
         "servers": [{"url": config.server_base_urls[spec_version]}],
-        "security": []
-     }
+        "security": [],
+    }
 
     for filename in filenames:
         fpath = os.path.join(spec_version_dir, filename)
@@ -337,26 +374,34 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
             if filename == HEADER_FILE_NAME:
                 full_spec.update(loaded)
             else:
-                validate_duplicates(loaded.get('paths', {}), full_spec["paths"].keys())
+                validate_duplicates(loaded.get("paths", {}), full_spec["paths"].keys())
                 full_spec["paths"].update(loaded.get("paths", {}))
 
-                validate_duplicates(loaded.get('tags', []), full_spec.get('tags', []))
+                validate_duplicates(loaded.get("tags", []), full_spec.get("tags", []))
                 full_spec["tags"].extend(loaded.get("tags", []))
 
-                validate_duplicates(loaded.get('security', []), full_spec.get('security', []))
+                validate_duplicates(
+                    loaded.get("security", []), full_spec.get("security", [])
+                )
                 full_spec["security"].extend(loaded.get("security", []))
 
                 for field in COMPONENT_FIELDS:
                     # Validate there aren't duplicate fields across files
                     # Note: This won't raise an error if there is a duplicate component in a single file
                     # That would alredy be deduped by the safe_load above.
-                    validate_duplicates(loaded.get('components', {}).get(field, {}).keys(), full_spec.get('components', {}).get(field).keys())
-                    full_spec["components"][field].update(loaded.get("components", {}).get(field, {}))
+                    validate_duplicates(
+                        loaded.get("components", {}).get(field, {}).keys(),
+                        full_spec.get("components", {}).get(field).keys(),
+                    )
+                    full_spec["components"][field].update(
+                        loaded.get("components", {}).get(field, {})
+                    )
 
     with open(fs_path, "w", encoding="utf-8") as f:
         f.write(yaml.dump(full_spec))
         log.debug("Writing the full spec: {}".format(yaml.dump(full_spec)))
     return fs_path
+
 
 def validate_duplicates(loaded_keys, full_spec_keys):
     for key in loaded_keys:

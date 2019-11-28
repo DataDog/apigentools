@@ -4,6 +4,7 @@
 # Copyright 2019 Datadog, Inc.
 import json
 
+
 class Config:
     def __init__(self, raw_dict):
         # TODO: verify the schema of the raw config dict, possibly use jsonschema for that
@@ -15,7 +16,7 @@ class Config:
             "spec_sections": {},
             "spec_versions": [],
             "generate_extra_args": [],
-            "user_agent_client_name": "OpenAPI"
+            "user_agent_client_name": "OpenAPI",
         }
         self.language_configs = {}
         for lang, conf in raw_dict.get("languages", {}).items():
@@ -74,11 +75,11 @@ class LanguageConfig:
 
     @property
     def github_repo(self):
-        return self.raw_dict.get('github_repo_name')
+        return self.raw_dict.get("github_repo_name")
 
     @property
     def github_org(self):
-        return self.raw_dict.get('github_org_name')
+        return self.raw_dict.get("github_org_name")
 
     @property
     def command_env(self):
@@ -86,7 +87,9 @@ class LanguageConfig:
 
     @property
     def generate_extra_args(self):
-        return self.raw_dict.get("generate_extra_args", self.top_level_config.generate_extra_args)
+        return self.raw_dict.get(
+            "generate_extra_args", self.top_level_config.generate_extra_args
+        )
 
     @property
     def spec_versions(self):
