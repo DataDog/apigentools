@@ -18,6 +18,10 @@ Install apigentools with
 pip install apigentools
 ```
 
+## Containerized Version
+
+For all operations (except the simple `apigentools init` which doesn't need any complex dependencies), we highly recommend everyone to use the containerized version of apigentools available via `apigentools/apigentools` image on [Dockerhub](https://cloud.docker.com/u/apigentools/repository/docker/apigentools/apigentools). The apigentools Python package includes a [container-apigentool](cli.md#containerized-version) script which utilizes the image in the background. It can be used as easily as the non-containerized `apigentools` script, while also ensuring presence of all tools and dependencies necessary for apigentools to work properly.
+
 ### Setup Spec Repo
 
 A [spec repo](spec_repo.md) is a repository that holds the [OpenAPI spec](https://www.openapis.org/) of your API, configuration for both apigentools and [openapi-generator](https://github.com/OpenAPITools/openapi-generator), and some additional files, such as [downstream templates](workflow.md#add-downstream-templates) and [template patches](workflow.md#add-template-patches). Apigentools work with this repo to perform various tasks, such as validating your spec or generating client code. To get set up, run:
@@ -121,7 +125,7 @@ Now that you have a complete spec with a single API endpoint and all schemas def
 Run:
 
 ```
-apigentools validate
+container-apigentools validate
 ```
 
 If everything else is in place, this command exits successfully. If not, it prints a meaningful error message telling you where the problem is. It will also create a `spec/v1/full_spec.yaml`, which is a single file containing the whole OpenAPI spec definition of your API.
@@ -179,7 +183,7 @@ You're finished configuring apigentools, and you can now start generating code!
 To generate client code using the configuration you've created, run:
 
 ```
-apigentools generate --builtin-templates
+container-apigentools generate --builtin-templates
 ```
 
 Note that you're using the `--builtin-templates` argument here to tell apigentools to use templates that are built in to openapi-generator. By default, apigentools expects you to pregenerate the templates using the [templates command](cli.md#apigentools-templates), but you really only need to do this when you need to change openapi-generator included templates.

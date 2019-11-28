@@ -28,7 +28,9 @@ Install apigentools from PyPI:
 pip install apigentools
 ```
 
-Note that apigentools ships with 2 executables: `apigentools` and `container-apigentools`. Consult the [CLI documentation](cli.md) on how these are used. The following sections provide examples using both of these.
+Note that apigentools ships with 2 executables: `apigentools` and `container-apigentools`. Consult the [CLI documentation](cli.md) on how these are used. While the following sections provide examples using both of these, we recommend using the container version to ensure reproducibility and presence of all necessary tools.
+
+Note that up until version 0.8.0, the `container-apigentools` required a positional argument with image to use, e.g. `container-apigentools apigentools/apigentools:0.8.0 validate`. Since 0.9.0, the image to be used is read either from `APIGENTOOLS_IMAGE` environment variable or from [config](spec_repo.md#configconfigjson) `container_apigentools_image` value.
 
 ## Create a "Spec Repo"
 
@@ -60,7 +62,7 @@ Run `apigentools validate`.
 
 ### Docker
 
-Run `container-apigentools apigentools/apigentools:latest validate`.
+Run `container-apigentools validate`.
 
 ## Add Template Patches
 
@@ -91,7 +93,7 @@ Example: `apigentools templates local-dir /path/to/base/templates`
 
 ### Docker
 
-Example: `container-apigentools apigentools/apigentools:latest templates openapi-git v4.1.0`
+Example: `container-apigentools templates openapi-git v4.1.0`
 
 ## Generate Client Code
 
@@ -103,7 +105,7 @@ Run `apigentools generate`.
 
 ### Docker
 
-Run `container-apigentools apigentools/apigentools:latest generate`.
+Run `container-apigentools generate`.
 
 ## Run Tests
 
@@ -115,7 +117,7 @@ Run `apigentools test`.
 
 ### Docker
 
-Run `container-apigentools apigentools:latest test`.
+Run `container-apigentools test`.
 
 ## Push Code
 
@@ -127,4 +129,4 @@ Note that when using the `push` command, the generated directory must be empty, 
 
 Note that you can run all the above commands (`validate`, `templates`, `generate`, and `test`) in sequence with Docker with just one command by passing no additional arguments to `container-apigentools`:
 
-Run `container-apigentools apigentools:local`.
+Run `container-apigentools`.

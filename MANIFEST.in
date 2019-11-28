@@ -2,7 +2,6 @@ include *.csv
 include *.md
 include *.yml
 include CODEOWNERS
-include container-apigentools
 include docker-entrypoint.sh
 include Dockerfile
 include LICENSE
