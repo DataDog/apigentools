@@ -69,7 +69,7 @@ def container_cli():
     command.extend(args.apigentools_args)
 
     # if using latest, explictly pull to actually get latest image
-    if image.endswith(":latest"):
+    if ":" not in image or image.endswith(":latest"):
         log.info("Detected usage of ':latest' image, pulling it now ...")
         subprocess.call(["docker", "pull", image])
     log.debug("Executing %s", command)
