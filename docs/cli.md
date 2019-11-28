@@ -1,5 +1,29 @@
 # apigentools CLI Reference
 
+## Containerized Version
+
+The apigentools PyPI package ships with two scripts: `apigentools` and `container-apigentools`. The containerized version executes all commands in a container created from given image. Additionally, all `APIGENTOOLS_*` environment variables from current environment are passed inside the container. Basic usage:
+
+`container-apigentools [--spec-repo-volume SPEC_REPO_VOLUME] [APIGENTOOLS_ARG ...]`
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`--spec-repo-volume SPEC_REPO_VOLUME` | Path to directory with the spec repo. | | `.`
+
+Positional Argument | Description | Environment Variable | Default
+--------------------|-------------|----------------------|--------
+`APIGENTOOLS_ARGS` | Arguments to pass to apigentools running inside container. Refer to the below [apigentools][#non-containerized-version] section for information about argument behavior.
+
+The container image to use is determined from these sources:
+
+* If `APIGENTOOLS_IMAGE` environment variable exists, its content is used.
+* Otherwise [config.json](spec_repo.md#configconfigjson) is parsed and value of `container_apigentools_image` key is used if present.
+* Otherwise `apigentools/apigentools:latest` is used.
+
+Note that if `APIGENTOOLS_ARGS` is not provided, a [full automated workflow](workflow.md#run-all-automated-parts-of-the-workflow) is run.
+
+## Non-containerized Version
+
 Basic usage:
 
 ```
@@ -136,20 +160,3 @@ Argument | Description | Environment Variable | Default
 `-g GENERATED_CODE_DIR, --generated-code-dir GENERATED_CODE_DIR` | Path to directory where the generated source code is. | `APIGENTOOLS_GENERATED_CODE_DIR` | `generated`
 `-h, --help` | Show help message and exit.
 `--no-cache` | Build test image with `--no-cache` option. | `APIGENTOOLS_TEST_BUILD_NO_CACHE` | `False`
-
-# Containerized Version
-
-The apigentools PyPI package ships with two scripts: `apigentools` and `container-apigentools`. The containerized version executes all commands in a container created from given image. Additionally, all `APIGENTOOLS_*` environment variables from current environment are passed inside the container. Basic usage:
-
-`container-apigentools IMAGE [--spec-repo-volume SPEC_REPO_VOLUME] [APIGENTOOLS_ARG ...]`
-
-Argument | Description | Environment Variable | Default
----------|-------------|----------------------|--------
-`--spec-repo-volume SPEC_REPO_VOLUME` | Path to directory with the spec repo. | | `.`
-
-Positional Argument | Description | Environment Variable | Default
---------------------|-------------|----------------------|--------
-`IMAGE` | apigentools image to use, e.g. `apigentools:1.2.3`
-`APIGENTOOLS_ARGS` | Arguments to pass to apigentools running inside container. Refer to the above [apigentools][#apigentools-cli-reference] section for information about argument behavior.
-
-Note that if `APIGENTOOLS_ARGS` is not provided, a [full automated workflow](workflow.md#run-all-automated-parts-of-the-workflow) is run.

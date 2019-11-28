@@ -80,6 +80,7 @@ Example:
 ```
 {
     "codegen_exec": "openapi-generator",
+    "container_apigentools_image": "apigentools/apigentools:0.9.0",
     "languages": {
         "java": {
             "github_org_name": "my-github-org",
@@ -108,6 +109,7 @@ Example:
 The structure of the general config file is as follows, starting with top level keys:
 
 * `codegen_exec` - Name of the executable of the code generating tool.
+* `container_apigentools_image` - Container image to use by the `container-apigentools` script by default.
 * `languages` - Settings for individual languages; contains a mapping of language names to their settings.
   * individual language settings:
     * `commands` - Commands to execute before/after code generation; commands are executed in two *phases* - `pre` (executed before code generation) or `post` (executed after code generation). Note that each command is run once for each of the langauge's `spec_versions`, and inside the directory with code for that spec version.

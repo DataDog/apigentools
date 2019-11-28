@@ -44,7 +44,7 @@ def get_cli_parser():
     )
     p.add_argument(
         "-c", "--config-dir",
-        default=env_or_val("APIGENTOOLS_CONFIG_DIR", constants.DEFAULT_CONFIG_DIR),
+        default=env_or_val(constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR),
         help="Path to config directory (default: '{}')".format(constants.DEFAULT_CONFIG_DIR),
     )
     p.add_argument(
