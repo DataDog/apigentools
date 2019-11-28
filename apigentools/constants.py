@@ -2,14 +2,17 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019 Datadog, Inc.
+CONFIG_CONTAINER_IMAGE_KEY = "container_apigentools_image"
 DEFAULT_CONFIG_DIR = "config"
 DEFAULT_CONFIG_FILE = "config.json"
+DEFAULT_CONTAINER_IMAGE = "apigentools/apigentools:latest"
 DEFAULT_DOWNSTREAM_TEMPLATES_DIR = "downstream-templates"
 DEFAULT_GENERATED_CODE_DIR = "generated"
 DEFAULT_LANGUAGES_CONFIG_DIR = "languages"
 DEFAULT_SPEC_DIR = "spec"
 DEFAULT_TEMPLATE_PATCHES_DIR = "template-patches"
 DEFAULT_TEMPLATES_DIR = "templates"
+ENV_APIGENTOOLS_CONFIG_DIR = "APIGENTOOLS_CONFIG_DIR"
 LANGUAGE_OAPI_CONFIGS = "languages"
 OPENAPI_GENERATOR_GIT = "https://github.com/OpenAPITools/openapi-generator"
 GITHUB_REPO_URL_TEMPLATE = "github.com/{{github_org_name}}/{{github_repo_name}}"
