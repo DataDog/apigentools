@@ -3,6 +3,7 @@
 # All rights reserved
 # Licensed under a 3-clause BSD style license (see LICENSE)
 import argparse
+import copy
 import json
 import logging
 import os
@@ -31,6 +32,14 @@ def container_cli():
         help="Arguments to pass to apigentools running inside the container"
     )
     args = parser.parse_args()
+
+    if len(args.apigentools_args) > 0 and \
+            (":" in args.apigentools_args[0] or "/" in args.apigentools_args[0]):
+        log.error("Since apigentools 0.9.0, container-apigentools doesn't accept image as argument.")
+        new_args = copy.deepcopy(sys.argv)
+        new_args.remove(args.apigentools_args[0])
+        log.error("Rerun with: %s", " ".join(new_args))
+        sys.exit(1)
 
     # get image to use - either it's specified as environment variable or we get
     # it from config or we use a default value
