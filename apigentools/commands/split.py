@@ -11,8 +11,8 @@ import sys
 import yaml
 
 from apigentools.commands.command import Command
-from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME
 from apigentools.commands.validate import ValidateCommand
+from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME
 
 log = logging.getLogger(__name__)
 
@@ -64,7 +64,9 @@ class SplitCommand(Command):
                 schema = all_components["schemas"][schema_name]
                 for section_name in section_names:
                     all_sections[section_name]["components"]["schemas"].pop(schema_name)
-                all_sections[SHARED_SECTION_NAME]["components"]["schemas"][schema_name] = schema
+                all_sections[SHARED_SECTION_NAME]["components"]["schemas"][
+                    schema_name
+                ] = schema
 
     def get_endpoints_for_sections(self, all_endpoints):
         """ Get mapping of "top-level" endpoints to all endpoints under them.
@@ -141,12 +143,8 @@ class SplitCommand(Command):
         for endpoint, endpoint_methods in section["paths"].items():
             for method, method_attrs in endpoint_methods.items():
                 self.update_components_recursive(
-                    section,
-                    components,
-                    method_attrs,
-                    "{}.{}".format(endpoint, method)
+                    section, components, method_attrs, "{}.{}".format(endpoint, method)
                 )
-
 
     def update_components_recursive(self, section, components, struct, struct_path):
         """ A recursive function to traverse arbitrary data structure, search for all
@@ -165,10 +163,7 @@ class SplitCommand(Command):
         if isinstance(struct, list):
             for i, item in enumerate(struct):
                 self.update_components_recursive(
-                    section,
-                    components,
-                    item,
-                    "{}.{}".format(struct_path, i)
+                    section, components, item, "{}.{}".format(struct_path, i)
                 )
         elif isinstance(struct, dict):
             for k, v in struct.items():
@@ -178,7 +173,8 @@ class SplitCommand(Command):
                     if not schema:
                         log.warning(
                             "Schema %s referenced in %s doesn't have a definition in 'components'",
-                            schema_name, struct_path
+                            schema_name,
+                            struct_path,
                         )
                     else:
                         section["components"]["schemas"][schema_name] = schema
@@ -187,14 +183,11 @@ class SplitCommand(Command):
                             section,
                             components,
                             schema,
-                            "{}.$ref({})".format(struct_path, v)
+                            "{}.$ref({})".format(struct_path, v),
                         )
                 else:
                     self.update_components_recursive(
-                        section,
-                        components,
-                        v,
-                        "{}.{}".format(struct_path, k)
+                        section, components, v, "{}.{}".format(struct_path, k)
                     )
         else:
             pass  # primitive type that we can't traverse any more => just pass
@@ -215,7 +208,9 @@ class SplitCommand(Command):
                     if not tag_object:
                         log.warning(
                             "Tag %s listed in %s.%s doesn't have a definition in 'tags' list",
-                            tag_name, endpoint, method
+                            tag_name,
+                            endpoint,
+                            method,
                         )
                     elif tag_object not in section["tags"]:
                         section["tags"].append(tag_object)
@@ -238,8 +233,12 @@ class SplitCommand(Command):
             f.write(yaml.dump(loaded_spec, default_flow_style=False))
 
         # now split the spec into multiple sections per top-level API endpoint
-        all_sections = {SHARED_SECTION_NAME: {"components": {"schemas": {}}, "tags": []}}
-        for section_name, endpoints in self.get_endpoints_for_sections(paths.keys()).items():
+        all_sections = {
+            SHARED_SECTION_NAME: {"components": {"schemas": {}}, "tags": []}
+        }
+        for section_name, endpoints in self.get_endpoints_for_sections(
+            paths.keys()
+        ).items():
             section = {"paths": {}, "components": {"schemas": {}}, "tags": []}
             for endpoint in endpoints:
                 section["paths"][endpoint] = paths[endpoint]

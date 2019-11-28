@@ -29,13 +29,16 @@ def container_cli():
     parser.add_argument(
         "apigentools_args",
         nargs=argparse.REMAINDER,
-        help="Arguments to pass to apigentools running inside the container"
+        help="Arguments to pass to apigentools running inside the container",
     )
     args = parser.parse_args()
 
-    if len(args.apigentools_args) > 0 and \
-            (":" in args.apigentools_args[0] or "/" in args.apigentools_args[0]):
-        log.error("Since apigentools 0.9.0, container-apigentools doesn't accept image as argument.")
+    if len(args.apigentools_args) > 0 and (
+        ":" in args.apigentools_args[0] or "/" in args.apigentools_args[0]
+    ):
+        log.error(
+            "Since apigentools 0.9.0, container-apigentools doesn't accept image as argument."
+        )
         new_args = copy.deepcopy(sys.argv)
         new_args.remove(args.apigentools_args[0])
         log.error("Rerun with: %s", " ".join(new_args))
@@ -47,8 +50,10 @@ def container_cli():
     if image is None:
         config = os.path.join(
             args.spec_repo_volume,
-            os.environ.get(constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR),
-            constants.DEFAULT_CONFIG_FILE
+            os.environ.get(
+                constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR
+            ),
+            constants.DEFAULT_CONFIG_FILE,
         )
         with open(config, "r") as f:
             try:
@@ -63,7 +68,7 @@ def container_cli():
 
     mountpoints = {
         args.spec_repo_volume: "/var/lib/apigentools/spec-repo",
-        "/var/run/docker.sock": "/var/run/docker.sock"
+        "/var/run/docker.sock": "/var/run/docker.sock",
     }
 
     command = ["docker", "run", "--rm"]

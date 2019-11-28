@@ -20,6 +20,7 @@ when submitting your PR:
 
 * Have a [proper commit history](#commits) (we advise you to rebase if needed).
 * Write tests for the code you wrote.
+* Reformat the code using `black` to keep the code style consistent.
 * Make sure that all tests pass locally.
 * Summarize your PR with a meaningful title, [see later on this doc](#pull-request-title).
 
