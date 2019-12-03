@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* [Improvement] Make `server_base_url` optional and possibly deprecated in the future version.
+
 ## 0.9.0
 
 * [Feature] Allow using specific branch as base for generation
