@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.9.0
+
+* [Feature] Allow using specific branch as base for generation
+* [Improvement] Bump openapi-generator in container image to 4.2.2
 * [Improvement] The `container-apigentools` script no longer requires a positional argument with image to use, e.g. `container-apigentools apigentools/apigentools:0.8.0 validate`. From now on, the image to be used is read either from `APIGENTOOLS_IMAGE` environment variable or from [config](spec_repo.md#configconfigjson) `container_apigentools_image` value.
 
 ## 0.8.0
