@@ -19,7 +19,6 @@ class InitCommand(Command):
     CONFIG_FILE_JSON = {
         "codegen_exec": "openapi-generator",
         "languages": {},
-        "server_base_urls": {"v1": "https://api.myserver.com/v1"},
         "spec_sections": {"v1": []},
         "spec_versions": ["v1"],
     }

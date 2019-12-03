@@ -93,9 +93,6 @@ Example:
             "generate_extra_args": ["--skip-overwrite", "--generate-model-as-alias"]
         }
     },
-    "server_base_urls": {
-        "v1": "https://api.myserver.com/v1"
-    },
     "spec_sections": {
         "v1": ["accounts.yaml", "users.yaml"],
         "v2": ["users.yaml"]

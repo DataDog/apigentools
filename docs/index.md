@@ -39,7 +39,7 @@ One of the apigentools core ideas is being able to generate clients that can acc
 
 Since OpenAPI specification files can grow very large, apigentools allow you to split them into multiple "sections". Initially, only two files are created. These are also files that are expected to exist for each major version of your API:
 
-* `spec/v1/header.yaml` - A header file that should only contain the OpenAPI keys `openapi`, `info`, and `externalDocs` (note that apigentools fills in `servers` dynamically based on your `config/config.yaml`).
+* `spec/v1/header.yaml` - A header file that should only contain the OpenAPI keys `openapi`, `info`, `externalDocs` and `servers` (note that apigentools can fill in `servers` dynamically based on your `config/config.yaml`).
 * `spec/v1/shared.yaml` - A file containing any OpenAPI objects that are referenced from more than one "section"—`components` (which includes `schemas` and `security_schemes`), `security`, and `tags`.
 
 Add a file `spec/v1/users.yaml` with the following content:
@@ -106,9 +106,6 @@ Now you just need to add the `users.yaml` spec section to `config/config.json`. 
 {
     "codegen_exec": "openapi-generator",
     "languages": {},
-    "server_base_urls": {
-        "v1": "https://api.myserver.com/v1"
-    },
     "spec_sections": {
         "v1": ["users.yaml"]
     },
@@ -144,9 +141,6 @@ Configure apigentools to actually generate code for one language. Try doing this
             "spec_versions": ["v1"],
             "version_path_template": "myapi_{{spec_version}}"
         }
-    },
-    "server_base_urls": {
-        "v1": "https://api.myserver.com/v1"
     },
     "spec_sections": {
         "v1": ["users.yaml"]
