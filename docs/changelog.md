@@ -3,6 +3,7 @@
 ## Unreleased
 
 * [Improvement] Make `server_base_url` optional and possibly deprecated in the future version.
+* [Bugfix] Fetch branch before checkout in `generate` command with `--branch` option.
 
 ## 0.9.0
 

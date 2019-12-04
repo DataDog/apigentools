@@ -131,6 +131,10 @@ class GenerateCommand(Command):
         """
         image = self.args.generated_with_image
 
+        if image is None:
+            # TODO add check that it is running in container
+            image = self.config.container_apigentools_image
+
         if image is not None and image.endswith(":latest"):
             hash_file = os.environ.get(
                 "_APIGENTOOLS_GIT_HASH_FILE", "/var/lib/apigentools/git-hash"
@@ -354,6 +358,8 @@ class GenerateCommand(Command):
             )
             if branch is not None:
                 try:
+                    run_command(["git", "fetch", "origin", branch], cwd=output_dir)
+                    run_command(["git", "branch", branch, "FETCH_HEAD"], cwd=output_dir)
                     run_command(["git", "checkout", branch], cwd=output_dir)
                 except subprocess.CalledProcessError:
                     # if the branch doesn't exist, we stay in the default one
