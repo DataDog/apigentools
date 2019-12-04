@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+* [Bugfix] Fetch branch before checkout in `generate` command with `--branch` option.
+
 ## 0.9.0
 
 * [Feature] Allow using specific branch as base for generation

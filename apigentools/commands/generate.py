@@ -354,6 +354,8 @@ class GenerateCommand(Command):
             )
             if branch is not None:
                 try:
+                    run_command(["git", "fetch", "origin", branch], cwd=output_dir)
+                    run_command(["git", "branch", branch, "FETCH_HEAD"], cwd=output_dir)
                     run_command(["git", "checkout", branch], cwd=output_dir)
                 except subprocess.CalledProcessError:
                     # if the branch doesn't exist, we stay in the default one
