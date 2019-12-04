@@ -30,6 +30,7 @@ class InitCommand(Command):
             "version": "1.0",
         },
         "openapi": "3.0.0",
+        "servers": [{"url": "https://api.example.com/v1"}],
     }
     V1_SHARED_JSON = {
         "components": {
