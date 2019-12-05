@@ -363,9 +363,11 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
             "links": {},
             "callbacks": {},
         },
-        "servers": [{"url": config.server_base_urls[spec_version]}],
         "security": [],
     }
+    if spec_version in config.server_base_urls:
+        # Servers should be defined in header.yaml or endpoints
+        full_spec["servers"] = [{"url": config.server_base_urls[spec_version]}]
 
     for filename in filenames:
         fpath = os.path.join(spec_version_dir, filename)
