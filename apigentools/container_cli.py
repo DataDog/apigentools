@@ -26,21 +26,14 @@ def container_cli():
         default=os.path.abspath(os.getcwd()),
         help="Full path to spec repo (defaults to current working directory)",
     )
-    parser.add_argument(
-        "apigentools_args",
-        nargs=argparse.REMAINDER,
-        help="Arguments to pass to apigentools running inside the container",
-    )
-    args = parser.parse_args()
+    args, remainder = parser.parse_known_args()
 
-    if len(args.apigentools_args) > 0 and (
-        ":" in args.apigentools_args[0] or "/" in args.apigentools_args[0]
-    ):
+    if len(remainder) > 0 and (":" in remainder[0] or "/" in remainder[0]):
         log.error(
             "Since apigentools 0.9.0, container-apigentools doesn't accept image as argument."
         )
         new_args = copy.deepcopy(sys.argv)
-        new_args.remove(args.apigentools_args[0])
+        new_args.remove(remainder[0])
         log.error("Rerun with: %s", " ".join(new_args))
         sys.exit(1)
 
@@ -80,7 +73,7 @@ def container_cli():
         command.append("-v")
         command.append("{}:{}".format(mountdir, mountpoint))
     command.append(image)
-    command.extend(args.apigentools_args)
+    command.extend(remainder)
 
     # if using latest, explictly pull to actually get latest image
     if ":" not in image or image.endswith(":latest"):
