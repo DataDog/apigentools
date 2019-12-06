@@ -60,8 +60,9 @@ def container_cli():
     log.info("Using apigentools image %s", image)
 
     mountpoints = {
-        args.spec_repo_volume: "/var/lib/apigentools/spec-repo",
-        "/var/run/docker.sock": "/var/run/docker.sock",
+        args.spec_repo_volume: ("/var/lib/apigentools/spec-repo", None),
+        "/var/run/docker.sock": ("/var/run/docker.sock", None),
+        os.path.expanduser("~/.ssh"): ("/root/.ssh/", "ro"),
     }
 
     command = ["docker", "run", "--rm"]
@@ -69,9 +70,12 @@ def container_cli():
         if k.startswith("APIGENTOOLS_"):
             command.append("-e")
             command.append("{}={}".format(k, v))
-    for mountdir, mountpoint in mountpoints.items():
+
+    for mountdir, mountopts in mountpoints.items():
         command.append("-v")
-        command.append("{}:{}".format(mountdir, mountpoint))
+        command.append("{}:{}".format(mountdir, mountopts[0]))
+        if mountopts[1] is not None:
+            command[-1] = "{}:{}".format(command[-1], mountopts[1])
     command.append(image)
     command.extend(remainder)
 
