@@ -1,9 +1,12 @@
 # Changelog
 
-## Unreleased
+## 0.9.1
 
 * [Improvement] Make `server_base_url` optional and possibly deprecated in the future version.
-* [Bugfix] Fetch branch before checkout in `generate` command with `--branch` option.
+* [Bugfix] Fetch branch before checkout in `generate` command with `--branch` option.a
+* [Bugfix] Make container-apigentools properly accept arguments to pass inside the container
+* [Bugfix] Mount local SSH keys to container to make `generate --clone-repo` work
+* [Bugfix] Properly record used image in `.apigentools-info`
 
 ## 0.9.0
 
