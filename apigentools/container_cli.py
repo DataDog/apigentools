@@ -72,8 +72,11 @@ def container_cli():
     command.append('GIT_SSH_COMMAND=ssh -o "IgnoreUnknown *"')
     for k, v in os.environ.items():
         if k.startswith("APIGENTOOLS_"):
+            if k == "APIGENTOOLS_IMAGE":
+                pass
             command.append("-e")
             command.append("{}={}".format(k, v))
+    command.extend(["-e", "APIGENTOOLS_IMAGE={}".format(image)])
 
     for mountdir, mountopts in mountpoints.items():
         command.append("-v")
