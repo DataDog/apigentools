@@ -66,6 +66,10 @@ def container_cli():
     }
 
     command = ["docker", "run", "--rm"]
+    # Some people on MacOS use `UseKeychain` option not recognized by linux ssh
+    # so make sure we ignore it
+    command.append("-e")
+    command.append('GIT_SSH_COMMAND=ssh -o "IgnoreUnknown *"')
     for k, v in os.environ.items():
         if k.startswith("APIGENTOOLS_"):
             command.append("-e")
