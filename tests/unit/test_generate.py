@@ -182,9 +182,8 @@ def test_run_language_commands(tmpdir):
     # this runs, but I'm not sure what the commands are?
 
 
-@pytest.mark.skip
 def test_render_downstream_templates(tmpdir):
-    temp_dir = tmpdir.mkdir("downstream-templates")
+    temp_dir = tmpdir.mkdir("generated")
     with open(os.path.join(FIXTURE_DIR, "raw_dict.json"), "r") as f:
         raw_dict = json.loads(f.read())
     language = "java"
@@ -212,4 +211,4 @@ def test_render_downstream_templates(tmpdir):
     cfg = Config(raw_dict)
     cmd = GenerateCommand(cfg, args)
     cmd.render_downstream_templates(language, temp_dir)
-    walk = os.walk(os.path.join(temp_dir, language))
+    walk = os.walk(os.path.join("downstream-templates", language))
