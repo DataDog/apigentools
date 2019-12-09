@@ -9,7 +9,7 @@ from apigentools.commands.generate import GenerateCommand
 from apigentools.config import Config, LanguageConfig
 from apigentools.utils import run_command
 
-FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures",)
+FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
 
 
 # pull_repository
