@@ -10,13 +10,12 @@ from apigentools.commands.generate import GenerateCommand
 from apigentools.config import Config, LanguageConfig
 from apigentools.utils import run_command
 
-FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures",)
+FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
 
 
 # render_downstream_templates
 
 # validate command works but not in split command -- possibly due to changed function signature?
-
 
 
 def test_get_missing_templates(tmpdir):
@@ -188,7 +187,7 @@ def test_render_downstream_templates(tmpdir):
     temp_dir = tmpdir.mkdir("generated")
     with open(os.path.join(FIXTURE_DIR, "raw_dict.json"), "r") as f:
         raw_dict = json.loads(f.read())
-    language = "java"
+    language = "go"
     args = flexmock(
         action="generate",
         additional_stamp=[],
@@ -196,7 +195,7 @@ def test_render_downstream_templates(tmpdir):
         builtin_templates=False,
         clone_repo=False,
         config_dir="config",
-        downstream_templates_dir="downstream-templates",
+        downstream_templates_dir=os.path.join(FIXTURE_DIR, "downstream-templates"),
         full_spec_file="full_spec.yaml",
         generated_code_dir=temp_dir,
         generated_with_image=None,
@@ -206,11 +205,21 @@ def test_render_downstream_templates(tmpdir):
         languages=None,
         spec_dir="spec",
         spec_repo_dir=".",
-        template_dir="templates",
+        template_dir=FIXTURE_DIR,
         verbose=False,
         github_repo_name="repo_name",
     )
     cfg = Config(raw_dict)
     cmd = GenerateCommand(cfg, args)
-    cmd.render_downstream_templates(language, temp_dir)
-    walk = os.walk(os.path.join("downstream-templates", language))
+    cmd.render_downstream_templates(
+        language, os.path.join(FIXTURE_DIR, "downstream-templates")
+    )
+    dir_walk = list(os.walk(temp_dir))
+    # extract the names of the DataDog dir and mod.go file
+    relevant_dirs = []
+    for dir_element in dir_walk:
+        for part in dir_element[1:]:
+            if not part == []:
+                relevant_dirs.append(part[0])
+    assert "DataDog" in relevant_dirs
+    assert "go.mod" in relevant_dirs
