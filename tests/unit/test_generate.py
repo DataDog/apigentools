@@ -92,16 +92,11 @@ def test_pull_repository(tmpdir):
     # git pull of https://github.com/DataDog/apigentools.git
     cmd.pull_repository(language)
     # make a list of the names of the directories from the repo
-    dir_contents = [el[1] for el in os.walk(temp_dir)]
-    assert [
-        ".azure-pipelines",
-        "apigentools",
-        "tests",
-        "docs",
-        "hooks",
-        ".github",
-        ".git",
-    ] in dir_contents
+    dir_contents = [el[1] for el in os.walk(temp_dir) if not el == []]
+    dirs = [directory for sublist in dir_contents for directory in sublist]
+    assert ".azure-pipelines" in dirs
+    assert "apigentools" in dirs
+    assert "tests" in dirs
 
 
 def test_write_dot_apigentools_info(tmpdir):
