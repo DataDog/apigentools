@@ -25,5 +25,7 @@ jobs:
         versionSpec: $(PYTHON_VERSION)
     - script: pip install -e .[tests]
       displayName: Install test dependencies
+    - script: sudo npm install -g @openapitools/openapi-generator-cli
+      displayName: Install openapi-generator
     - script: pytest
       displayName: Run the test via Pytest
