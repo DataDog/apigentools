@@ -13,11 +13,6 @@ from apigentools.utils import run_command
 FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
 
 
-# render_downstream_templates
-
-# validate command works but not in split command -- possibly due to changed function signature?
-
-
 def test_get_missing_templates(tmpdir):
     temp_dir = tmpdir.mkdir("missing_templates")
     languages = ["python", "go", "ruby"]
@@ -205,7 +200,7 @@ def test_render_downstream_templates(tmpdir):
         languages=None,
         spec_dir="spec",
         spec_repo_dir=".",
-        template_dir=FIXTURE_DIRgit,
+        template_dir=FIXTURE_DIR,
         verbose=False,
         github_repo_name="repo_name",
     )
