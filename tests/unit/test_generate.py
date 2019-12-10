@@ -14,7 +14,9 @@ FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixture
 
 
 # render_downstream_templates
-# run_language_commands
+
+# validate command works but not in split command -- possibly due to changed function signature?
+
 
 
 def test_get_missing_templates(tmpdir):
