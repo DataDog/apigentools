@@ -205,7 +205,7 @@ def test_render_downstream_templates(tmpdir):
         languages=None,
         spec_dir="spec",
         spec_repo_dir=".",
-        template_dir=FIXTURE_DIR,
+        template_dir=FIXTURE_DIRgit,
         verbose=False,
         github_repo_name="repo_name",
     )
