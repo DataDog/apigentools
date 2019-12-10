@@ -6,6 +6,8 @@
   "github_repo_url" : "https://github.com/OpenAPITools/openapi-generator",
   "languages": {
     "java": {
+      "github_repo_name": "DataDog"},
+    "go": {
       "github_repo_name": "DataDog"
     }
   },
