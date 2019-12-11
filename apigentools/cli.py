@@ -108,7 +108,7 @@ def get_cli_parser():
     generate_parser.add_argument(
         "--is-ancestor",
         default=env_or_val("APIGENTOOLS_IS_ANCESTOR", None),
-        help="Checks that the --branch is ancestor of specified base branch (defult: None). "
+        help="Checks that the --branch is ancestor of specified base branch (default: None). "
         "Useful to enforce in CI that the feature branch is on top of master branch: "
         "--branch feature --is-ancestor master.",
     )
