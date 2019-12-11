@@ -359,7 +359,14 @@ class GenerateCommand(Command):
                     run_command(["git", "checkout", branch], cwd=output_dir)
                 except subprocess.CalledProcessError:
                     # if the branch doesn't exist, we stay in the default one
-                    pass
+                    branch = None
+
+            if branch is not None and self.args.is_ancestor:
+                try:
+                   run_command(["git", "merge-base", "--is-ancestor", self.args.is_ancestor, branch], cwd=output_dir)
+                except subprocess.CalledProcessError:
+                    log.error(f"Branch {branch} is not ancestor of {self.args.is_ancestor}")
+                    raise
         except subprocess.CalledProcessError as e:
             log.error(
                 "Error cloning repo {0} into {1}. Make sure {1} is empty first".format(
