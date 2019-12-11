@@ -61,6 +61,7 @@ Argument | Description | Environment Variable | Default
 `--builtin-templates` | Use unpatched upstream templates. | | `false`
 `-d DOWNSTREAM_TEMPLATES_DIR, --downstream-templates-dir DOWNSTREAM_TEMPLATES_DIR` | Path to directory with downstream templates. | `APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR` | `downstream-templates`
 `--branch` | When specified, changes the client repository branch before running code generation. | `APIGENTOOLS_PULL_REPO_BRANCH` | `None`
+`--is-ancestor` | Checks that the --branch is ancestor of specified branch. Useful to enforce in CI that the feature branch is on top of master branch: '-branch feature --is-ancestor master'. | `APIGENTOOLS_IS_ANCESTOR` | `None`
 `-f FULL_SPEC_FILE, --full-spec-file FULL_SPEC_FILE` | Name of the OpenAPI full spec file to write. Note that if some languages override config's spec_sections, additional files will be generated with name pattern `full_spec.<lang>.yaml`. | `APIGENTOOLS_FULL_SPEC_FILE` | `full_spec.yaml`
 `-h, --help` | Show help message and exit.
 `-i GENERATED_WITH_IMAGE, --generated-with-image GENERATED_WITH_IMAGE` | Override the tag of the image with which the client code was generated. | `APIGENTOOLS_IMAGE` | `None`
