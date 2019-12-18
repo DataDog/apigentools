@@ -1,0 +1,18 @@
+{
+  "languages":{
+    "java":{
+      "upstream_templates_dir":"Go",
+      "commands":{
+        "pre":[
+          {
+            "commandline":[
+              "gofmt"
+            ],
+            "description":"go format"
+          }
+        ]
+      }
+    }
+  },
+  "user_agent_client_name":"MyClient"
+}

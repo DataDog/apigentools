@@ -176,12 +176,12 @@ def test_run_language_commands(tmpdir):
         verbose=False,
         github_repo_name="repo_name",
     )
-    with open(os.path.join(FIXTURE_DIR, "raw_dict.json"), "r") as f:
-        raw_dict = json.loads(f.read())
-    cfg = Config(raw_dict)
+    with open(os.path.join(FIXTURE_DIR, "language_commands.json")) as f:
+        config = json.loads(f.read())
+    cfg = Config(config)
     cmd = GenerateCommand(cfg, args)
     cmd.run_language_commands(language, phase, temp_dir)
-    # this runs, but I'm not sure what the commands are?
+    # command to run is "gofmt"
 
 
 def test_render_downstream_templates(tmpdir):
