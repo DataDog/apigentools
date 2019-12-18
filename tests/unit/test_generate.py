@@ -29,6 +29,9 @@ def test_get_version_from_lang_oapi_config():
         oapi_config = json.loads(f.read())
     result = cmd.get_version_from_lang_oapi_config(oapi_config)
     assert result == "0.0.1"
+    #test that empty config raises a KeyError
+    with pytest.raises(KeyError):
+        no_lang_result = cmd.get_version_from_lang_oapi_config({})
 
 
 def test_get_image_name():
