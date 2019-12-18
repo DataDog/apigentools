@@ -3,7 +3,6 @@
   "generate_extra_args": [],
   "github_org_name": "DataDog",
   "github_repo_name": "apigentools",
-  "github_repo_url" : "https://github.com/OpenAPITools/openapi-generator",
   "languages": {
     "java": {
       "github_repo_name": "DataDog"},
