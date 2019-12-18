@@ -29,7 +29,7 @@ def test_get_version_from_lang_oapi_config():
         oapi_config = json.loads(f.read())
     result = cmd.get_version_from_lang_oapi_config(oapi_config)
     assert result == "0.0.1"
-    #test that empty config raises a KeyError
+    # test that empty config raises a KeyError
     with pytest.raises(KeyError):
         no_lang_result = cmd.get_version_from_lang_oapi_config({})
 
@@ -61,7 +61,14 @@ def test_get_stamp():
     cmd = GenerateCommand(cfg, args)
     stamp = cmd.get_stamp()
     assert "Generated with" in stamp
-    assert "codegen version" in stamp
+    # extract the version number from the stamp
+    stamp_list = stamp.split(";")
+    version_string = stamp_list[-1].strip()
+    version_string = version_string.split()
+    # get the version number from config to see if they match
+    expected_result = run_command([cmd.config.codegen_exec, "version"])
+    expected_result = expected_result.stdout.strip()
+    assert version_string[-1] == expected_result
 
 
 def test_pull_repository(tmpdir):
