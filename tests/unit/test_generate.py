@@ -15,11 +15,12 @@ FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixture
 
 def test_get_missing_templates(tmpdir):
     temp_dir = tmpdir.mkdir("missing_templates")
-    languages = ["python", "go", "ruby"]
+    java_dir = tmpdir.mkdir("missing_templates/java")
+    other_languages = ["python", "go", "ruby"]
     args = flexmock(template_dir=temp_dir)
     cmd = GenerateCommand({}, args)
-    missing = cmd.get_missing_templates(languages)
-    assert missing == languages
+    missing = cmd.get_missing_templates(other_languages)
+    assert missing == other_languages
 
 
 def test_get_version_from_lang_oapi_config():
