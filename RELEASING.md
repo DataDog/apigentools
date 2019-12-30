@@ -1,22 +1,40 @@
-# Releasing apigentools
+# Releasing
 
-This document summarizes the process of doing a new release of apigentools.
+This document summarizes the process of doing a new release of this project.
+Release can only be performed by Datadog maintainers of this repository.
+
+## Schedule
+This project does not have a strict release schedule. However, we would make a release at least every 6 weeks.
+  - No release will be done if no changes got merged to the `master` branch during the above mentioned window.
+  - Releases may be done more frequently than the above mentioned window.
+  - Create a pager duty schedule corresponding to this.
+  - Create a google calendar schedule corresponding to this.
 
 ## Make Sure Everything Works
 
-* Make sure tests are passing
-* Make sure [Docker builds](https://hub.docker.com/r/apigentools/apigentools/builds) are passing
-* Make sure [documentation](https://apigentools.readthedocs.io/en/latest/) is up-to-date and building correctly
-* Build the package locally (e.g. `python3 setup.py sdist`), install it into a fresh virtualenv and try playing around with it for a bit
+* Make sure tests are passing.
+* Make sure Docker builds are passing.
+* Make sure documentation is up-to-date and building correctly.
+* Build the package locally (e.g. `python3 setup.py sdist`), install it into a fresh virtualenv and try playing around with it for a bit.
+  - Use the manual testing guide.
 
 ## Update Changelog
 
-* Create a PR that summarizes any relevant user-facing changes in `docs/changelog.md`
-* Wait until PR is approved and merged to master.
+### Prerequisite
+
+- Install [datadog_checks_dev](https://datadog-checks-base.readthedocs.io/en/latest/datadog_checks_dev.cli.html#installation) using Python 3
+
+### Commands
+
+- See changes ready for release by running `ddev release show changes .` at the root of this project. Add any missing labels to PRs if needed.
+- Run `ddev release changelog . <NEW_VERSION>` to update the `CHANGELOG.md` file at the root of this repository
+- Commit the changes to the repository in a release branch and get it approved/merged.
+- Tag the repository with the new version number.
 
 ## Release
 
-Note that once the release process is started, nobody should be merging/pushing anything. We don't want to trigger multiple rebuilds of docs and Docker images with that official final release version and different content - this would only create confusion.
+Note that once the release process is started, nobody should be merging/pushing anything.
+We don't want to trigger multiple rebuilds of docs and Docker images with that official final release version and different content - this would only create confusion.
 
 * Pull the merged PR locally and tag the latest commit: `git tag -a "vX.Y.Z" -m "Version X.Y.Z"`
   * Note that the `v` in `-a "vX.Y.Z"` is important, our Dockerhub setup recognizes a tag like this and automatically builds image `apigentools/apigentools:X.Y.X` from it
