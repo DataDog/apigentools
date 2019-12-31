@@ -16,7 +16,7 @@ This document provides some basic guidelines for contributing to this repository
 
 ## Suggesting an enhancements - Pull Requests
 
-Have you fixed an issues? Many thanks!
+Have you fixed an issue? Many thanks!
 
 Read the [development guide][/DEVELOPMENT.md] for more information on how to get started.
 
@@ -46,7 +46,7 @@ get it sorted out.
 ### Keep it small, focused
 
 Avoid changing too many things at once. For instance if you're fixing two different
-checks at once, it makes reviewing harder and the _time-to-release_ longer.
+spec files at once, it makes reviewing harder and the _time-to-release_ longer.
 
 ### Pull Request title
 
