@@ -16,7 +16,7 @@ Developing this project requires:
 
 ## Coding conventions
 
-This project is formatting using the [`black`][4] project.
+This project is formatted using the [`black`][4] project.
 
 [1]: https://www.python.org/downloads/
 [2]: https://openapi-generator.tech/docs/installation
