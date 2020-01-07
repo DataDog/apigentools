@@ -6,8 +6,8 @@ ENV APIGENTOOLS_BASE_DIR=/var/lib/apigentools
 ENV APIGENTOOLS_SPEC_REPO_DIR=${APIGENTOOLS_BASE_DIR}/spec-repo \
     _APIGENTOOLS_GIT_HASH_FILE=${APIGENTOOLS_BASE_DIR}/git-hash
 
-ENV OPENAPI_GENERATOR_VERSION=4.2.2 \
-    PACKAGES="docker findutils git golang-googlecode-tools-goimports java npm patch python3 python3-pip unzip"
+ENV OPENAPI_GENERATOR_VERSION=4.2.3-SNAPSHOT \
+    PACKAGES="docker findutils git golang-googlecode-tools-goimports java jq maven npm patch python3 python3-pip unzip"
 
 VOLUME ${APIGENTOOLS_SPEC_REPO_DIR}
 
@@ -17,9 +17,11 @@ RUN mkdir -p ${APIGENTOOLS_SPEC_REPO_DIR}
 
 RUN dnf install -y ${PACKAGES} && \
     dnf clean all && \
-    npm install @openapitools/openapi-generator-cli@cli-${OPENAPI_GENERATOR_VERSION} -g
+    curl https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh > /usr/bin/openapi-generator && \
+    chmod +x /usr/bin/openapi-generator && \
+    openapi-generator version
 
-ENV APIGENTOOLS_OPENAPI_JAR "/usr/lib/node_modules/@openapitools/openapi-generator-cli/bin/openapi-generator.jar"
+ENV APIGENTOOLS_OPENAPI_JAR "/usr/bin/openapi-generator-cli-${OPENAPI_GENERATOR_VERSION}.jar"
 
 COPY docker-entrypoint.sh /usr/bin/
 COPY . /tmp/apigentools
