@@ -382,5 +382,5 @@ class GenerateCommand(Command):
                     cwd=output_dir,
                 )
             except subprocess.CalledProcessError:
-                log.error(f"Branch {branch} is not ancestor of {self.args.is_ancestor}")
+                log.error(f"{self.args.is_ancestor} is not ancestor of branch {branch}")
                 raise
