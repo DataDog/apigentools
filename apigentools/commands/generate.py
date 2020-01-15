@@ -382,5 +382,13 @@ class GenerateCommand(Command):
                     cwd=output_dir,
                 )
             except subprocess.CalledProcessError:
-                log.error(f"{self.args.is_ancestor} is not ancestor of branch {branch}")
-                raise
+                log.warning(
+                    f"{self.args.is_ancestor} is not ancestor of branch {branch}"
+                )
+                try:
+                    run_command(["git", "merge", self.args.is_ancestor], cwd=output_dir)
+                except subprocess.CalledProcessError:
+                    log.error(
+                        f"Could not merge {self.args.is_ancestor} to {branch} to keep it up-to-date"
+                    )
+                    raise
