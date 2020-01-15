@@ -383,7 +383,7 @@ class GenerateCommand(Command):
                 )
             except subprocess.CalledProcessError:
                 log.warning(
-                    f"{self.args.is_ancestor} is not ancestor of branch {branch}"
+                    f"{self.args.is_ancestor} is not ancestor of branch {branch}, attempting to update branch"
                 )
                 try:
                     run_command(["git", "merge", self.args.is_ancestor], cwd=output_dir)
