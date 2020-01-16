@@ -143,6 +143,16 @@ def get_cli_parser():
             constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR
         ),
     )
+    generate_parser.add_argument(
+        "--git-email",
+        help="Email of the user to author git commits as. Note this will permanently modify the local repos git config to use this author",
+        default=env_or_val("APIGENTOOLS_GIT_AUTHOR_EMAIL", None),
+    )
+    generate_parser.add_argument(
+        "--git-name",
+        help="Name of the user to author git commits as. Note this will permanently modify the local repos git config to use this author",
+        default=env_or_val("APIGENTOOLS_GIT_AUTHOR_NAME", None),
+    )
 
     template_group = generate_parser.add_mutually_exclusive_group()
     template_group.add_argument(

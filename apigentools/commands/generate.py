@@ -386,6 +386,7 @@ class GenerateCommand(Command):
                     f"{self.args.is_ancestor} is not ancestor of branch {branch}, attempting to update branch"
                 )
                 try:
+                    self.setup_git_config(cwd=output_dir)
                     run_command(["git", "merge", self.args.is_ancestor], cwd=output_dir)
                 except subprocess.CalledProcessError:
                     log.error(
