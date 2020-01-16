@@ -401,6 +401,9 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
                         loaded.get("components", {}).get(field, {})
                     )
 
+            # https://speccy.io/rules/1-rulesets#openapi-tags-alphabetical
+            full_spec["tags"].sort(key=lambda x: x["name"])
+
     with open(fs_path, "w", encoding="utf-8") as f:
         f.write(yaml.dump(full_spec))
         log.debug("Writing the full spec: {}".format(yaml.dump(full_spec)))
