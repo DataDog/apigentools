@@ -7,6 +7,8 @@ import os
 
 import chevron
 
+from apigentools.utils import run_command
+
 
 class Command(abc.ABC):
     def __init__(self, config, args):
@@ -42,6 +44,24 @@ class Command(abc.ABC):
             self.get_generated_lang_dir(lang),
             chevron.render(lc.version_path_template, {"spec_version": version}),
         )
+
+    def setup_git_config(self, cwd=None):
+        """Update git config for this repository to use the provided author's email/name.
+
+        If not specified, use the setup from the system/global
+        """
+        if self.args.git_email:
+            run_command(
+                ["git", "config", "user.email", self.args.git_email],
+                dry_run=getattr(self.args, "dry_run", False),
+                cwd=cwd,
+            )
+        if self.args.git_name:
+            run_command(
+                ["git", "config", "user.name", self.args.git_name],
+                dry_run=getattr(self.args, "dry_run", False),
+                cwd=cwd,
+            )
 
     @abc.abstractmethod
     def run(self):
