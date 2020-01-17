@@ -18,7 +18,7 @@ This document provides some basic guidelines for contributing to this repository
 
 Have you fixed an issue? Many thanks!
 
-Read the [development guide][/DEVELOPMENT.md] for more information on how to get started.
+Read the [development guide](/DEVELOPMENT.md) for more information on how to get started.
 
 In order to ease/speed up our review, here are some items you can check/improve when submitting your PR:
 * **Ensure an [Issue has been created](#reporting)**.
