@@ -391,7 +391,6 @@ class GenerateCommand(Command):
                         [
                             "git",
                             "merge",
-                            "-Xtheirs",
                             "--no-ff",
                             "--allow-unrelated-histories",
                             self.args.is_ancestor,
