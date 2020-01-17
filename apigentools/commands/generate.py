@@ -387,7 +387,16 @@ class GenerateCommand(Command):
                 )
                 try:
                     self.setup_git_config(cwd=output_dir)
-                    run_command(["git", "merge", self.args.is_ancestor], cwd=output_dir)
+                    run_command(
+                        [
+                            "git",
+                            "merge",
+                            "--no-ff",
+                            "--allow-unrelated-histories",
+                            self.args.is_ancestor,
+                        ],
+                        cwd=output_dir,
+                    )
                 except subprocess.CalledProcessError:
                     log.error(
                         f"Could not merge {self.args.is_ancestor} to {branch} to keep it up-to-date"
