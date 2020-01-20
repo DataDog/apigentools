@@ -79,7 +79,7 @@ class PushCommand(Command):
                         )
                         continue
 
-                    self.setup_git_config(cwd=gen_dir)
+                    self.setup_git_config()
 
                     run_command(
                         ["git", "checkout", "-b", branch_name],
