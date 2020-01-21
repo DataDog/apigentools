@@ -59,9 +59,9 @@ JAR_PATH_ARG = (
 )
 OPENAPI_GENERATOR_GIT_URL_ARG = (
     ("-u", "--repo_url"),
-    {"default": constants.OPENAPI_GENERATOR_GIT,},
+    {"default": constants.OPENAPI_GENERATOR_GIT},
 )
-OPENAPI_GENERATOR_GIT_COMMITTISH_ARG = ((), {"default": "master", "nargs": "?",})
+OPENAPI_GENERATOR_GIT_COMMITTISH_ARG = ((), {"default": "master", "nargs": "?"})
 SPEC_DIR_ARG = (
     ("-s", "--spec-dir"),
     {
@@ -139,9 +139,7 @@ def get_cli_parser():
         action="store_true",
         help="Whether or not to log the generation in verbose mode",
     )
-    p.add_argument(
-        *GENERATED_CODE_DIR_ARG[0], **GENERATED_CODE_DIR_ARG[1],
-    )
+    p.add_argument(*GENERATED_CODE_DIR_ARG[0], **GENERATED_CODE_DIR_ARG[1])
     p.add_argument(
         "-l",
         "--languages",
@@ -159,9 +157,7 @@ def get_cli_parser():
     sp = p.add_subparsers(dest="action", required=True)
 
     generate_parser = sp.add_parser("generate", help="Generate client code")
-    generate_parser.add_argument(
-        *SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1],
-    )
+    generate_parser.add_argument(*SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1])
     generate_parser.add_argument(
         "--clone-repo",
         action="store_true",
@@ -180,9 +176,7 @@ def get_cli_parser():
         "Useful to enforce in CI that the feature branch is on top of master branch: "
         "--branch feature --is-ancestor master.",
     )
-    generate_parser.add_argument(
-        *FULL_SPEC_FILE_ARG[0], **FULL_SPEC_FILE_ARG[1],
-    )
+    generate_parser.add_argument(*FULL_SPEC_FILE_ARG[0], **FULL_SPEC_FILE_ARG[1])
     generate_parser.add_argument(
         "--additional-stamp",
         nargs="*",
@@ -206,12 +200,8 @@ def get_cli_parser():
             constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR
         ),
     )
-    generate_parser.add_argument(
-        *GIT_EMAIL_ARG[0], **GIT_EMAIL_ARG[1],
-    )
-    generate_parser.add_argument(
-        *GIT_NAME_ARG[0], **GIT_NAME_ARG[1],
-    )
+    generate_parser.add_argument(*GIT_EMAIL_ARG[0], **GIT_EMAIL_ARG[1])
+    generate_parser.add_argument(*GIT_NAME_ARG[0], **GIT_NAME_ARG[1])
 
     template_source_group = generate_parser.add_mutually_exclusive_group()
     template_source_group.add_argument(
@@ -235,7 +225,7 @@ def get_cli_parser():
         "templates processing options"
     )
     generate_templates_group.add_argument(
-        *TEMPLATES_OUTPUT_DIR_ARG[0], **TEMPLATES_OUTPUT_DIR_ARG[1],
+        *TEMPLATES_OUTPUT_DIR_ARG[0], **TEMPLATES_OUTPUT_DIR_ARG[1]
     )
     generate_templates_group.add_argument(
         "--templates-source",
@@ -251,7 +241,7 @@ def get_cli_parser():
         help="Source to use for obtaining templates to be processed (default: 'skip')",
     )
     generate_templates_group.add_argument(
-        *TEMPLATE_PATCHES_DIR_ARG[0], **TEMPLATE_PATCHES_DIR_ARG[1],
+        *TEMPLATE_PATCHES_DIR_ARG[0], **TEMPLATE_PATCHES_DIR_ARG[1]
     )
     generate_templates_group.add_argument(
         "--jar-path",
@@ -280,10 +270,10 @@ def get_cli_parser():
         "templates", help="Get upstream templates and apply downstream patches"
     )
     templates_parser.add_argument(
-        *TEMPLATES_OUTPUT_DIR_ARG[0], **TEMPLATES_OUTPUT_DIR_ARG[1],
+        *TEMPLATES_OUTPUT_DIR_ARG[0], **TEMPLATES_OUTPUT_DIR_ARG[1]
     )
     templates_parser.add_argument(
-        *TEMPLATE_PATCHES_DIR_ARG[0], **TEMPLATE_PATCHES_DIR_ARG[1],
+        *TEMPLATE_PATCHES_DIR_ARG[0], **TEMPLATE_PATCHES_DIR_ARG[1]
     )
     templates_source = templates_parser.add_subparsers(
         dest="templates_source", required=True, help="Source of upstream templates"
@@ -293,7 +283,7 @@ def get_cli_parser():
         help="Obtain upstream templates from openapi-generator jar",
     )
     jar_parser.add_argument(
-        "jar_path", **JAR_PATH_ARG[1], help="Path to openapi-generator jar file",
+        "jar_path", **JAR_PATH_ARG[1], help="Path to openapi-generator jar file"
     )
     local_parser = templates_source.add_parser(
         constants.TEMPLATES_SOURCE_LOCAL_DIR,
@@ -321,12 +311,8 @@ def get_cli_parser():
 
     validate_parser = sp.add_parser("validate", help="Validate OpenAPI spec")
     # these are duplicated with generate_parser, we should deduplicate
-    validate_parser.add_argument(
-        *SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1],
-    )
-    validate_parser.add_argument(
-        *FULL_SPEC_FILE_ARG[0], **FULL_SPEC_FILE_ARG[1],
-    )
+    validate_parser.add_argument(*SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1])
+    validate_parser.add_argument(*FULL_SPEC_FILE_ARG[0], **FULL_SPEC_FILE_ARG[1])
 
     test_parser = sp.add_parser("test", help="Run tests for generated source code")
     test_parser.add_argument(
@@ -335,9 +321,7 @@ def get_cli_parser():
         default=env_or_val("APIGENTOOLS_TEST_BUILD_NO_CACHE", False, __type=bool),
         help="Build test image with --no-cache option",
     )
-    test_parser.add_argument(
-        *GENERATED_CODE_DIR_ARG[0], **GENERATED_CODE_DIR_ARG[1],
-    )
+    test_parser.add_argument(*GENERATED_CODE_DIR_ARG[0], **GENERATED_CODE_DIR_ARG[1])
     test_parser.add_argument(
         "--container-env",
         nargs="*",
@@ -358,9 +342,7 @@ def get_cli_parser():
         required=True,
         help="Path to the OpenAPI full spec file to split",
     )
-    split_parser.add_argument(
-        *SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1],
-    )
+    split_parser.add_argument(*SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1])
     split_parser.add_argument(
         "-v",
         "--api-version",
@@ -394,12 +376,8 @@ def get_cli_parser():
         action="store_true",
         default=env_or_val("APIGENTOOLS_SKIP_IF_NO_CHANGES", False, __type=bool),
     )
-    push_parser.add_argument(
-        *GIT_EMAIL_ARG[0], **GIT_EMAIL_ARG[1],
-    )
-    push_parser.add_argument(
-        *GIT_NAME_ARG[0], **GIT_NAME_ARG[1],
-    )
+    push_parser.add_argument(*GIT_EMAIL_ARG[0], **GIT_EMAIL_ARG[1])
+    push_parser.add_argument(*GIT_NAME_ARG[0], **GIT_NAME_ARG[1])
 
     init_parser = sp.add_parser("init", help="Initialize a new spec repo")
     init_parser.add_argument(
