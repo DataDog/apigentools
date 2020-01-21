@@ -85,6 +85,8 @@ Note that downstream templates are rendered after the code generation is done, a
 
 ## Prepare Templates
 
+*NOTE:* preparing templates is done as part of `container-apigentools generate` since version 0.10.0, so most users will never need this command.
+
 Preparing templates means obtaining templates from openapi-generator upstream (either from a git repo, JAR file, or local dir) and applying template patches on top of them.
 
 ### Locally

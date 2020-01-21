@@ -69,6 +69,18 @@ Argument | Description | Environment Variable | Default
 `-t TEMPLATE_DIR, --template-dir TEMPLATE_DIR` | Path to directory with processed upstream templates. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
 `--clone-repo` | Whether to clone the client Github repositories before running code generation. | `APIGENTOOLS_PULL_REPO` | `False`
 
+Since version 0.10.0, apigentools also supports processing templates (equivalent to the `apigentools templates` subcommand) as part of generation. The arguments related to this functionality are:
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`--templates-source {local-dir,openapi-git,openapi-jar,skip}` | Source to use for obtaining templates to be processed (`skip` to not process templates) | `APIGENTOOLS_TEMPLATES_SOURCE`| `skip`
+`-o OUTPUT_DIR, --output-dir OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
+`-p TEMPLATE_PATCHES_DIR, --template-patches-dir TEMPLATE_PATCHES_DIR` | Directory with patches for upstream templates. | `APIGENTOOLS_TEMPLATE_PATCHES_DIR` | `template-patches`
+`--jar-path` | Path to `openapi-generator` JAR file (use if `--templates-source=openapi-jar`). | `APIGENTOOLS_OPENAPI_JAR` | `openapi-generator.jar`
+`--local-path LOCAL_PATH` | Path to directory with `openapi-generator` upstream templates (use if `--templates-source=local-dir`)
+`-u REPO_URL, --repo_url REPO_URL` | URL of the `openapi-generator` repo (use if `--templates-source=openapi-git`). | | `https://github.com/OpenAPITools/openapi-generator`
+`--git-committish [GIT_COMMITTISH]` | Git 'committish' to check out before obtaining templates (use if `--templates-source=openapi-git`). | | `master`
+
 ## `apigentools init`
 
 Initializes a new [spec repo](spec_repo.md).

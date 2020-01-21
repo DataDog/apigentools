@@ -8,6 +8,7 @@ ENV APIGENTOOLS_BASE_DIR=/var/lib/apigentools
 
 # _APIGENTOOLS_GIT_HASH_FILE is only for internal use, which is why it's prefixed with "_"
 ENV APIGENTOOLS_SPEC_REPO_DIR=${APIGENTOOLS_BASE_DIR}/spec-repo \
+    APIGENTOOLS_TEMPLATES_SOURCE=openapi-jar \
     _APIGENTOOLS_GIT_HASH_FILE=${APIGENTOOLS_BASE_DIR}/git-hash
 
 ENV OPENAPI_GENERATOR_VERSION=4.2.3-SNAPSHOT \

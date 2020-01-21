@@ -13,8 +13,9 @@ from distutils.dir_util import copy_tree
 
 import chevron
 
-from apigentools import __version__
+from apigentools import __version__, constants
 from apigentools.commands.command import Command
+from apigentools.commands.templates import TemplatesCommand
 from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
 from apigentools.utils import (
     change_cwd,
@@ -212,6 +213,14 @@ class GenerateCommand(Command):
         return missing
 
     def run(self):
+        if self.args.templates_source == constants.TEMPLATES_SOURCE_SKIP:
+            log.info("Skipping templates processing")
+        else:
+            templates_result = TemplatesCommand(self.config, self.args).run()
+            if templates_result == 0:
+                log.info("Templates processed successfully, proceeding with code generation")
+            else:
+                return templates_result
         fs_paths = {}
 
         versions = self.args.api_versions or self.config.spec_versions
