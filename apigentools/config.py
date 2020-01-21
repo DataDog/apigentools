@@ -87,7 +87,9 @@ class LanguageConfig:
 
     @property
     def generate_extra_args(self):
-        return self.raw_dict.get("generate_extra_args", self.top_level_config.generate_extra_args)
+        return self.raw_dict.get(
+            "generate_extra_args", self.top_level_config.generate_extra_args
+        )
 
     @property
     def spec_versions(self):

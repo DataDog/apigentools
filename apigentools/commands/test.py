@@ -48,7 +48,9 @@ class TestCommand(Command):
         for i, ce in enumerate(self.args.container_env):
             split = ce.split("=", 1)
             if len(split) != 2:
-                raise ValueError("{} (passed in on position {})".format(REDACTED_OUT_SECRET, i))
+                raise ValueError(
+                    "{} (passed in on position {})".format(REDACTED_OUT_SECRET, i)
+                )
             cmd.append("-e")
             cmd.append({"item": "{}={}".format(split[0], split[1]), "secret": True})
         cmd.append(img_name)
@@ -66,14 +68,21 @@ class TestCommand(Command):
                 continue
             # we consider `None` version to represent the `Dockerfile.test` file (without prefix)
             for version in [None] + lang_config.spec_versions:
-                spec_version_loggable = "non-version tests" if version is None else "spec version {}".format(version)
+                spec_version_loggable = (
+                    "non-version tests"
+                    if version is None
+                    else "spec version {}".format(version)
+                )
                 # Skip any non user provided versions
                 if version is not None and version not in versions:
                     continue
                 df_path = self.get_test_df_name(lang_name, version)
                 img_name = self.get_test_image_name(lang_name, version)
                 log.info(
-                    "Looking up %s to test language %s, %s", df_path, lang_name, spec_version_loggable,
+                    "Looking up %s to test language %s, %s",
+                    df_path,
+                    lang_name,
+                    spec_version_loggable,
                 )
 
                 # first, try building the image
@@ -85,7 +94,9 @@ class TestCommand(Command):
                     log.info("SUCCESS: built %s", img_name)
                 except subprocess.CalledProcessError:
                     log.error(
-                        "FAIL: Failed to build testing image for language %s, %s", lang_name, spec_version_loggable,
+                        "FAIL: Failed to build testing image for language %s, %s",
+                        lang_name,
+                        spec_version_loggable,
                     )
                     cmd_result = 1
                     continue
@@ -96,10 +107,14 @@ class TestCommand(Command):
                     log.info("SUCCESS: ran %s", img_name)
                 except subprocess.CalledProcessError:
                     log.error(
-                        "ERROR: Testing failed for language %s, %s", lang_name, spec_version_loggable,
+                        "ERROR: Testing failed for language %s, %s",
+                        lang_name,
+                        spec_version_loggable,
                     )
                     cmd_result = 1
                 except ValueError as e:
-                    log.error("Bad container env '%s', must be in form KEY=VALUE", str(e))
+                    log.error(
+                        "Bad container env '%s', must be in form KEY=VALUE", str(e)
+                    )
 
         return cmd_result
