@@ -30,9 +30,7 @@ def container_cli():
     args, remainder = parser.parse_known_args()
 
     if len(remainder) > 0 and (":" in remainder[0] or "/" in remainder[0]):
-        log.error(
-            "Since apigentools 0.9.0, container-apigentools doesn't accept image as argument."
-        )
+        log.error("Since apigentools 0.9.0, container-apigentools doesn't accept image as argument.")
         new_args = copy.deepcopy(sys.argv)
         new_args.remove(remainder[0])
         log.error("Rerun with: %s", " ".join(new_args))
@@ -44,9 +42,7 @@ def container_cli():
     if image is None:
         config = os.path.join(
             args.spec_repo_volume,
-            os.environ.get(
-                constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR
-            ),
+            os.environ.get(constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR),
             constants.DEFAULT_CONFIG_FILE,
         )
         with open(config, "r") as f:

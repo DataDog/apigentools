@@ -79,16 +79,12 @@ class InitCommand(Command):
             }
             for _, v in dirs.items():
                 os.makedirs(v, exist_ok=True)
-            config_file = os.path.join(
-                dirs["config_dir"], constants.DEFAULT_CONFIG_FILE
-            )
+            config_file = os.path.join(dirs["config_dir"], constants.DEFAULT_CONFIG_FILE)
             if not os.path.exists(config_file):
                 with open(config_file, "w") as f:
                     json.dump(self.CONFIG_FILE_JSON, f, indent=4)
             v1_header = os.path.join(dirs["spec_v1_dir"], constants.HEADER_FILE_NAME)
-            v1_shared = os.path.join(
-                dirs["spec_v1_dir"], constants.SHARED_SECTION_NAME + ".yaml"
-            )
+            v1_shared = os.path.join(dirs["spec_v1_dir"], constants.SHARED_SECTION_NAME + ".yaml")
             if not os.path.exists(v1_header):
                 with open(v1_header, "w") as f:
                     yaml.dump(self.V1_HEADER_JSON, f)

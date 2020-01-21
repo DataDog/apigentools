@@ -23,10 +23,7 @@ class Command(abc.ABC):
         :return: path to directory with generated language code
         :rtype: ``str``
         """
-        return os.path.join(
-            self.args.generated_code_dir,
-            self.config.get_language_config(lang).github_repo_name,
-        )
+        return os.path.join(self.args.generated_code_dir, self.config.get_language_config(lang).github_repo_name,)
 
     def get_generated_lang_version_dir(self, lang, version):
         """ Returns path to the directory with generated code for given combination of language
@@ -41,8 +38,7 @@ class Command(abc.ABC):
         """
         lc = self.config.get_language_config(lang)
         return os.path.join(
-            self.get_generated_lang_dir(lang),
-            chevron.render(lc.version_path_template, {"spec_version": version}),
+            self.get_generated_lang_dir(lang), chevron.render(lc.version_path_template, {"spec_version": version}),
         )
 
     def setup_git_config(self, cwd=None):

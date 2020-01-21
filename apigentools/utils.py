@@ -106,14 +106,11 @@ def get_current_commit(repo_path):
     log.debug("Getting current commit for stamping ...")
     with change_cwd(repo_path):
         try:
-            res = run_command(
-                ["git", "rev-parse", "--short", "HEAD"], log_level=logging.DEBUG
-            )
+            res = run_command(["git", "rev-parse", "--short", "HEAD"], log_level=logging.DEBUG)
         except subprocess.CalledProcessError:
             # not a git repository
             log.debug(
-                "Failed getting current git commit for %s, not a git repository",
-                repo_path,
+                "Failed getting current git commit for %s, not a git repository", repo_path,
             )
             return None
         return res.stdout.strip()
@@ -189,10 +186,7 @@ def run_command(
             if additional_env:
                 env.update(additional_env)
             log.log(
-                log_level,
-                "%sRunning command '%s'",
-                "(DRYRUN) " if dry_run else "",
-                " ".join(cmd_logstr),
+                log_level, "%sRunning command '%s'", "(DRYRUN) " if dry_run else "", " ".join(cmd_logstr),
             )
             if dry_run:
                 result = subprocess.CompletedProcess(cmd_strlist, 0)
@@ -200,33 +194,18 @@ def run_command(
                 stdout = subprocess.PIPE
                 stderr = subprocess.STDOUT if combine_out_err else subprocess.PIPE
                 result = subprocess.run(
-                    cmd_strlist,
-                    stdout=stdout,
-                    stderr=stderr,
-                    check=True,
-                    text=True,
-                    env=env,
-                    **kwargs
+                    cmd_strlist, stdout=stdout, stderr=stderr, check=True, text=True, env=env, **kwargs
                 )
                 log.log(
-                    log_level,
-                    "Command result:\n{}".format(
-                        fmt_cmd_out_for_log(result, combine_out_err)
-                    ),
+                    log_level, "Command result:\n{}".format(fmt_cmd_out_for_log(result, combine_out_err)),
                 )
         except subprocess.CalledProcessError as e:
             if sensitive_output:
                 raise subprocess.CalledProcessError(
-                    e.returncode,
-                    ["command with sensitive output"],
-                    output=None,
-                    stderr=None,
+                    e.returncode, ["command with sensitive output"], output=None, stderr=None,
                 ) from None  # use `from None to prevent exception chaining if there is sensitive output`
             log.log(
-                log_level,
-                "Error in called process:\n{}".format(
-                    fmt_cmd_out_for_log(e, combine_out_err)
-                ),
+                log_level, "Error in called process:\n{}".format(fmt_cmd_out_for_log(e, combine_out_err)),
             )
             raise
 
@@ -246,14 +225,10 @@ def fmt_cmd_out_for_log(result_or_error, combine_out_err):
     :rtype: ``str``
     """
     if combine_out_err:
-        return "RETCODE: {rc}\nOUTPUT:\n{o}".format(
-            rc=result_or_error.returncode, o=result_or_error.stdout
-        )
+        return "RETCODE: {rc}\nOUTPUT:\n{o}".format(rc=result_or_error.returncode, o=result_or_error.stdout)
     else:
         return "RETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
-            rc=result_or_error.returncode,
-            o=result_or_error.stdout,
-            e=result_or_error.stderr,
+            rc=result_or_error.returncode, o=result_or_error.stdout, e=result_or_error.stderr,
         )
 
 
@@ -315,10 +290,7 @@ def write_full_specs(config, languages, spec_dir, spec_version, full_spec_file):
     for l, sections in construct_specs_for.items():
         fsf = get_full_spec_file_name(full_spec_file, l)
         log.info(
-            "Writing %s OpenAPI spec for API version %s to %s",
-            (l or "general"),
-            spec_version,
-            fsf,
+            "Writing %s OpenAPI spec for API version %s to %s", (l or "general"), spec_version, fsf,
         )
         ret[l] = write_full_spec(config, spec_dir, spec_version, sections, fsf)
 
@@ -384,9 +356,7 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
                 validate_duplicates(loaded.get("tags", []), full_spec.get("tags", []))
                 full_spec["tags"].extend(loaded.get("tags", []))
 
-                validate_duplicates(
-                    loaded.get("security", []), full_spec.get("security", [])
-                )
+                validate_duplicates(loaded.get("security", []), full_spec.get("security", []))
                 full_spec["security"].extend(loaded.get("security", []))
 
                 for field in COMPONENT_FIELDS:
@@ -397,9 +367,7 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
                         loaded.get("components", {}).get(field, {}).keys(),
                         full_spec.get("components", {}).get(field).keys(),
                     )
-                    full_spec["components"][field].update(
-                        loaded.get("components", {}).get(field, {})
-                    )
+                    full_spec["components"][field].update(loaded.get("components", {}).get(field, {}))
 
             # https://speccy.io/rules/1-rulesets#openapi-tags-alphabetical
             full_spec["tags"].sort(key=lambda x: x["name"])

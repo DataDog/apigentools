@@ -12,11 +12,7 @@ log = logging.getLogger(__name__)
 
 class ValidateCommand(Command):
     def validate_spec(self, fs_path, language, version):
-        log_string = (
-            "of general spec"
-            if language is None
-            else "of spec for language {}".format(language)
-        )
+        log_string = "of general spec" if language is None else "of spec for language {}".format(language)
         log_string += " ({})".format(fs_path)
         try:
             run_command([self.config.codegen_exec, "validate", "-i", fs_path])
@@ -24,9 +20,7 @@ class ValidateCommand(Command):
             return True
         except:
             log.error(
-                "Validation %s for API version %s failed, see the output above for errors",
-                log_string,
-                version,
+                "Validation %s for API version %s failed, see the output above for errors", log_string, version,
             )
             return False
 
@@ -36,11 +30,7 @@ class ValidateCommand(Command):
         versions = self.args.api_versions or self.config.spec_versions
         for version in versions:
             language_specs = write_full_specs(
-                self.config,
-                languages,
-                self.args.spec_dir,
-                version,
-                self.args.full_spec_file,
+                self.config, languages, self.args.spec_dir, version, self.args.full_spec_file,
             )
             for language, fs_path in language_specs.items():
                 if not self.validate_spec(fs_path, language, version):

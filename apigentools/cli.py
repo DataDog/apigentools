@@ -19,83 +19,67 @@ FULL_SPEC_FILE_ARG = (
     {
         "default": env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
         "help": "Name of the OpenAPI full spec file to write (default: 'full_spec.yaml'). "
-            + "Note that if some languages override config's spec_sections, additional "
-            + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
-    }
+        + "Note that if some languages override config's spec_sections, additional "
+        + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
+    },
 )
 GENERATED_CODE_DIR_ARG = (
     ("-g", "--generated-code-dir"),
     {
         "default": env_or_val("APIGENTOOLS_GENERATED_CODE_DIR", constants.DEFAULT_GENERATED_CODE_DIR),
         "help": "Path to directory where to save the generated source code (default: '{}')".format(
-            constants.DEFAULT_GENERATED_CODE_DIR),
-    }
+            constants.DEFAULT_GENERATED_CODE_DIR
+        ),
+    },
 )
 GIT_EMAIL_ARG = (
     ("--git-email",),
     {
         "help": "Email of the user to author git commits as. Note this will permanently"
-                " modify the local repos git config to use this author",
+        " modify the local repos git config to use this author",
         "default": env_or_val("APIGENTOOLS_GIT_AUTHOR_EMAIL", None),
-    }
+    },
 )
 GIT_NAME_ARG = (
     ("--git-name",),
     {
         "help": "Name of the user to author git commits as. Note this will permanently"
-                " modify the local repos git config to use this author",
+        " modify the local repos git config to use this author",
         "default": env_or_val("APIGENTOOLS_GIT_AUTHOR_NAME", None),
-    }
+    },
 )
-JAR_PATH_ARG = (
-    (),
-    {
-        "nargs": "?",
-        "default": env_or_val("APIGENTOOLS_OPENAPI_JAR", constants.OPENAPI_JAR),
-    }
-)
-OPENAPI_GENERATOR_GIT_URL_ARG = (
-    ("-u", "--repo_url"),
-    {
-        "default": constants.OPENAPI_GENERATOR_GIT,
-    }
-)
-OPENAPI_GENERATOR_GIT_COMMITTISH_ARG = (
-    (),
-    {
-        "default": "master",
-        "nargs": "?",
-    }
-)
+JAR_PATH_ARG = ((), {"nargs": "?", "default": env_or_val("APIGENTOOLS_OPENAPI_JAR", constants.OPENAPI_JAR),})
+OPENAPI_GENERATOR_GIT_URL_ARG = (("-u", "--repo_url"), {"default": constants.OPENAPI_GENERATOR_GIT,})
+OPENAPI_GENERATOR_GIT_COMMITTISH_ARG = ((), {"default": "master", "nargs": "?",})
 SPEC_DIR_ARG = (
     ("-s", "--spec-dir"),
     {
         "default": env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
         "help": "Path to directory with OpenAPI specs (default: '{}')".format(constants.DEFAULT_SPEC_DIR),
-    }
+    },
 )
 TEMPLATE_PATCHES_DIR_ARG = (
     ("-p", "--template-patches-dir"),
     {
         "default": env_or_val("APIGENTOOLS_TEMPLATE_PATCHES_DIR", constants.DEFAULT_TEMPLATE_PATCHES_DIR),
         "help": "Directory with patches for upstream templates (default: '{}')".format(
-            constants.DEFAULT_TEMPLATE_PATCHES_DIR),
-    }
+            constants.DEFAULT_TEMPLATE_PATCHES_DIR
+        ),
+    },
 )
 TEMPLATES_OUTPUT_DIR_ARG = (
     ("-o", "--output-dir"),
     {
         "default": env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
         "help": "Path to directory where to put processed upstream templates (default: {})".format(
-            constants.DEFAULT_TEMPLATES_DIR),
-    }
+            constants.DEFAULT_TEMPLATES_DIR
+        ),
+    },
 )
 
 
 def get_cli_parser():
-    p = argparse.ArgumentParser(
-        description="Manipulate OpenAPI specs and generate code using openapi-generator"
-    )
+    p = argparse.ArgumentParser(description="Manipulate OpenAPI specs and generate code using openapi-generator")
     p.add_argument(
         "--git-via-https",
         action="store_true",
@@ -122,12 +106,8 @@ def get_cli_parser():
     p.add_argument(
         "-c",
         "--config-dir",
-        default=env_or_val(
-            constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR
-        ),
-        help="Path to config directory (default: '{}')".format(
-            constants.DEFAULT_CONFIG_DIR
-        ),
+        default=env_or_val(constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR),
+        help="Path to config directory (default: '{}')".format(constants.DEFAULT_CONFIG_DIR),
     )
     p.add_argument(
         "-v",
@@ -137,8 +117,7 @@ def get_cli_parser():
         help="Whether or not to log the generation in verbose mode",
     )
     p.add_argument(
-        *GENERATED_CODE_DIR_ARG[0],
-        **GENERATED_CODE_DIR_ARG[1],
+        *GENERATED_CODE_DIR_ARG[0], **GENERATED_CODE_DIR_ARG[1],
     )
     p.add_argument(
         "-l",
@@ -158,8 +137,7 @@ def get_cli_parser():
 
     generate_parser = sp.add_parser("generate", help="Generate client code")
     generate_parser.add_argument(
-        *SPEC_DIR_ARG[0],
-        **SPEC_DIR_ARG[1],
+        *SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1],
     )
     generate_parser.add_argument(
         "--clone-repo",
@@ -180,8 +158,7 @@ def get_cli_parser():
         "--branch feature --is-ancestor master.",
     )
     generate_parser.add_argument(
-        *FULL_SPEC_FILE_ARG[0],
-        **FULL_SPEC_FILE_ARG[1],
+        *FULL_SPEC_FILE_ARG[0], **FULL_SPEC_FILE_ARG[1],
     )
     generate_parser.add_argument(
         "--additional-stamp",
@@ -198,45 +175,34 @@ def get_cli_parser():
     generate_parser.add_argument(
         "-d",
         "--downstream-templates-dir",
-        default=env_or_val(
-            "APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR",
-            constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,
-        ),
+        default=env_or_val("APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR", constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,),
         help="Path to directory with downstream templates (default: '{}')".format(
             constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR
         ),
     )
     generate_parser.add_argument(
-        *GIT_EMAIL_ARG[0],
-        **GIT_EMAIL_ARG[1],
+        *GIT_EMAIL_ARG[0], **GIT_EMAIL_ARG[1],
     )
     generate_parser.add_argument(
-        *GIT_NAME_ARG[0],
-        **GIT_NAME_ARG[1],
+        *GIT_NAME_ARG[0], **GIT_NAME_ARG[1],
     )
 
     template_source_group = generate_parser.add_mutually_exclusive_group()
     template_source_group.add_argument(
         "-t",
         "--template-dir",
-        default=env_or_val(
-            "APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR
-        ),
+        default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
         help="Path to directory with processed upstream templates (default: '{}')".format(
             constants.DEFAULT_TEMPLATES_DIR
         ),
     )
     template_source_group.add_argument(
-        "--builtin-templates",
-        action="store_true",
-        default=False,
-        help="Use unpatched upstream templates",
+        "--builtin-templates", action="store_true", default=False, help="Use unpatched upstream templates",
     )
 
     generate_templates_group = generate_parser.add_argument_group("templates processing options")
     generate_templates_group.add_argument(
-        *TEMPLATES_OUTPUT_DIR_ARG[0],
-        **TEMPLATES_OUTPUT_DIR_ARG[1],
+        *TEMPLATES_OUTPUT_DIR_ARG[0], **TEMPLATES_OUTPUT_DIR_ARG[1],
     )
     generate_templates_group.add_argument(
         "--templates-source",
@@ -250,8 +216,7 @@ def get_cli_parser():
         help="Source to use for obtaining templates to be processed (default: 'skip')",
     )
     generate_templates_group.add_argument(
-        *TEMPLATE_PATCHES_DIR_ARG[0],
-        **TEMPLATE_PATCHES_DIR_ARG[1],
+        *TEMPLATE_PATCHES_DIR_ARG[0], **TEMPLATE_PATCHES_DIR_ARG[1],
     )
     generate_templates_group.add_argument(
         "--jar-path",
@@ -260,31 +225,28 @@ def get_cli_parser():
     )
     generate_templates_group.add_argument(
         "--local-path",
-        help="Path to directory with openapi-generator upstream templates (use if --templates-source=local-dir)"
+        help="Path to directory with openapi-generator upstream templates (use if --templates-source=local-dir)",
     )
     generate_templates_group.add_argument(
         *OPENAPI_GENERATOR_GIT_URL_ARG[0],
         **OPENAPI_GENERATOR_GIT_URL_ARG[1],
         help="URL of the openapi-generator repo (default: '{}'; use if --templates-source=openapi-git)".format(
-            constants.OPENAPI_GENERATOR_GIT),
+            constants.OPENAPI_GENERATOR_GIT
+        ),
     )
     generate_templates_group.add_argument(
         "--git-committish",
         **OPENAPI_GENERATOR_GIT_COMMITTISH_ARG[1],
         help="Git 'committish' to check out before obtaining templates "
-            "(default: 'master'; use if --templates-source=openapi-git)",
+        "(default: 'master'; use if --templates-source=openapi-git)",
     )
 
-    templates_parser = sp.add_parser(
-        "templates", help="Get upstream templates and apply downstream patches"
+    templates_parser = sp.add_parser("templates", help="Get upstream templates and apply downstream patches")
+    templates_parser.add_argument(
+        *TEMPLATES_OUTPUT_DIR_ARG[0], **TEMPLATES_OUTPUT_DIR_ARG[1],
     )
     templates_parser.add_argument(
-        *TEMPLATES_OUTPUT_DIR_ARG[0],
-        **TEMPLATES_OUTPUT_DIR_ARG[1],
-    )
-    templates_parser.add_argument(
-        *TEMPLATE_PATCHES_DIR_ARG[0],
-        **TEMPLATE_PATCHES_DIR_ARG[1],
+        *TEMPLATE_PATCHES_DIR_ARG[0], **TEMPLATE_PATCHES_DIR_ARG[1],
     )
     templates_source = templates_parser.add_subparsers(
         dest="templates_source", required=True, help="Source of upstream templates"
@@ -293,20 +255,15 @@ def get_cli_parser():
         constants.TEMPLATES_SOURCE_OPENAPI_JAR, help="Obtain upstream templates from openapi-generator jar"
     )
     jar_parser.add_argument(
-        "jar_path",
-        **JAR_PATH_ARG[1],
-        help="Path to openapi-generator jar file",
+        "jar_path", **JAR_PATH_ARG[1], help="Path to openapi-generator jar file",
     )
     local_parser = templates_source.add_parser(
         constants.TEMPLATES_SOURCE_LOCAL_DIR,
         help="Obtain upstream templates from a local directory (e.g. an openapi-generator git checkout)",
     )
-    local_parser.add_argument(
-        "local_path", help="Path to directory with openapi-generator upstream templates"
-    )
+    local_parser.add_argument("local_path", help="Path to directory with openapi-generator upstream templates")
     git_parser = templates_source.add_parser(
-        constants.TEMPLATES_SOURCE_OPENAPI_GIT,
-        help="Obtain upstream templates from openapi-generator git repository",
+        constants.TEMPLATES_SOURCE_OPENAPI_GIT, help="Obtain upstream templates from openapi-generator git repository",
     )
     git_parser.add_argument(
         *OPENAPI_GENERATOR_GIT_URL_ARG[0],
@@ -322,12 +279,10 @@ def get_cli_parser():
     validate_parser = sp.add_parser("validate", help="Validate OpenAPI spec")
     # these are duplicated with generate_parser, we should deduplicate
     validate_parser.add_argument(
-        *SPEC_DIR_ARG[0],
-        **SPEC_DIR_ARG[1],
+        *SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1],
     )
     validate_parser.add_argument(
-        *FULL_SPEC_FILE_ARG[0],
-        **FULL_SPEC_FILE_ARG[1],
+        *FULL_SPEC_FILE_ARG[0], **FULL_SPEC_FILE_ARG[1],
     )
 
     test_parser = sp.add_parser("test", help="Run tests for generated source code")
@@ -338,8 +293,7 @@ def get_cli_parser():
         help="Build test image with --no-cache option",
     )
     test_parser.add_argument(
-        *GENERATED_CODE_DIR_ARG[0],
-        **GENERATED_CODE_DIR_ARG[1],
+        *GENERATED_CODE_DIR_ARG[0], **GENERATED_CODE_DIR_ARG[1],
     )
     test_parser.add_argument(
         "--container-env",
@@ -352,18 +306,12 @@ def get_cli_parser():
         + "it *will* be logged as part of the test output by apigentools).",
     )
 
-    split_parser = sp.add_parser(
-        "split", help="Split single OpenAPI spec file into multiple files"
+    split_parser = sp.add_parser("split", help="Split single OpenAPI spec file into multiple files")
+    split_parser.add_argument(
+        "-i", "--input-file", required=True, help="Path to the OpenAPI full spec file to split",
     )
     split_parser.add_argument(
-        "-i",
-        "--input-file",
-        required=True,
-        help="Path to the OpenAPI full spec file to split",
-    )
-    split_parser.add_argument(
-        *SPEC_DIR_ARG[0],
-        **SPEC_DIR_ARG[1],
+        *SPEC_DIR_ARG[0], **SPEC_DIR_ARG[1],
     )
     split_parser.add_argument(
         "-v",
@@ -373,8 +321,7 @@ def get_cli_parser():
     )
 
     push_parser = sp.add_parser(
-        "push",
-        help="Push the generated source code into each git repository specified in the config",
+        "push", help="Push the generated source code into each git repository specified in the config",
     )
     push_parser.add_argument(
         "--default-branch",
@@ -399,18 +346,15 @@ def get_cli_parser():
         default=env_or_val("APIGENTOOLS_SKIP_IF_NO_CHANGES", False, __type=bool),
     )
     push_parser.add_argument(
-        *GIT_EMAIL_ARG[0],
-        **GIT_EMAIL_ARG[1],
+        *GIT_EMAIL_ARG[0], **GIT_EMAIL_ARG[1],
     )
     push_parser.add_argument(
-        *GIT_NAME_ARG[0],
-        **GIT_NAME_ARG[1],
+        *GIT_NAME_ARG[0], **GIT_NAME_ARG[1],
     )
 
     init_parser = sp.add_parser("init", help="Initialize a new spec repo")
     init_parser.add_argument(
-        "projectdir",
-        help="Directory to create the new project in (will be created if it doesn't exist)",
+        "projectdir", help="Directory to create the new project in (will be created if it doesn't exist)",
     )
     init_parser.add_argument(
         "-g",
@@ -436,7 +380,5 @@ def cli():
         sys.exit(command.run())
 
     with change_cwd(args.spec_repo_dir):
-        command.config = Config.from_file(
-            os.path.join(args.config_dir, constants.DEFAULT_CONFIG_FILE)
-        )
+        command.config = Config.from_file(os.path.join(args.config_dir, constants.DEFAULT_CONFIG_FILE))
         sys.exit(command.run())

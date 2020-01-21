@@ -60,9 +60,7 @@ class GenerateCommand(Command):
                         function_name = part.get("function")
                         function = allowed_functions.get(function_name)
                         if function:
-                            result = function(
-                                *part.get("args", []), **part.get("kwargs", {})
-                            )
+                            result = function(*part.get("args", []), **part.get("kwargs", {}))
                             # NOTE: we may need to improve this logic if/when we add more functions
                             if isinstance(result, list):
                                 to_run.extend(result)
@@ -101,9 +99,7 @@ class GenerateCommand(Command):
             for f in files:
                 template_path = os.path.join(root, f)
                 relative_path = template_path[len(templates_dir) :].strip("/")
-                target_path = os.path.join(
-                    self.get_generated_lang_dir(language), relative_path
-                )
+                target_path = os.path.join(self.get_generated_lang_dir(language), relative_path)
                 # build the full path to the target if doesn't exist
                 os.makedirs(os.path.dirname(target_path), exist_ok=True)
                 log.info("Writing {target}".format(target=target_path))
@@ -133,9 +129,7 @@ class GenerateCommand(Command):
         image = self.args.generated_with_image
 
         if image is not None and image.endswith(":latest"):
-            hash_file = os.environ.get(
-                "_APIGENTOOLS_GIT_HASH_FILE", "/var/lib/apigentools/git-hash"
-            )
+            hash_file = os.environ.get("_APIGENTOOLS_GIT_HASH_FILE", "/var/lib/apigentools/git-hash")
             try:
                 with open(hash_file, "r") as f:
                     git_hash = f.read().strip()
@@ -143,9 +137,7 @@ class GenerateCommand(Command):
                         tag = "git-{}".format(git_hash[:7])
                         image = image[: -len("latest")] + tag
             except Exception as e:
-                log.debug(
-                    "Failed reading git hash from {}: {}".format(hash_file, str(e))
-                )
+                log.debug("Failed reading git hash from {}: {}".format(hash_file, str(e)))
 
         return image
 
@@ -156,9 +148,7 @@ class GenerateCommand(Command):
             "Generated with: apigentools version X.Y.Z (image: apigentools:X.Y.Z); spec repo commit abcd123"
         :rtype: ``str``
         """
-        stamp = "Generated with: apigentools version {version}".format(
-            version=__version__
-        )
+        stamp = "Generated with: apigentools version {version}".format(version=__version__)
         if self.get_image_name() is None:
             stamp += " (non-container run)"
         else:
@@ -191,9 +181,7 @@ class GenerateCommand(Command):
         :param language: Language to write .apigentools-info for
         :type language: ``str``
         """
-        outfile = os.path.join(
-            self.get_generated_lang_dir(language), ".apigentools-info"
-        )
+        outfile = os.path.join(self.get_generated_lang_dir(language), ".apigentools-info")
         info = {
             "additional_stamps": self.args.additional_stamp,
             "apigentools_version": __version__,
@@ -230,18 +218,13 @@ class GenerateCommand(Command):
         # first, generate full spec for all major versions of the API
         for version in versions:
             fs_paths[version] = write_full_specs(
-                self.config,
-                languages,
-                self.args.spec_dir,
-                version,
-                self.args.full_spec_file,
+                self.config, languages, self.args.spec_dir, version, self.args.full_spec_file,
             )
 
         missing_templates = self.get_missing_templates(languages)
         if missing_templates and not self.args.builtin_templates:
             log.error(
-                "Missing templates for %s; please run `apigentools templates` first",
-                ", ".join(missing_templates),
+                "Missing templates for %s; please run `apigentools templates` first", ", ".join(missing_templates),
             )
             return 1
 
@@ -263,20 +246,14 @@ class GenerateCommand(Command):
             for version in language_config.spec_versions:
                 log.info("Generation in %s, spec version %s", language, version)
                 language_oapi_config_path = os.path.join(
-                    self.args.config_dir,
-                    LANGUAGE_OAPI_CONFIGS,
-                    "{lang}_{v}.json".format(lang=language, v=version),
+                    self.args.config_dir, LANGUAGE_OAPI_CONFIGS, "{lang}_{v}.json".format(lang=language, v=version),
                 )
                 with open(language_oapi_config_path) as lcp:
                     language_oapi_config = json.load(lcp)
-                version_output_dir = self.get_generated_lang_version_dir(
-                    language, version
-                )
+                version_output_dir = self.get_generated_lang_version_dir(language, version)
 
                 # get the language-specific spec if it exists, fallback to the general one
-                input_spec = fs_paths[version].get(
-                    language, fs_paths[version].get(None)
-                )
+                input_spec = fs_paths[version].get(language, fs_paths[version].get(None))
                 generate_cmd = [
                     self.config.codegen_exec,
                     "generate",
@@ -299,9 +276,7 @@ class GenerateCommand(Command):
                 ]
 
                 if not self.args.builtin_templates:
-                    generate_cmd.extend(
-                        ["-t", os.path.join(self.args.template_dir, language)]
-                    )
+                    generate_cmd.extend(["-t", os.path.join(self.args.template_dir, language)])
 
                 if language_config.generate_extra_args:
                     generate_cmd.extend(language_config.generate_extra_args)
@@ -313,9 +288,7 @@ class GenerateCommand(Command):
 
                 self.run_language_commands(language, "post", version_output_dir)
 
-                self.render_downstream_templates(
-                    language, self.args.downstream_templates_dir
-                )
+                self.render_downstream_templates(language, self.args.downstream_templates_dir)
 
             # Write the apigentools.info file once per language
             # after each nested folder has been created
@@ -329,44 +302,24 @@ class GenerateCommand(Command):
         if self.args.git_via_https:
             checkout_url = ""
             if self.args.git_via_https_oauth_token:
-                checkout_url = "{}:x-oauth-basic@".format(
-                    self.args.git_via_https_oauth_token
-                )
+                checkout_url = "{}:x-oauth-basic@".format(self.args.git_via_https_oauth_token)
             elif self.args.git_via_https_installation_access_token:
-                checkout_url = "x-access-token:{}@".format(
-                    self.args.git_via_https_installation_access_token
-                )
+                checkout_url = "x-access-token:{}@".format(self.args.git_via_https_installation_access_token)
             if checkout_url:
                 secret_repo_url = True
-            repo = REPO_HTTPS_URL.format(
-                checkout_url, language.github_org, language.github_repo
-            )
+            repo = REPO_HTTPS_URL.format(checkout_url, language.github_org, language.github_repo)
         else:
             repo = REPO_SSH_URL.format(language.github_org, language.github_repo)
 
         try:
-            log_repo = (
-                "{}/{}".format(language.github_org, language.github_repo)
-                if secret_repo_url
-                else repo
-            )
+            log_repo = "{}/{}".format(language.github_org, language.github_repo) if secret_repo_url else repo
             log.info("Pulling repository %s", log_repo)
             run_command(
-                [
-                    "git",
-                    "clone",
-                    "--depth=2",
-                    {"item": repo, "secret": secret_repo_url},
-                    output_dir,
-                ],
+                ["git", "clone", "--depth=2", {"item": repo, "secret": secret_repo_url}, output_dir,],
                 sensitive_output=True,
             )
         except subprocess.CalledProcessError as e:
-            log.error(
-                "Error cloning repo {0} into {1}. Make sure {1} is empty first".format(
-                    log_repo, output_dir
-                )
-            )
+            log.error("Error cloning repo {0} into {1}. Make sure {1} is empty first".format(log_repo, output_dir))
             raise e
 
         if branch is not None:
@@ -381,33 +334,16 @@ class GenerateCommand(Command):
         if branch is not None and self.args.is_ancestor:
             try:
                 run_command(
-                    [
-                        "git",
-                        "merge-base",
-                        "--is-ancestor",
-                        self.args.is_ancestor,
-                        branch,
-                    ],
-                    cwd=output_dir,
+                    ["git", "merge-base", "--is-ancestor", self.args.is_ancestor, branch,], cwd=output_dir,
                 )
             except subprocess.CalledProcessError:
-                log.warning(
-                    f"{self.args.is_ancestor} is not ancestor of branch {branch}, attempting to update branch"
-                )
+                log.warning(f"{self.args.is_ancestor} is not ancestor of branch {branch}, attempting to update branch")
                 try:
                     self.setup_git_config(cwd=output_dir)
                     run_command(
-                        [
-                            "git",
-                            "merge",
-                            "--no-ff",
-                            "--allow-unrelated-histories",
-                            self.args.is_ancestor,
-                        ],
+                        ["git", "merge", "--no-ff", "--allow-unrelated-histories", self.args.is_ancestor,],
                         cwd=output_dir,
                     )
                 except subprocess.CalledProcessError:
-                    log.error(
-                        f"Could not merge {self.args.is_ancestor} to {branch} to keep it up-to-date"
-                    )
+                    log.error(f"Could not merge {self.args.is_ancestor} to {branch} to keep it up-to-date")
                     raise
