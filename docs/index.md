@@ -180,7 +180,9 @@ To generate client code using the configuration you've created, run:
 container-apigentools generate --builtin-templates
 ```
 
-Note that you're using the `--builtin-templates` argument here to tell apigentools to use templates that are built in to openapi-generator. By default, apigentools expects you to pregenerate the templates using the [templates command](cli.md#apigentools-templates), but you really only need to do this when you need to change openapi-generator included templates.
+Note that you're using the `--builtin-templates` argument here to tell apigentools to use templates that are built in to openapi-generator.
+
+If using [template patches](workflow.md#add-template-patches), the containerized version of apigentools preprocesses the templates and runs the code generation as part of `container-apigentools generate`. When using non-containerized version, template preprocessing has to be done prior to code generation using the [templates command](cli.md#apigentools-templates).
 
 You can now browse the generated code under `generated/my-api-client-go/myapi_v1`. Note that if you want to make this a proper Go module with per-major-API-version submodules, you need to also add top-level `go.mod` and `go.sum` files. Place these in `generated/my-api-client-go`. If you want to continue working on this example, see the [downstream templates](workflow.md#add-downstream-templates) documentation for instructions.
 
