@@ -17,6 +17,7 @@ class Config:
             "spec_versions": [],
             "generate_extra_args": [],
             "user_agent_client_name": "OpenAPI",
+            "validation_commands": [],
         }
         self.language_configs = {}
         for lang, conf in raw_dict.get("languages", {}).items():
@@ -32,6 +33,12 @@ class Config:
 
     def get_language_config(self, lang):
         return self.language_configs[lang]
+
+    def get_validation_commands(self):
+        cmd_objects = []
+        for cmd in self.validation_commands:
+            cmd_objects.append(ConfigCommand("validation", cmd))
+        return cmd_objects
 
     @classmethod
     def from_file(cls, fpath):
@@ -70,7 +77,7 @@ class LanguageConfig:
         cmds = self.raw_dict.get("commands", {}).get(stage, [])
         cmd_objects = []
         for cmd in cmds:
-            cmd_objects.append(LanguageCommand(stage, cmd))
+            cmd_objects.append(ConfigCommand(stage, cmd))
         return cmd_objects
 
     @property
@@ -111,7 +118,7 @@ class LanguageConfig:
         return res
 
 
-class LanguageCommand:
+class ConfigCommand:
     def __init__(self, stage, config):
         self.stage = stage
         self.config = config

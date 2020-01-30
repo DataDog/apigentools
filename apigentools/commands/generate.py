@@ -52,32 +52,7 @@ class GenerateCommand(Command):
                 log.info("No '%s' commands found for language '%s'", phase, language)
 
             for command in commands:
-                log.info("Running command '%s'", command.description)
-                to_run = []
-                for part in command.commandline:
-                    if isinstance(part, dict):
-                        allowed_functions = {"glob": glob.glob}
-                        function_name = part.get("function")
-                        function = allowed_functions.get(function_name)
-                        if function:
-                            result = function(
-                                *part.get("args", []), **part.get("kwargs", {})
-                            )
-                            # NOTE: we may need to improve this logic if/when we add more functions
-                            if isinstance(result, list):
-                                to_run.extend(result)
-                            else:
-                                to_run.append(result)
-                        else:
-                            raise ValueError(
-                                "Unknow function '{f}' in command '{d}' for language '{l}'".format(
-                                    f=function_name, d=command.description, l=language
-                                )
-                            )
-                    else:
-                        to_run.append(str(part))
-
-                run_command(to_run, additional_env=lc.command_env)
+                self.run_config_command(command, "language '{l}'".format(l=language), lc.command_env)
 
     def render_downstream_templates(self, language, downstream_templates_dir):
         """ Render the templates included in this repository under `downstream-templates/`

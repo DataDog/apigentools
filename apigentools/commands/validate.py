@@ -20,15 +20,27 @@ class ValidateCommand(Command):
         log_string += " ({})".format(fs_path)
         try:
             run_command([self.config.codegen_exec, "validate", "-i", fs_path])
+            self.run_validation_commands(fs_path)
             log.info("Validation %s for API version %s successful", log_string, version)
             return True
-        except:
-            log.error(
+        except Exception as e:
+            log_method = log.error
+            if self.args.verbose:
+                log_method = log.exception
+            log_method(
                 "Validation %s for API version %s failed, see the output above for errors",
                 log_string,
                 version,
             )
             return False
+
+    def run_validation_commands(self, spec_path):
+        vcs = self.config.get_validation_commands()
+        if vcs:
+            log.info("Running custom validation commands")
+
+        for cmd in vcs:
+            self.run_config_command(cmd, "validation", chevron_vars={"spec": spec_path})
 
     def run(self):
         cmd_result = 0
