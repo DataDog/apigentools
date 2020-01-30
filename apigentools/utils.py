@@ -414,3 +414,26 @@ def validate_duplicates(loaded_keys, full_spec_keys):
     for key in loaded_keys:
         if key in full_spec_keys:
             raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
+
+
+def volumes_from(alt_volumes):
+    retval = []
+    is_image_run = env_or_val("APIGENTOOLS_IMAGE", None)
+    if is_image_run:
+        if os.path.exists("/proc/self/cgroup"):
+            with open("/proc/self/cgroup") as f:
+                for line in f.readlines():
+                    if ":/docker/" in line:
+                        container_id = line.split(":/docker/")
+                        retval.append("--volumes-from")
+                        retval.append(container_id[-1].strip())
+                        break
+        if not retval:
+            log.warning(
+                "APIGENTOOLS_IMAGE is set, but docker container ID not found in /proc/self/cgroup"
+            )
+    if not retval:
+        for av in alt_volumes:
+            retval.append("-v")
+            retval.append(av)
+    return retval

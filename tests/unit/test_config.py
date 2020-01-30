@@ -6,7 +6,7 @@ import os
 
 import pytest
 
-from apigentools.config import Config, LanguageCommand, LanguageConfig
+from apigentools.config import Config, ConfigCommand, LanguageConfig
 
 FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
 
@@ -40,7 +40,7 @@ def test_config():
     assert java.upstream_templates_dir == "Java"
 
     pre = java.get_stage_commands("pre")[0]
-    assert type(pre) == LanguageCommand
+    assert type(pre) == ConfigCommand
     assert pre.description == "Some command"
     assert pre.commandline == ["some", "cmd"]
 

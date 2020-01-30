@@ -107,12 +107,13 @@ The structure of the general config file is as follows, starting with top level 
 
 * `codegen_exec` - Name of the executable of the code generating tool.
 * `container_apigentools_image` - Container image to use by the `container-apigentools` script by default.
+* `generate_extra_args` - Additional arguments to pass to the `openapi-generator` call.
 * `languages` - Settings for individual languages; contains a mapping of language names to their settings.
   * individual language settings:
     * `commands` - Commands to execute before/after code generation; commands are executed in two *phases* - `pre` (executed before code generation) or `post` (executed after code generation). Note that each command is run once for each of the langauge's `spec_versions`, and inside the directory with code for that spec version.
        * *phase* commands - Each phase can contain a list of commands to be executed; each command is represented as a map:
          * `description` - A description of the command.
-         * `commandline` - The command itself; the items in the list are strings and, potentially, *functions* that represent callbacks to the Python code. Each function is represented as a map:
+         * `commandline` - The command itself; the items in the list are templatable strings and, potentially, *functions* that represent callbacks to the Python code. Each function is represented as a map:
             * `function` - Name of the function (see below for list of recognized functions).
             * `args` - List of args to pass to the function in Python code (as in `*args`).
             * `kwargs` - Mapping of args to pass to the function in Python code (as in `**kwargs`).
@@ -129,13 +130,35 @@ The structure of the general config file is as follows, starting with top level 
 * `spec_sections` - Mapping of major spec versions (these must be in `spec_versions`) to lists of files with paths/tags/components definitions to merge when creating full spec. Files not explicitly listed here are ignored.
 * `spec_versions` - List of major versions currently known and operated on. These must be subdirectories of the `spec` directory.
 * `user_agent_client_name` - The HTTP User Agent string will be set to `{user_agent_client_name}/{package_version}/{language}`.
-* `generate_extra_args` - Additional arguments to pass to the `openapi-generator` call.
+* `validation_commands` - List of commands to run during validation phase. The commands have the same structure and mechanics like language commands (see above). Validation commands will be executed for each full spec that is created.
 
-### Functions in Language Phase Commands
+### Functions in Commands
 
-This section lists recognized functions for language phase commands, as mentioned in the section above.
+This section lists recognized functions for language phase and validation commands, as mentioned in the section above.
 
 * `glob` - runs Python's `glob.glob`
+* `volumes_from` - useful when running a dockerized tools and you need them to run from apigentools container
+
+  When used as this:
+  ```json
+  {
+    "function": "volumes_from",
+    "kwargs": {
+      "alt_volumes": ["{{cwd}}:{{cwd}}"]
+    }
+  }
+  ```
+  It will expand to `--volumes-from <current-container-id>` when running in container and to `-v {{cwd}}:{{cwd}}` when not running in container (furthermore, both `{{cwd}}` occurrences will be templated and noted below).
+
+### Template Values in Commands
+
+The `commandline` arguments of commands can also use following templating values (Mustache templating is used):
+
+* `{{cwd}}` - Current working directory
+
+These templating values are available to `validation_commands`:
+
+* `{{spec}}` - Path to the spec currently being validated (path is relative to Spec Repo directory). If there are multiple full spec files, this will always point to the one currently being validated.
 
 ## Section Files
 
