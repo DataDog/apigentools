@@ -52,7 +52,9 @@ class GenerateCommand(Command):
                 log.info("No '%s' commands found for language '%s'", phase, language)
 
             for command in commands:
-                self.run_config_command(command, "language '{l}'".format(l=language), lc.command_env)
+                self.run_config_command(
+                    command, "language '{l}'".format(l=language), lc.command_env
+                )
 
     def render_downstream_templates(self, language, downstream_templates_dir):
         """ Render the templates included in this repository under `downstream-templates/`

@@ -84,7 +84,9 @@ class Command(abc.ABC):
 
         return retval
 
-    def run_config_command(self, command, what_command, additional_env=None, chevron_vars=None):
+    def run_config_command(
+        self, command, what_command, additional_env=None, chevron_vars=None
+    ):
         log.info("Running command '%s'", command.description)
 
         if chevron_vars is None:
@@ -98,9 +100,7 @@ class Command(abc.ABC):
                 function_name = part.get("function")
                 function = allowed_functions.get(function_name)
                 if function:
-                    result = function(
-                        *part.get("args", []), **part.get("kwargs", {})
-                    )
+                    result = function(*part.get("args", []), **part.get("kwargs", {}))
                     # NOTE: we may need to improve this logic if/when we add more functions
                     if isinstance(result, list):
                         to_run.extend(result)

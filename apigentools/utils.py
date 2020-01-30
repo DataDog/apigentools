@@ -431,7 +431,9 @@ def volumes_from(alt_volumes):
                         retval.append(container_id[-1].strip())
                         break
         if not retval:
-            log.warning("APIGENTOOLS_IMAGE is set, but docker container ID not found in /proc/self/cgroup")
+            log.warning(
+                "APIGENTOOLS_IMAGE is set, but docker container ID not found in /proc/self/cgroup"
+            )
     if not retval:
         for av in alt_volumes:
             retval.append("-v")
