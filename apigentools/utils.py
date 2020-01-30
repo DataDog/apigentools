@@ -421,10 +421,8 @@ def volumes_from(alt_volumes):
     is_image_run = env_or_val("APIGENTOOLS_IMAGE", None)
     if is_image_run:
         if os.path.exists("/proc/self/cgroup"):
-            print("exists")
             with open("/proc/self/cgroup") as f:
                 for line in f.readlines():
-                    print(line)
                     if ":/docker/" in line:
                         container_id = line.split(":/docker/")
                         retval.append("--volumes-from")
