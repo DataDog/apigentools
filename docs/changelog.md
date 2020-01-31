@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.0 / 2020-01-31
+
+* [Added] Make it possible to add custom validation commands. See [#124](https://github.com/DataDog/apigentools/pull/124).
+* [Added] Make template preparation part of code generation by default. See [#123](https://github.com/DataDog/apigentools/pull/123).
+* [Fixed] Fix git cwd in push command. See [#122](https://github.com/DataDog/apigentools/pull/122).
+* [Fixed] Fix merging when clone --depth=2. See [#120](https://github.com/DataDog/apigentools/pull/120).
+* [Fixed] Configure git before merging. See [#119](https://github.com/DataDog/apigentools/pull/119).
+* [Added] Sort OpenAPI tags alphabetical. See [#118](https://github.com/DataDog/apigentools/pull/118).
+* [Fixed] Merge --is-ancestor branch to --branch. See [#117](https://github.com/DataDog/apigentools/pull/117).
+* [Fixed] Fix ancestor error message. See [#116](https://github.com/DataDog/apigentools/pull/116).
+* [Changed] [ITL-182] Use specific image openapitools/openapi-generator@sha256:xxx. See [#114](https://github.com/DataDog/apigentools/pull/114).
+
 ## 0.9.2
 
 * [Improvement] Adds an optional check to ensure that a branch specified in `--branch` option is an ancestor of the branch given in `--is-ancestor` option in `generate` command.
