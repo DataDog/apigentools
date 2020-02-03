@@ -2,10 +2,12 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+import contextlib
 import copy
 import logging
 import os
 import subprocess
+import sys
 
 import flexmock
 import pytest
@@ -22,6 +24,7 @@ from apigentools.utils import (
     set_log,
     set_log_level,
     validate_duplicates,
+    volumes_from,
 )
 
 
@@ -191,3 +194,41 @@ def test_set_log_default(caplog):
     set_log(log)
     for record in caplog.records:
         assert "INFO" in record
+
+
+def test_volumes_from(monkeypatch):
+    def readlines_non_gh_action():
+        return [
+            "some useless line",
+            "2:cpu:/docker/3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
+        ]
+
+    def readlines_non_gh_action_multi_slashes():
+        return [
+            "some useless line",
+            "3:cpu:/docker/4193df6bcf5fce75f3fc77f303b2ac06fb664adeb269b959b7ae17b3f8dcf329/3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
+        ]
+
+    def readlines_gh_action():
+        return [
+            "some useless line",
+            "12:freezer:/actions_job/3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
+        ]
+
+    readlines_mocks = [
+        readlines_non_gh_action,
+        readlines_non_gh_action_multi_slashes,
+        readlines_gh_action,
+    ]
+    flexmock(sys.modules["os.path"]).should_receive("exists").and_return(True)
+    mock = flexmock(sys.modules["builtins"])
+    m = mock.should_receive("open").with_args("/proc/self/cgroup")
+    for rm in readlines_mocks:
+        m = m.and_return(flexmock(readlines=rm))
+    monkeypatch.setenv("APIGENTOOLS_IMAGE", "someid")
+
+    for i in range(0, len(readlines_mocks)):
+        assert volumes_from([]) == [
+            "--volumes-from",
+            "3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
+        ]
