@@ -423,8 +423,9 @@ def volumes_from(alt_volumes):
         if os.path.exists("/proc/self/cgroup"):
             with open("/proc/self/cgroup") as f:
                 for line in f.readlines():
-                    if ":/docker/" in line:
-                        container_id = line.split(":/docker/")
+                    # github actions use "/actions_job/" in cgroups lines to identify docker container id
+                    if "/docker/" in line or "/actions_job/" in line:
+                        container_id = line.rsplit("/")
                         retval.append("--volumes-from")
                         retval.append(container_id[-1].strip())
                         break
