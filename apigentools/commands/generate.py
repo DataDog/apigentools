@@ -33,7 +33,7 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
 class GenerateCommand(Command):
     __cached_codegen_version = None
 
-    def run_language_commands(self, language, phase, cwd):
+    def run_language_commands(self, language, phase, cwd, chevron_vars=None):
         """ Runs commands specified in language settings for given language and phase
 
         :param language: Language to run commands for
@@ -42,6 +42,8 @@ class GenerateCommand(Command):
         :type phase: ``str``
         :param cwd: Directory to change to while executing all commands
         :type cwd: ``str``
+        :param chevron_vars: Placeholders to replace in command
+        :type chevron_vars: ``dict``
         """
         with change_cwd(cwd):
             lc = self.config.get_language_config(language)
@@ -53,7 +55,10 @@ class GenerateCommand(Command):
 
             for command in commands:
                 self.run_config_command(
-                    command, "language '{l}'".format(l=language), lc.command_env
+                    command,
+                    "language '{l}'".format(l=language),
+                    lc.command_env,
+                    chevron_vars=chevron_vars,
                 )
 
     def render_downstream_templates(self, language, downstream_templates_dir):
@@ -208,6 +213,8 @@ class GenerateCommand(Command):
 
         # first, generate full spec for all major versions of the API
         for version in versions:
+            chevron_vars = {"spec_version": version}  # used to modify commands
+
             fs_paths[version] = write_full_specs(
                 self.config,
                 languages,
@@ -286,11 +293,18 @@ class GenerateCommand(Command):
                     generate_cmd.extend(language_config.generate_extra_args)
 
                 os.makedirs(version_output_dir, exist_ok=True)
-                self.run_language_commands(language, "pre", version_output_dir)
+                self.run_language_commands(
+                    language, "pre", version_output_dir, chevron_vars
+                )
 
-                run_command(generate_cmd, additional_env=language_config.command_env)
+                run_command(
+                    self._render_command_args(generate_cmd, chevron_vars),
+                    additional_env=language_config.command_env,
+                )
 
-                self.run_language_commands(language, "post", version_output_dir)
+                self.run_language_commands(
+                    language, "post", version_output_dir, chevron_vars
+                )
 
                 self.render_downstream_templates(
                     language, self.args.downstream_templates_dir
