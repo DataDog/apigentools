@@ -49,7 +49,11 @@ class ValidateCommand(Command):
 
         for language in languages:
             language_config = self.config.get_language_config(language)
-            versions = self.args.api_versions or language_config.spec_versions or self.config.spec_versions
+            versions = (
+                self.args.api_versions
+                or language_config.spec_versions
+                or self.config.spec_versions
+            )
             for version in versions:
                 language_specs = write_full_specs(
                     self.config,
