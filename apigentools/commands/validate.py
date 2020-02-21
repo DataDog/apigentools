@@ -46,16 +46,24 @@ class ValidateCommand(Command):
         cmd_result = 0
         languages = self.args.languages or self.config.languages
         versions = self.args.api_versions or self.config.spec_versions
-        for version in versions:
-            language_specs = write_full_specs(
-                self.config,
-                languages,
-                self.args.spec_dir,
-                version,
-                self.args.full_spec_file,
+
+        for language in languages:
+            language_config = self.config.get_language_config(language)
+            versions = (
+                self.args.api_versions
+                or language_config.spec_versions
+                or self.config.spec_versions
             )
-            for language, fs_path in language_specs.items():
-                if not self.validate_spec(fs_path, language, version):
-                    cmd_result = 1
+            for version in versions:
+                language_specs = write_full_specs(
+                    self.config,
+                    [language],
+                    self.args.spec_dir,
+                    version,
+                    self.args.full_spec_file,
+                )
+                for language, fs_path in language_specs.items():
+                    if not self.validate_spec(fs_path, language, version):
+                        cmd_result = 1
 
         return cmd_result
