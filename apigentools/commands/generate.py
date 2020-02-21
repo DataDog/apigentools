@@ -212,22 +212,16 @@ class GenerateCommand(Command):
         pull_repo = self.args.clone_repo
 
         # first, generate full spec for all major versions of the API
-        for language in languages:
-            language_config = self.config.get_language_config(language)
-            versions = (
-                self.args.api_versions
-                or language_config.spec_versions
-                or self.config.spec_versions
+        for version in versions:
+            chevron_vars = {"spec_version": version}  # used to modify commands
+
+            fs_paths[version] = write_full_specs(
+                self.config,
+                languages,
+                self.args.spec_dir,
+                version,
+                self.args.full_spec_file,
             )
-            for version in versions:
-                chevron_vars = {"spec_version": version}  # used to modify commands
-                fs_paths[version] = write_full_specs(
-                    self.config,
-                    [language],
-                    self.args.spec_dir,
-                    version,
-                    self.args.full_spec_file,
-                )
 
         missing_templates = self.get_missing_templates(languages)
         if missing_templates and not self.args.builtin_templates:
