@@ -80,7 +80,7 @@ Example:
 ```
 {
     "codegen_exec": "openapi-generator",
-    "container_apigentools_image": "apigentools/apigentools:0.9.0",
+    "container_apigentools_image": "datadog/apigentools:0.9.0",
     "languages": {
         "java": {
             "github_org_name": "my-github-org",

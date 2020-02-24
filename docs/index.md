@@ -20,7 +20,7 @@ pip install apigentools
 
 ## Containerized Version
 
-For all operations (except the simple `apigentools init` which doesn't need any complex dependencies), we highly recommend everyone to use the containerized version of apigentools available via `apigentools/apigentools` image on [Dockerhub](https://cloud.docker.com/u/apigentools/repository/docker/apigentools/apigentools). The apigentools Python package includes a [container-apigentool](cli.md#containerized-version) script which utilizes the image in the background. It can be used as easily as the non-containerized `apigentools` script, while also ensuring presence of all tools and dependencies necessary for apigentools to work properly.
+For all operations (except the simple `apigentools init` which doesn't need any complex dependencies), we highly recommend everyone to use the containerized version of apigentools available via `datadog/apigentools` image on [Dockerhub](https://cloud.docker.com/u/apigentools/repository/docker/datadog/apigentools). The apigentools Python package includes a [container-apigentool](cli.md#containerized-version) script which utilizes the image in the background. It can be used as easily as the non-containerized `apigentools` script, while also ensuring presence of all tools and dependencies necessary for apigentools to work properly.
 
 ### Setup Spec Repo
 

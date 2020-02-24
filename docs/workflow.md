@@ -30,7 +30,7 @@ pip install apigentools
 
 Note that apigentools ships with 2 executables: `apigentools` and `container-apigentools`. Consult the [CLI documentation](cli.md) on how these are used. While the following sections provide examples using both of these, we recommend using the container version to ensure reproducibility and presence of all necessary tools.
 
-Note that up until version 0.8.0, the `container-apigentools` required a positional argument with image to use, e.g. `container-apigentools apigentools/apigentools:0.8.0 validate`. Since 0.9.0, the image to be used is read either from `APIGENTOOLS_IMAGE` environment variable or from [config](spec_repo.md#configconfigjson) `container_apigentools_image` value.
+Note that up until version 0.8.0, the `container-apigentools` required a positional argument with image to use, e.g. `container-apigentools datadog/apigentools:0.8.0 validate`. Since 0.9.0, the image to be used is read either from `APIGENTOOLS_IMAGE` environment variable or from [config](spec_repo.md#configconfigjson) `container_apigentools_image` value.
 
 ## Create a "Spec Repo"
 
