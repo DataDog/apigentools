@@ -18,7 +18,7 @@ The container image to use is determined from these sources:
 
 * If `APIGENTOOLS_IMAGE` environment variable exists, its content is used.
 * Otherwise [config.json](spec_repo.md#configconfigjson) is parsed and value of `container_apigentools_image` key is used if present.
-* Otherwise `apigentools/apigentools:latest` is used.
+* Otherwise `datadog/apigentools:latest` is used.
 
 Note that if `APIGENTOOLS_ARGS` is not provided, a [full automated workflow](workflow.md#run-all-automated-parts-of-the-workflow) is run.
 

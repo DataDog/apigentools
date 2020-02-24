@@ -5,7 +5,7 @@
 CONFIG_CONTAINER_IMAGE_KEY = "container_apigentools_image"
 DEFAULT_CONFIG_DIR = "config"
 DEFAULT_CONFIG_FILE = "config.json"
-DEFAULT_CONTAINER_IMAGE = "apigentools/apigentools:latest"
+DEFAULT_CONTAINER_IMAGE = "datadog/apigentools:latest"
 DEFAULT_DOWNSTREAM_TEMPLATES_DIR = "downstream-templates"
 DEFAULT_GENERATED_CODE_DIR = "generated"
 DEFAULT_LANGUAGES_CONFIG_DIR = "languages"

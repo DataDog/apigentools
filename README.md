@@ -17,4 +17,4 @@ The purpose of the apigentools package is providing an easy way to generate API 
 
 * Documentation: https://apigentools.readthedocs.io
 * Install from PyPI: `pip install apigentools`
-* Run it in Docker container: `docker run apigentools/apigentools:latest`
+* Run it in Docker container: `docker run datadog/apigentools:latest`

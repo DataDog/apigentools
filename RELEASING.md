@@ -35,7 +35,7 @@ Note that once the release process is started, nobody should be merging/pushing 
 We don't want to trigger multiple rebuilds of docs and Docker images with that official final release version and different content - this would only create confusion.
 
 * Pull the merged PR locally and tag the latest commit: `git tag -a "vX.Y.Z" -m "Version X.Y.Z"`
-  * Note that the `v` in `-a "vX.Y.Z"` is important, our Dockerhub setup recognizes a tag like this and automatically builds image `apigentools/apigentools:X.Y.X` from it
+  * Note that the `v` in `-a "vX.Y.Z"` is important, our Dockerhub setup recognizes a tag like this and automatically builds image `datadog/apigentools:X.Y.X` from it
   * Push the tag with `git push --tags`
 * Do a release on PyPI. Since this is a simple non-binary-extension package, we can do source releases only:
   * Clean old builds `python setup.py clean`
