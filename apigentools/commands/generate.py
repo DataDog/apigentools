@@ -2,6 +2,7 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+import collections
 import copy
 import glob
 import json
@@ -21,7 +22,7 @@ from apigentools.utils import (
     change_cwd,
     get_current_commit,
     run_command,
-    write_full_specs,
+    write_full_spec,
 )
 
 log = logging.getLogger(__name__)
@@ -207,23 +208,29 @@ class GenerateCommand(Command):
                 return templates_result
         fs_paths = {}
 
-        versions = self.args.api_versions or self.config.spec_versions
-        languages = self.args.languages or self.config.languages
-        pull_repo = self.args.clone_repo
+        info = collections.defaultdict(dict)
+        fs_files = set()
 
         # first, generate full spec for all major versions of the API
-        for version in versions:
-            chevron_vars = {"spec_version": version}  # used to modify commands
+        for language, version, fs_file in self.yield_lang_version_specfile():
+            info[language][version] = os.path.join(self.args.spec_dir, version, fs_file)
 
-            fs_paths[version] = write_full_specs(
+            if fs_file in fs_files:
+                continue
+            fs_files.add(fs_file)
+
+            # Generate full spec file is needed
+            write_full_spec(
                 self.config,
-                languages,
                 self.args.spec_dir,
                 version,
-                self.args.full_spec_file,
+                self.config.get_language_config(language).spec_sections,
+                fs_file,
             )
 
-        missing_templates = self.get_missing_templates(languages)
+        pull_repo = self.args.clone_repo
+
+        missing_templates = self.get_missing_templates(info.keys())
         if missing_templates and not self.args.builtin_templates:
             log.error(
                 "Missing templates for %s; please run `apigentools templates` first",
@@ -239,14 +246,16 @@ class GenerateCommand(Command):
         # now, for each language generate a client library for every major version that is explicitly
         # listed in its settings (meaning that we can have languages that don't support all major
         # API versions)
-        for language in languages:
+        for language, versions in info.items():
             language_config = self.config.get_language_config(language)
 
             # Clone the language target repo into the output directory
             if pull_repo:
                 self.pull_repository(language_config, branch=self.args.branch)
 
-            for version in language_config.spec_versions:
+            for version, input_spec in versions.items():
+                chevron_vars = {"spec_version": version}  # used to modify commands
+
                 log.info("Generation in %s, spec version %s", language, version)
                 language_oapi_config_path = os.path.join(
                     self.args.config_dir,
@@ -260,9 +269,6 @@ class GenerateCommand(Command):
                 )
 
                 # get the language-specific spec if it exists, fallback to the general one
-                input_spec = fs_paths[version].get(
-                    language, fs_paths[version].get(None)
-                )
                 generate_cmd = [
                     self.config.codegen_exec,
                     "generate",
