@@ -9,7 +9,7 @@ import os
 
 import chevron
 
-from apigentools.utils import run_command, volumes_from
+from apigentools.utils import get_full_spec_file_name, run_command, volumes_from
 
 log = logging.getLogger(__name__)
 
@@ -18,6 +18,29 @@ class Command(abc.ABC):
     def __init__(self, config, args):
         self.config = config
         self.args = args
+
+    def yield_lang_version_specfile(self, languages=None, versions=None):
+        """Yield valid combinations of (language, version, specfile)."""
+        languages = set(
+            languages or getattr(self.args, "languages", []) or self.config.languages
+        )
+        allowed_versions = set(
+            versions
+            or getattr(self.args, "api_versions", [])
+            or self.config.spec_versions
+        )
+        for language in languages:
+            language_config = self.config.get_language_config(language)
+            versions = set(language_config.spec_versions or self.config.spec_versions)
+            for version in versions & allowed_versions:
+                suffix = (
+                    language
+                    if language_config.spec_sections != self.config.spec_sections
+                    else None
+                )
+                yield language, version, get_full_spec_file_name(
+                    self.args.full_spec_file, suffix
+                )
 
     def get_generated_lang_dir(self, lang):
         """ Returns path to the directory with generated code for given language.
