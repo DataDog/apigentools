@@ -392,6 +392,10 @@ def get_cli_parser():
         action="store_true",
     )
 
+    sp.add_parser(
+        "list-languages", help="Provide a list of the supported langauges for this spec"
+    )
+
     return p
 
 

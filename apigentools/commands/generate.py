@@ -3,13 +3,10 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
 import copy
-import glob
 import json
 import logging
 import os
 import subprocess
-import tempfile
-from distutils.dir_util import copy_tree
 
 import chevron
 
