@@ -6,7 +6,6 @@ import json
 import os
 
 import flexmock
-import pytest
 import yaml
 
 from apigentools import constants

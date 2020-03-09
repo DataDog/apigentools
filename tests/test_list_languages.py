@@ -2,9 +2,6 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
-import json
-import os
-
 import flexmock
 
 from apigentools.commands.list_languages import ListLanguagesCommand
@@ -43,7 +40,7 @@ def test_list_only_languages():
 
     cmd = ListLanguagesCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
-    assert actual_languages == ["test-lang1", "test-lang2"]
+    assert set(actual_languages) == set(["test-lang1", "test-lang2"])
 
 
 def test_list_only_versions():
@@ -55,4 +52,4 @@ def test_list_only_versions():
 
     cmd = ListLanguagesCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
-    assert actual_languages == ["v1", "v2"]
+    assert set(actual_languages) == set(["v1", "v2"])

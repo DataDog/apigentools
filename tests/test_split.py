@@ -70,9 +70,6 @@ def test_get_tag_object():
 
 
 def test_deduplicate_tags():
-    args = flexmock.flexmock()
-    cmd = SplitCommand({}, args)
-
     with open(os.path.join(FIXTURES_DIR, "deduplicate_tags.json")) as f:
         all_sections = json.loads(f.read())
 
@@ -178,8 +175,6 @@ def test_deduplicate_components():
         os.path.join(FIXTURES_DIR, "deduplicate_components_components.json")
     ) as f:
         components = json.loads(f.read())
-
-    SHARED_SECTION_NAME = "shared"
 
     args = flexmock.flexmock()
     cmd = SplitCommand({}, args)
