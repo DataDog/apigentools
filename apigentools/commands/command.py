@@ -33,13 +33,15 @@ class Command(abc.ABC):
             language_config = self.config.get_language_config(language)
             versions = set(language_config.spec_versions or self.config.spec_versions)
             for version in versions & allowed_versions:
+                spec_version_dir = os.path.join(self.args.spec_dir, version)
                 suffix = (
                     language
                     if language_config.spec_sections != self.config.spec_sections
                     else None
                 )
-                yield language, version, get_full_spec_file_name(
-                    self.args.full_spec_file, suffix
+                yield language, version, os.path.join(
+                    spec_version_dir,
+                    get_full_spec_file_name(self.args.full_spec_file, suffix),
                 )
 
     def get_generated_lang_dir(self, lang):

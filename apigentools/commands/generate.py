@@ -210,9 +210,10 @@ class GenerateCommand(Command):
 
         # first, generate full spec for all major versions of the API
         for language, version, fs_file in self.yield_lang_version_specfile():
-            info[language][version] = os.path.join(self.args.spec_dir, version, fs_file)
+            info[language][version] = fs_file
 
             if fs_file in fs_files:
+                log.info(f"Reuse {fs_file} for {language} and {version}")
                 continue
             fs_files.add(fs_file)
 
@@ -224,6 +225,7 @@ class GenerateCommand(Command):
                 self.config.get_language_config(language).spec_sections,
                 fs_file,
             )
+            log.info(f"Generated {fs_file} for {language} and {version}")
 
         pull_repo = self.args.clone_repo
 

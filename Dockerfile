@@ -1,4 +1,4 @@
-FROM openapitools/openapi-generator@sha256:022106297bab4d2709050ed9a63b377880981da71f1d1c53c795c7b3634fd013 AS jar
+FROM openapitools/openapi-generator@sha256:f7b6d154c62f62d9f09de2d13b7e34ee9c4fd90c95173d513db8699646181dbf AS jar
 # Ensure the jar file is build
 RUN /usr/local/bin/docker-entrypoint.sh version
 
