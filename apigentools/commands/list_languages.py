@@ -11,7 +11,25 @@ log = logging.getLogger(__name__)
 
 class ListLanguagesCommand(Command):
     def run(self):
+        language_versions_pairs = []
+        global_spec_versions = self.config.spec_versions
+        complete_spec_versions = set()
+
+        # Construct an object containing the languages and which API versions those languages support
         languages = self.config.language_configs.keys()
         for language in languages:
-            log.info(language)
-        return languages
+            language_versions = (
+                self.config.language_configs.get(language).spec_versions
+                or global_spec_versions
+            )
+            for version in language_versions:
+                language_versions_pairs.append({language: version})
+                complete_spec_versions.add(version)
+
+        # Modify the returned data based on user flags
+        if self.args.list_languages:
+            return [language for language in languages]
+        elif self.args.list_versions:
+            return [version for version in complete_spec_versions]
+        else:
+            return language_versions_pairs

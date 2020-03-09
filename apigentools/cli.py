@@ -392,8 +392,24 @@ def get_cli_parser():
         action="store_true",
     )
 
-    sp.add_parser(
-        "list-languages", help="Provide a list of the supported langauges for this spec"
+    list_languages_parser = sp.add_parser(
+        "list-languages",
+        help="Provide a list of the supported langauge/version pairs for this spec",
+    )
+    list_languages_group = list_languages_parser.add_mutually_exclusive_group()
+    list_languages_group.add_argument(
+        "-l",
+        "--list-languages",
+        help="List only the languages available in this spec",
+        default=False,
+        action="store_true",
+    )
+    list_languages_group.add_argument(
+        "-v",
+        "--list-versions",
+        help="List only the versions available in this spec",
+        default=False,
+        action="store_true",
     )
 
     return p

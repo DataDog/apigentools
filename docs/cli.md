@@ -177,5 +177,11 @@ Argument | Description | Environment Variable | Default
 
 ## `apigentools list-languages`
 
-Provide a list of the supported langauges for this spec.
-These languages can be directly passed to the `--languages` flag of the supported commands.
+Provide a list of the supported language and version pairs for this spec.
+These languages and versions can be directly passed to the `--languages` and `--api-versions` flags of the supported commands.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`-l, --list-languages` | Whether to only list the languages supported by this spec. Example: `apigentools -l` | `NA` | `None` to list both languages and versions
+`-av, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
+`-h, --help` | Show help message and exit.
