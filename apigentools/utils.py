@@ -284,7 +284,7 @@ def get_full_spec_file_name(default_fsf, l):
     return "{}.{}".format(default_fsf, l)
 
 
-def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_file):
+def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
     """ Write a full OpenAPI spec file
 
     :param config: apigentools config
@@ -296,13 +296,12 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_fil
     :type spec_version: ``str``
     :param spec_sections: List of spec sections to combine
     :type spec_sections: ``list`` of ``str``
-    :param full_spec_file: Name of the output file for the combined OpenAPI spec
+    :param full_spec_file: Full path of the output file for the combined OpenAPI spec
     :type full_spec_file: ``str``
     :return: Path to the written combined OpenAPI spec file
     :rtype: ``str``
     """
     spec_version_dir = os.path.join(spec_dir, spec_version)
-    fs_path = os.path.join(spec_version_dir, full_spec_file)
 
     filenames = spec_sections[spec_version] + [
         SHARED_SECTION_NAME + ".yaml",
