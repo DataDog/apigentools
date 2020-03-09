@@ -284,47 +284,6 @@ def get_full_spec_file_name(default_fsf, l):
     return "{}.{}".format(default_fsf, l)
 
 
-def write_full_specs(config, languages, spec_dir, spec_version, full_spec_file):
-    """ Write full OpenAPI spec files for all given languages
-
-    :param config: apigentools config
-    :type config: ``apigentools.config.Config``
-    :param languages: list of languages to construct specs for
-    :type languages: ``list`` of ``str``
-    :param spec_dir: Directory containing per-major-version subdirectories
-        with parts of OpenAPI spec to combine
-    :type spec_dir: ``str``
-    :param spec_version: Version of spec to construct full spec file for
-    :type spec_version: ``str``
-    :param full_spec_file: Name of the output file for the combined OpenAPI spec
-    :type full_spec_file: ``str``
-    :return: Dictionary with language names as keys and paths to specs as values
-        Note that a language will only have its name present as a key if it
-        overrides spec sections for the given ``version``. If it doesn't override,
-        it uses the default full spec present under the ``None`` key
-    :rtype: ``dict``
-    """
-    ret = {}
-
-    construct_specs_for = {None: config.spec_sections}
-    for language in languages:
-        lang_sections = config.get_language_config(language).spec_sections
-        if lang_sections != config.spec_sections:
-            construct_specs_for[language] = lang_sections
-
-    for l, sections in construct_specs_for.items():
-        fsf = get_full_spec_file_name(full_spec_file, l)
-        log.info(
-            "Writing %s OpenAPI spec for API version %s to %s",
-            (l or "general"),
-            spec_version,
-            fsf,
-        )
-        ret[l] = write_full_spec(config, spec_dir, spec_version, sections, fsf)
-
-    return ret
-
-
 def write_full_spec(config, spec_dir, spec_version, spec_sections, full_spec_file):
     """ Write a full OpenAPI spec file
 

@@ -5,7 +5,7 @@
 import logging
 
 from apigentools.commands.command import Command
-from apigentools.utils import run_command, write_full_specs
+from apigentools.utils import run_command, write_full_spec
 
 log = logging.getLogger(__name__)
 
@@ -44,18 +44,23 @@ class ValidateCommand(Command):
 
     def run(self):
         cmd_result = 0
-        languages = self.args.languages or self.config.languages
-        versions = self.args.api_versions or self.config.spec_versions
-        for version in versions:
-            language_specs = write_full_specs(
+        fs_files = set()
+        for language, version, fs_file in self.yield_lang_version_specfile():
+            if fs_file in fs_files:
+                continue
+            fs_files.add(fs_file)
+
+            # Generate full spec file is needed
+            fs_path = write_full_spec(
                 self.config,
-                languages,
                 self.args.spec_dir,
                 version,
-                self.args.full_spec_file,
+                self.config.get_language_config(language).spec_sections,
+                fs_file,
             )
-            for language, fs_path in language_specs.items():
-                if not self.validate_spec(fs_path, language, version):
-                    cmd_result = 1
+
+            # Validate a spec file only once
+            if not self.validate_spec(fs_path, language, version):
+                cmd_result = 1
 
         return cmd_result
