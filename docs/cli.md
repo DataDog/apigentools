@@ -124,7 +124,7 @@ Obtains upstream `openapi-generator` templates, applies template patches, and sa
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `-h, --help` | Show help message and exit.
-`-to TEMPLATES_OUTPUT_DIR, --templates-output-dir TEMPLATES_OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
+`-T TEMPLATES_OUTPUT_DIR, --templates-output-dir TEMPLATES_OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
 `-p TEMPLATE_PATCHES_DIR, --template-patches-dir TEMPLATE_PATCHES_DIR` | Directory with patches for upstream templates. | `APIGENTOOLS_TEMPLATE_PATCHES_DIR` | `template-patches`
 
 ### `apigentools templates local-dir`
