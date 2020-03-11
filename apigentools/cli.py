@@ -83,7 +83,7 @@ TEMPLATE_PATCHES_DIR_ARG = (
     },
 )
 TEMPLATES_OUTPUT_DIR_ARG = (
-    ("-o", "--output-dir"),
+    ("-T", "--templates-output-dir"),
     {
         "default": env_or_val(
             "APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR

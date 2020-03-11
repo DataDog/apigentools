@@ -90,7 +90,7 @@ class TemplatesCommand(Command):
                 upstream_templatedir = self.config.get_language_config(
                     lang
                 ).upstream_templates_dir
-                outlang_dir = os.path.join(self.args.output_dir, lang)
+                outlang_dir = os.path.join(self.args.templates_output_dir, lang)
                 if os.path.exists(outlang_dir):
                     shutil.rmtree(outlang_dir)
                 shutil.copytree(
