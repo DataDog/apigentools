@@ -172,7 +172,6 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
 @click.pass_obj
 def generate(ctx, **kwargs):
     """Generate client code"""
-    x = click.get_current_context()
     ctx.update(kwargs)
     cmd = GenerateCommand({}, ctx)
     with change_cwd(ctx.get("spec_repo_dir")):
