@@ -80,7 +80,6 @@ log = logging.getLogger(__name__)
     help="Path to directory where to save the generated source code (default: '{}')".format(
         constants.DEFAULT_GENERATED_CODE_DIR
     ),
-
 )
 @click.pass_context
 def cli(ctx, **kwargs):

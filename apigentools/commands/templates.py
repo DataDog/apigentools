@@ -61,7 +61,6 @@ def openapi_git(ctx_obj, **kwargs):
         cmd.run()
 
 
-
 @templates.command()
 @click.argument("local-path")
 @click.pass_obj

@@ -5,8 +5,6 @@
 import json
 import os
 
-import flexmock
-import pytest
 import yaml
 
 from apigentools import constants
@@ -27,7 +25,7 @@ def test_init(tmpdir):
     }
 
     temp_dir = tmpdir.mkdir("test_init_git_dir")
-    args = flexmock.flexmock(no_git_repo=False, projectdir=temp_dir)
+    args = {"no_git_repo": False, "projectdir": temp_dir}
     cmd_instance = InitCommand({}, args)
     cmd_instance.run()
 
@@ -71,7 +69,8 @@ def test_init(tmpdir):
 
     # test --no-git-repo
     temp_dir = tmpdir.mkdir("test_init_no_git_dir")
-    args = flexmock.flexmock(no_git_repo=True, projectdir=temp_dir)
+    args = {"no_git_repo": True, "projectdir": temp_dir}
+
     cmd_instance = InitCommand({}, args)
     cmd_instance.run()
 
