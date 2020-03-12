@@ -10,12 +10,4 @@ from apigentools.commands.templates import templates
 from apigentools.commands.test import test
 from apigentools.commands.validate import validate
 
-ALL_COMMANDS = [
-    generate,
-    validate,
-    init,
-    templates,
-    push,
-    split,
-    test
-]
+ALL_COMMANDS = [generate, validate, init, templates, push, split, test]

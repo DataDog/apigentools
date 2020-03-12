@@ -18,9 +18,13 @@ log = logging.getLogger(__name__)
 
 @click.command()
 @click.argument("projectdir")
-@click.option("-g", "--no-git-repo",
-              help="Don't initialize a git repository in the project directory",
-              default=False, is_flag=True)
+@click.option(
+    "-g",
+    "--no-git-repo",
+    help="Don't initialize a git repository in the project directory",
+    default=False,
+    is_flag=True,
+)
 @click.pass_obj
 def init(ctx_obj, **kwargs):
     """Initialize a new spec repo in the provided projectdir (will be created if it doesn't exist)"""
@@ -75,10 +79,10 @@ class InitCommand(Command):
     def run(self):
         cmd_result = 0
         log.info("Initializing a new project directory")
-        is_repo = not self.args.get('no_git_repo')
+        is_repo = not self.args.get("no_git_repo")
 
-        os.makedirs(self.args.get('projectdir'), exist_ok=True)
-        with change_cwd(self.args.get('projectdir')):
+        os.makedirs(self.args.get("projectdir"), exist_ok=True)
+        with change_cwd(self.args.get("projectdir")):
             dirs = {
                 "config_dir": constants.DEFAULT_CONFIG_DIR,
                 "downstream_templates_dir": constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,
