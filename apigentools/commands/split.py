@@ -8,13 +8,41 @@ import os
 import re
 import sys
 
+import click
 import yaml
 
+from apigentools import constants
 from apigentools.commands.command import Command
 from apigentools.commands.validate import ValidateCommand
+from apigentools.config import Config
 from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME
+from apigentools.utils import change_cwd, env_or_val
 
 log = logging.getLogger(__name__)
+
+
+@click.command()
+@click.argument("input-file")
+@click.option("-v", "--api-version",
+              default=env_or_val("APIGENTOOLS_SPLIT_SPEC_VERSION", "v1"),
+              help="Version of API that the input spec describes (default: 'v1')")
+@click.option("-s", "--spec-dir",
+              default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
+              help="Path to directory with OpenAPI specs (default: '{}')".format(
+                      constants.DEFAULT_SPEC_DIR
+                   )
+              )
+@click.pass_obj
+def split(ctx_obj, **kwargs):
+    """Split single specified input-file OpenAPI spec file into multiple files"""
+    ctx_obj.update(kwargs)
+    cmd = SplitCommand({}, ctx_obj)
+
+    with change_cwd(ctx_obj.get('spec_repo_dir')):
+        cmd.config = Config.from_file(
+            os.path.join(ctx_obj.get('config_dir'), constants.DEFAULT_CONFIG_FILE)
+        )
+        cmd.run()
 
 
 class SplitCommand(Command):
@@ -217,12 +245,12 @@ class SplitCommand(Command):
 
     def run(self):
         vc = ValidateCommand(self.config, self.args)
-        if not vc.validate_spec(self.args.input_file, None, None):
+        if not vc.validate_spec(self.args.get('input_file'), None, None):
             log.error("Input OpenAPI spec is not valid, can't proceed with splitting.")
             sys.exit(1)
         log.info("Input OpenAPI spec is valid, proceeding with splitting.")
-        outdir = os.path.join(self.args.spec_dir, self.args.api_version)
-        with open(self.args.input_file) as f:
+        outdir = os.path.join(self.args.get('spec_dir'), self.args.get('api_version'))
+        with open(self.args.get('input_file')) as f:
             loaded_spec = yaml.safe_load(f)
         paths = loaded_spec.pop("paths")
         components = loaded_spec.pop("components")

@@ -4,31 +4,136 @@
 # Copyright 2019-Present Datadog, Inc.
 import collections
 import copy
-import glob
 import json
 import logging
 import os
 import subprocess
-import tempfile
-from distutils.dir_util import copy_tree
 
 import chevron
+import click
 
 from apigentools import __version__, constants
 from apigentools.commands.command import Command
-from apigentools.commands.templates import TemplatesCommand
+from apigentools.commands.templates import templates
+from apigentools.config import Config
 from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
 from apigentools.utils import (
     change_cwd,
     get_current_commit,
     run_command,
     write_full_spec,
-)
+    env_or_val)
 
 log = logging.getLogger(__name__)
 
 REPO_SSH_URL = "git@github.com:{}/{}.git"
 REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
+
+
+@click.command()
+@click.option("-s", "--spec-dir",
+              default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
+              help="Path to directory with OpenAPI specs (default: '{}')".format(
+                   constants.DEFAULT_SPEC_DIR)
+              )
+@click.option("--clone-repo", is_flag=True,
+              default=env_or_val("APIGENTOOLS_PULL_REPO", False, __type=bool),
+              help="When specified, clones the client repository before running code generation",
+              )
+@click.option("--branch", default=env_or_val("APIGENTOOLS_PULL_REPO_BRANCH", None),
+              help="When specified, changes the client repository branch before running code generation"
+              )
+@click.option("--is-ancestor", default=env_or_val("APIGENTOOLS_IS_ANCESTOR", None),
+              help="Checks that the --branch is ancestor of specified base branch (default: None). "
+                   "Useful to enforce in CI that the feature branch is on top of master branch: "
+                   "--branch feature --is-ancestor master."
+              )
+@click.option("-f", "--full-spec-file",
+              default=env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
+              help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml'). "
+                   + "Note that if some languages override config's spec_sections, additional "
+                   + "files will be generated with name pattern 'full_spec.<lang>.yaml'"
+              )
+@click.option("--additional-stamp", multiple=True, nargs=10,
+              help="Additional components to add to the 'apigentoolsStamp' variable passed to templates",
+              default=env_or_val("APIGENTOOLS_ADDITIONAL_STAMP", (), __type=list)
+              )
+@click.option("-i", "--generated-with-image",
+              default=env_or_val("APIGENTOOLS_IMAGE", None),
+              help="Override the tag of the image with which the client code was generated"
+              )
+@click.option("-d", "--downstream-templates-dir",
+              default=env_or_val("APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR",
+                                   constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,
+                                 ),
+              help="Path to directory with downstream templates (default: '{}')".format(
+                   constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR
+              ))
+@click.option("--git-email",
+              help="Email of the user to author git commits as. Note this will permanently"
+                   " modify the local repos git config to use this author",
+              default=env_or_val("APIGENTOOLS_GIT_AUTHOR_EMAIL", None)
+              )
+@click.option("--git-name",
+              help="Name of the user to author git commits as. Note this will permanently"
+                   " modify the local repos git config to use this author",
+              default=env_or_val("APIGENTOOLS_GIT_AUTHOR_NAME", None),
+              )
+@click.option("-t", "--template-dir",
+              default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
+              help="Path to directory with processed upstream templates (default: '{}')".format(
+                    constants.DEFAULT_TEMPLATES_DIR
+              ))
+@click.option("--builtin-templates", is_flag=True, default=False,
+              help="Use unpatched upstream templates",
+             )
+@click.option("-o", "--output-dir",
+              default=env_or_val(
+                "APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR
+              ),
+              help="Path to directory where to put processed upstream templates (default: {})".format(
+                constants.DEFAULT_TEMPLATES_DIR
+              ))
+@click.option("--templates-source",
+              type=click.Choice([
+                  constants.TEMPLATES_SOURCE_LOCAL_DIR,
+                  constants.TEMPLATES_SOURCE_OPENAPI_GIT,
+                  constants.TEMPLATES_SOURCE_OPENAPI_JAR,
+                  constants.TEMPLATES_SOURCE_SKIP,
+              ], case_sensitive=False),
+              default=env_or_val(
+                  "APIGENTOOLS_TEMPLATES_SOURCE", constants.TEMPLATES_SOURCE_SKIP
+              ),
+              help="Source to use for obtaining templates to be processed (default: 'skip')"
+              )
+@click.option("-p", "--template-patches-dir",
+              default=env_or_val("APIGENTOOLS_TEMPLATE_PATCHES_DIR", constants.DEFAULT_TEMPLATE_PATCHES_DIR),
+              help="Directory with patches for upstream templates (default: '{}')".format(
+                  constants.DEFAULT_TEMPLATE_PATCHES_DIR
+              ))
+@click.option("--jar-path", nargs=1,
+              default=env_or_val("APIGENTOOLS_OPENAPI_JAR", constants.OPENAPI_JAR),
+              help="Path to openapi-generator jar file (use if --templates-source=openapi-jar)"
+              )
+@click.option("-u", "--repo_url",
+              default=constants.OPENAPI_GENERATOR_GIT,
+              help="URL of the openapi-generator repo (default: '{}'; use if --templates-source=openapi-git)".format(
+                  constants.OPENAPI_GENERATOR_GIT
+              ))
+@click.option("--git-committish", default="master", nargs=1,
+              help="Git 'committish' to check out before obtaining templates "
+                   "(default: 'master'; use if --templates-source=openapi-git)")
+@click.pass_obj
+def generate(ctx, **kwargs):
+    """Generate client code"""
+    x = click.get_current_context()
+    ctx.update(kwargs)
+    cmd = GenerateCommand({}, ctx)
+    with change_cwd(ctx.get('spec_repo_dir')):
+        cmd.config = Config.from_file(
+            os.path.join(ctx.get('config_dir'), constants.DEFAULT_CONFIG_FILE)
+        )
+        cmd.run()
 
 
 class GenerateCommand(Command):
@@ -113,7 +218,7 @@ class GenerateCommand(Command):
         image tag is `:latest`, this function will replace it with `:git-1234abc`. Otherwise it will
         return unmodified image name.
         """
-        image = self.args.generated_with_image
+        image = self.args.get('generated_with_image')
 
         if image is not None and image.endswith(":latest"):
             hash_file = os.environ.get(
@@ -139,19 +244,19 @@ class GenerateCommand(Command):
             "Generated with: apigentools version X.Y.Z (image: apigentools:X.Y.Z); spec repo commit abcd123"
         :rtype: ``str``
         """
-        stamp = "Generated with: apigentools version {version}".format(
+        stamp ="Generated with: apigentools version {version}".format(
             version=__version__
         )
         if self.get_image_name() is None:
             stamp += " (non-container run)"
         else:
             stamp += " (image: '{image}')".format(image=self.get_image_name())
-        spec_repo_commit = get_current_commit(self.args.spec_repo_dir)
-        stamp = [stamp]
+        spec_repo_commit = get_current_commit(self.args.get('spec_repo_dir'))
+        stamp = (stamp,)
         if spec_repo_commit:
-            stamp.append("spec repo commit {commit}".format(commit=spec_repo_commit))
-        stamp.append("codegen version {v}".format(v=self.get_codegen_version()))
-        return "; ".join(stamp + self.args.additional_stamp)
+            stamp + ("spec repo commit {commit}".format(commit=spec_repo_commit),)
+        stamp + ("codegen version {v}".format(v=self.get_codegen_version()),)
+        return "; ".join(stamp + (self.args.get('additional_stamp')))
 
     def get_codegen_version(self):
         """ Gets and caches version of the configured codegen_exec. Returns the cached result on subsequent invocations.
@@ -178,12 +283,12 @@ class GenerateCommand(Command):
             self.get_generated_lang_dir(language), ".apigentools-info"
         )
         info = {
-            "additional_stamps": self.args.additional_stamp,
+            "additional_stamps": self.args.get('additional_stamp'),
             "apigentools_version": __version__,
             "codegen_version": self.get_codegen_version(),
             "info_version": "1",
             "image": self.get_image_name(),
-            "spec_repo_commit": get_current_commit(self.args.spec_repo_dir),
+            "spec_repo_commit": get_current_commit(self.args.get('spec_repo_dir')),
         }
         with open(outfile, "w") as f:
             json.dump(info, f, indent=4)
@@ -191,22 +296,16 @@ class GenerateCommand(Command):
     def get_missing_templates(self, languages):
         missing = []
         for language in languages:
-            if not os.path.exists(os.path.join(self.args.template_dir, language)):
+            if not os.path.exists(os.path.join(self.args.get('template_dir'), language)):
                 missing.append(language)
         return missing
 
     def run(self):
-        if self.args.templates_source == constants.TEMPLATES_SOURCE_SKIP:
+        if self.args.get('templates_source') == constants.TEMPLATES_SOURCE_SKIP:
             log.info("Skipping templates processing")
         else:
-            templates_result = TemplatesCommand(self.config, self.args).run()
-            if templates_result == 0:
-                log.info(
-                    "Templates processed successfully, proceeding with code generation"
-                )
-            else:
-                return templates_result
-        fs_paths = {}
+            ctx = click.get_current_context()
+            ctx.forward(templates, self.args)
 
         info = collections.defaultdict(dict)
         fs_files = set()
@@ -223,17 +322,17 @@ class GenerateCommand(Command):
             # Generate full spec file is needed
             write_full_spec(
                 self.config,
-                self.args.spec_dir,
+                self.args.get('spec_dir'),
                 version,
                 self.config.get_language_config(language).spec_sections,
                 fs_file,
             )
             log.info(f"Generated {fs_file} for {language} and {version}")
 
-        pull_repo = self.args.clone_repo
+        pull_repo = self.args.get('clone_repo')
 
         missing_templates = self.get_missing_templates(info.keys())
-        if missing_templates and not self.args.builtin_templates:
+        if missing_templates and not self.args.get('builtin_templates'):
             log.error(
                 "Missing templates for %s; please run `apigentools templates` first",
                 ", ".join(missing_templates),
@@ -253,14 +352,14 @@ class GenerateCommand(Command):
 
             # Clone the language target repo into the output directory
             if pull_repo:
-                self.pull_repository(language_config, branch=self.args.branch)
+                self.pull_repository(language_config, branch=self.args.get('branch'))
 
             for version, input_spec in versions.items():
                 chevron_vars = {"spec_version": version}  # used to modify commands
 
                 log.info("Generation in %s, spec version %s", language, version)
                 language_oapi_config_path = os.path.join(
-                    self.args.config_dir,
+                    self.args.get('config_dir'),
                     LANGUAGE_OAPI_CONFIGS,
                     "{lang}_{v}.json".format(lang=language, v=version),
                 )
@@ -292,9 +391,9 @@ class GenerateCommand(Command):
                     "apigentoolsStamp='{stamp}'".format(stamp=self.get_stamp()),
                 ]
 
-                if not self.args.builtin_templates:
+                if not self.args.get('builtin_templates'):
                     generate_cmd.extend(
-                        ["-t", os.path.join(self.args.template_dir, language)]
+                        ["-t", os.path.join(self.args.get('template_dir'), language)]
                     )
 
                 if language_config.generate_extra_args:
@@ -315,7 +414,7 @@ class GenerateCommand(Command):
                 )
 
                 self.render_downstream_templates(
-                    language, self.args.downstream_templates_dir
+                    language, self.args.get('downstream_templates_dir')
                 )
 
             # Write the apigentools.info file once per language
@@ -327,15 +426,15 @@ class GenerateCommand(Command):
     def pull_repository(self, language, branch=None):
         output_dir = self.get_generated_lang_dir(language.language)
         secret_repo_url = False
-        if self.args.git_via_https:
+        if self.args.get('git_via_https'):
             checkout_url = ""
-            if self.args.git_via_https_oauth_token:
+            if self.args.get('git_via_https_oauth_token'):
                 checkout_url = "{}:x-oauth-basic@".format(
-                    self.args.git_via_https_oauth_token
+                    self.args.get('git_via_https_oauth_token')
                 )
-            elif self.args.git_via_https_installation_access_token:
+            elif self.args.get('git_via_https_installation_access_token'):
                 checkout_url = "x-access-token:{}@".format(
-                    self.args.git_via_https_installation_access_token
+                    self.args.get('git_via_https_installation_access_token')
                 )
             if checkout_url:
                 secret_repo_url = True
@@ -379,21 +478,21 @@ class GenerateCommand(Command):
                 # if the branch doesn't exist, we stay in the default one
                 branch = None
 
-        if branch is not None and self.args.is_ancestor:
+        if branch is not None and self.args.get('is_ancestor'):
             try:
                 run_command(
                     [
                         "git",
                         "merge-base",
                         "--is-ancestor",
-                        self.args.is_ancestor,
+                        self.get('args.is_ancestor'),
                         branch,
                     ],
                     cwd=output_dir,
                 )
             except subprocess.CalledProcessError:
                 log.warning(
-                    f"{self.args.is_ancestor} is not ancestor of branch {branch}, attempting to update branch"
+                    f"{self.args.get('is_ancestor')} is not ancestor of branch {branch}, attempting to update branch"
                 )
                 try:
                     self.setup_git_config(cwd=output_dir)
@@ -403,12 +502,12 @@ class GenerateCommand(Command):
                             "merge",
                             "--no-ff",
                             "--allow-unrelated-histories",
-                            self.args.is_ancestor,
+                            self.get('args.is_ancestor'),
                         ],
                         cwd=output_dir,
                     )
                 except subprocess.CalledProcessError:
                     log.error(
-                        f"Could not merge {self.args.is_ancestor} to {branch} to keep it up-to-date"
+                        f"Could not merge {self.args.get('is_ancestor')} to {branch} to keep it up-to-date"
                     )
                     raise
