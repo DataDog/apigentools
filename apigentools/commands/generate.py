@@ -117,8 +117,8 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
     help="Use unpatched upstream templates",
 )
 @click.option(
-    "-o",
-    "--output-dir",
+    "-T",
+    "--templates-output-dir",
     default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
     help="Path to directory where to put processed upstream templates (default: {})".format(
         constants.DEFAULT_TEMPLATES_DIR
