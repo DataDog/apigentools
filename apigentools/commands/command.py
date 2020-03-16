@@ -22,18 +22,16 @@ class Command(abc.ABC):
     def yield_lang_version_specfile(self, languages=None, versions=None):
         """Yield valid combinations of (language, version, specfile)."""
         languages = set(
-            languages or getattr(self.args, "languages", []) or self.config.languages
+            languages or self.args.get("languages", []) or self.config.languages
         )
         allowed_versions = set(
-            versions
-            or getattr(self.args, "api_versions", [])
-            or self.config.spec_versions
+            versions or self.args.get("api_versions", []) or self.config.spec_versions
         )
         for language in languages:
             language_config = self.config.get_language_config(language)
             versions = set(language_config.spec_versions or self.config.spec_versions)
             for version in versions & allowed_versions:
-                spec_version_dir = os.path.join(self.args.spec_dir, version)
+                spec_version_dir = os.path.join(self.args.get("spec_dir"), version)
                 suffix = (
                     language
                     if language_config.spec_sections != self.config.spec_sections
@@ -41,7 +39,7 @@ class Command(abc.ABC):
                 )
                 yield language, version, os.path.join(
                     spec_version_dir,
-                    get_full_spec_file_name(self.args.full_spec_file, suffix),
+                    get_full_spec_file_name(self.args.get("full_spec_file"), suffix),
                 )
 
     def get_generated_lang_dir(self, lang):
@@ -53,7 +51,7 @@ class Command(abc.ABC):
         :rtype: ``str``
         """
         return os.path.join(
-            self.args.generated_code_dir,
+            self.args.get("generated_code_dir"),
             self.config.get_language_config(lang).github_repo_name,
         )
 
@@ -79,16 +77,16 @@ class Command(abc.ABC):
 
         If not specified, use the setup from the system/global
         """
-        if self.args.git_email:
+        if self.args.get("git_email"):
             run_command(
-                ["git", "config", "user.email", self.args.git_email],
-                dry_run=getattr(self.args, "dry_run", False),
+                ["git", "config", "user.email", self.args.get("git_email")],
+                dry_run=self.args.get("dry_run", False),
                 cwd=cwd,
             )
-        if self.args.git_name:
+        if self.args.get("git_name"):
             run_command(
-                ["git", "config", "user.name", self.args.git_name],
-                dry_run=getattr(self.args, "dry_run", False),
+                ["git", "config", "user.name", self.args.get("git_name")],
+                dry_run=self.args.get("dry_run", False),
                 cwd=cwd,
             )
 
