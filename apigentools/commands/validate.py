@@ -3,11 +3,46 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
 import logging
+import os
 
+import click
+
+from apigentools import constants
 from apigentools.commands.command import Command
-from apigentools.utils import run_command, write_full_spec
+from apigentools.config import Config
+from apigentools.utils import run_command, write_full_spec, change_cwd, env_or_val
 
 log = logging.getLogger(__name__)
+
+
+@click.command()
+@click.option(
+    "-s",
+    "--spec-dir",
+    default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
+    help="Path to directory with OpenAPI specs (default: '{}')".format(
+        constants.DEFAULT_SPEC_DIR
+    ),
+)
+@click.option(
+    "-f",
+    "--full-spec-file",
+    default=env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
+    help="Name of the OpenAPI full spec file to write (default: 'full_spec.yaml'). "
+    + "Note that if some languages override config's spec_sections, additional "
+    + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
+)
+@click.pass_obj
+def validate(ctx_obj, **kwargs):
+    """Validate OpenAPI spec"""
+    ctx_obj.update(kwargs)
+    cmd = ValidateCommand({}, ctx_obj)
+
+    with change_cwd(ctx_obj.get("spec_repo_dir")):
+        cmd.config = Config.from_file(
+            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+        )
+        cmd.run()
 
 
 class ValidateCommand(Command):
@@ -25,7 +60,7 @@ class ValidateCommand(Command):
             return True
         except Exception as e:
             log_method = log.error
-            if self.args.verbose:
+            if self.args.get("verbose"):
                 log_method = log.exception
             log_method(
                 "Validation %s for API version %s failed, see the output above for errors",
@@ -53,7 +88,7 @@ class ValidateCommand(Command):
             # Generate full spec file is needed
             fs_path = write_full_spec(
                 self.config,
-                self.args.spec_dir,
+                self.args.get("spec_dir"),
                 version,
                 self.config.get_language_config(language).spec_sections,
                 fs_file,

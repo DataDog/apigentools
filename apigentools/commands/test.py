@@ -6,11 +6,55 @@ import logging
 import os
 import subprocess
 
+import click
+
+from apigentools import constants
 from apigentools.commands.command import Command
+from apigentools.config import Config
 from apigentools.constants import REDACTED_OUT_SECRET
-from apigentools.utils import run_command
+from apigentools.utils import run_command, change_cwd, env_or_val
 
 log = logging.getLogger(__name__)
+
+
+@click.command()
+@click.option(
+    "--no-cache",
+    is_flag=True,
+    default=env_or_val("APIGENTOOLS_TEST_BUILD_NO_CACHE", False, __type=bool),
+    help="Build test image with --no-cache option",
+)
+@click.option(
+    "--container-env",
+    nargs=1,
+    default=env_or_val("APIGENTOOLS_CONTAINER_ENV", [], __type=list),
+    help="Additional environment variables to pass to containers running the tests, "
+    + "for example `--container-env API_KEY=123 OTHER_KEY=234`. Note that apigentools "
+    + "contains additional logic to treat these values as sensitive and avoid logging "
+    + "them during runtime. (NOTE: if the testing container itself prints this value, "
+    + "it *will* be logged as part of the test output by apigentools).",
+)
+@click.option(
+    "-g",
+    "--generated-code-dir",
+    default=env_or_val(
+        "APIGENTOOLS_GENERATED_CODE_DIR", constants.DEFAULT_GENERATED_CODE_DIR
+    ),
+    help="Path to directory where to save the generated source code (default: '{}')".format(
+        constants.DEFAULT_GENERATED_CODE_DIR
+    ),
+)
+@click.pass_obj
+def test(ctx_obj, **kwargs):
+    """Run tests for generated source code"""
+    ctx_obj.update(kwargs)
+    cmd = TestCommand({}, ctx_obj)
+
+    with change_cwd(ctx_obj.get("spec_repo_dir")):
+        cmd.config = Config.from_file(
+            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+        )
+        cmd.run()
 
 
 class TestCommand(Command):
@@ -36,7 +80,7 @@ class TestCommand(Command):
                 "-t",
                 img_name,
             ]
-            if self.args.no_cache:
+            if self.args.get("no_cache"):
                 build.append("--no-cache")
             run_command(build, combine_out_err=True)
             return img_name
@@ -45,7 +89,7 @@ class TestCommand(Command):
     def run_test_image(self, img_name):
         log.info("Running tests: %s", img_name)
         cmd = ["docker", "run"]
-        for i, ce in enumerate(self.args.container_env):
+        for i, ce in enumerate(self.args.get("container_env")):
             split = ce.split("=", 1)
             if len(split) != 2:
                 raise ValueError(
@@ -59,8 +103,8 @@ class TestCommand(Command):
     def run(self):
         cmd_result = 0
 
-        versions = self.args.api_versions or self.config.spec_versions
-        languages = self.args.languages or self.config.languages
+        versions = self.args.get("api_versions") or self.config.spec_versions
+        languages = self.args.get("languages") or self.config.languages
 
         for lang_name, lang_config in self.config.language_configs.items():
             # Skip any non user provided languages

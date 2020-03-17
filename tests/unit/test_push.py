@@ -5,17 +5,15 @@
 import subprocess
 
 import flexmock
-import pytest
 
 from apigentools import utils
 from apigentools.commands.push import PushCommand
-from apigentools.utils import run_command
 
 
 def test_get_push_branch():
     # test with branch in args
     default_branch = "default_branch"
-    args = flexmock.flexmock(default_branch=default_branch)
+    args = {"default_branch": default_branch}
     a_hash = "a_hash"
     push_branch = "push_branch"
 
@@ -35,7 +33,7 @@ def test_get_push_branch():
 
 def test_get_push_branch_subprocess_error():
     default_branch = "default_branch"
-    args = flexmock.flexmock(default_branch=default_branch)
+    args = {"default_branch": default_branch}
 
     flexmock(subprocess).should_receive("run").and_return(
         subprocess.CalledProcessError(1, 1)
@@ -51,7 +49,7 @@ def test_get_push_branch_subprocess_error():
 
 def test_git_status_empty_false():
     # test when git status returns something
-    args = flexmock.flexmock()
+    args = {}
     flexmock(subprocess).should_receive("run").and_return(
         subprocess.CompletedProcess(
             1,
@@ -69,7 +67,7 @@ def test_git_status_empty_false():
 
 
 def test_git_status_empty_true():
-    args = flexmock.flexmock()
+    args = {}
     flexmock(subprocess).should_receive("run").and_return(
         subprocess.CompletedProcess(1, 0, "M .apigentools-info")
     )

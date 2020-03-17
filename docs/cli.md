@@ -74,7 +74,7 @@ Since version 0.10.0, apigentools also supports processing templates (equivalent
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `--templates-source {local-dir,openapi-git,openapi-jar,skip}` | Source to use for obtaining templates to be processed (`skip` to not process templates) | `APIGENTOOLS_TEMPLATES_SOURCE`| `skip`
-`-o OUTPUT_DIR, --output-dir OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
+`-T TEMPLATES_OUTPUT_DIR, --templates-output-dir TEMPLATES_OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
 `-p TEMPLATE_PATCHES_DIR, --template-patches-dir TEMPLATE_PATCHES_DIR` | Directory with patches for upstream templates. | `APIGENTOOLS_TEMPLATE_PATCHES_DIR` | `template-patches`
 `--jar-path` | Path to `openapi-generator` JAR file (use if `--templates-source=openapi-jar`). | `APIGENTOOLS_OPENAPI_JAR` | `openapi-generator.jar`
 `--local-path LOCAL_PATH` | Path to directory with `openapi-generator` upstream templates (use if `--templates-source=local-dir`)
@@ -124,7 +124,7 @@ Obtains upstream `openapi-generator` templates, applies template patches, and sa
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `-h, --help` | Show help message and exit.
-`-o OUTPUT_DIR, --output-dir OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
+`-T TEMPLATES_OUTPUT_DIR, --templates-output-dir TEMPLATES_OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
 `-p TEMPLATE_PATCHES_DIR, --template-patches-dir TEMPLATE_PATCHES_DIR` | Directory with patches for upstream templates. | `APIGENTOOLS_TEMPLATE_PATCHES_DIR` | `template-patches`
 
 ### `apigentools templates local-dir`
