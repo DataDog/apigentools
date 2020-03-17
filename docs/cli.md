@@ -182,6 +182,6 @@ These languages and api versions can be directly passed to the `--languages` and
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
-`-l, --list-languages` | Whether to only list the languages supported by this spec. Example: `apigentools -l` | `NA` | `None` to list both languages and versions
-`-av, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
+`-L, --list-languages` | Whether to only list the languages supported by this spec. Example: `apigentools -l` | `NA` | `None` to list both languages and versions
+`-V, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
 `-h, --help` | Show help message and exit.
