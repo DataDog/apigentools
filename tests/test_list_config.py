@@ -7,7 +7,7 @@ import json
 import pytest
 import tempfile
 
-from apigentools.commands.list_languages import ListLanguagesCommand, list_languages
+from apigentools.commands.list_config import ListConfigCommand
 from apigentools.config import Config
 
 
@@ -35,7 +35,7 @@ def test_list_languages(setup_spec):
     # after that gets setup
     args = {"spec_dir": setup_spec, "full_spec_file": "full_spec.yaml"}
 
-    cmd = ListLanguagesCommand(SPEC_CONFIG_OBJ, args)
+    cmd = ListConfigCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
     assert sorted(actual_languages) == sorted(
         [
@@ -55,7 +55,7 @@ def test_list_only_languages(setup_spec):
         "full_spec_file": "full_spec.yaml",
     }
 
-    cmd = ListLanguagesCommand(SPEC_CONFIG_OBJ, args)
+    cmd = ListConfigCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
     assert set(actual_languages) == set(["test-lang1", "test-lang2"])
 
@@ -69,6 +69,6 @@ def test_list_only_versions(setup_spec):
         "full_spec_file": "full_spec.yaml",
     }
 
-    cmd = ListLanguagesCommand(SPEC_CONFIG_OBJ, args)
+    cmd = ListConfigCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
     assert set(actual_languages) == set(["v1", "v2"])

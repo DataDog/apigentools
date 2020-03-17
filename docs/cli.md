@@ -175,10 +175,10 @@ Argument | Description | Environment Variable | Default
 `-h, --help` | Show help message and exit.
 `--no-cache` | Build test image with `--no-cache` option. | `APIGENTOOLS_TEST_BUILD_NO_CACHE` | `False`
 
-## `apigentools list-languages`
+## `apigentools config`
 
-Provide a list of the supported language and version pairs for this spec.
-These languages and versions can be directly passed to the `--languages` and `--api-versions` flags of the supported commands.
+Displays information about the configuration for the spec being worked on, including supported languages, api versions, and the paths to the generated api yaml.
+These languages and api versions can be directly passed to the `--languages` and `--api-versions` flags of the supported commands.
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------

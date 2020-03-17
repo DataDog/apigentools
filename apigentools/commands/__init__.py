@@ -9,6 +9,6 @@ from apigentools.commands.split import split
 from apigentools.commands.templates import templates
 from apigentools.commands.test import test
 from apigentools.commands.validate import validate
-from apigentools.commands.list_languages import list_languages
+from apigentools.commands.list_config import config
 
-ALL_COMMANDS = [generate, init, list_languages, push, split, templates, test, validate]
+ALL_COMMANDS = [generate, init, config, push, split, templates, test, validate]
