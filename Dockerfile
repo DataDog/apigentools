@@ -12,7 +12,7 @@ ENV APIGENTOOLS_SPEC_REPO_DIR=${APIGENTOOLS_BASE_DIR}/spec-repo \
     _APIGENTOOLS_GIT_HASH_FILE=${APIGENTOOLS_BASE_DIR}/git-hash
 
 ENV OPENAPI_GENERATOR_VERSION=4.2.3-SNAPSHOT \
-    PACKAGES="docker findutils git golang-googlecode-tools-goimports java jq maven npm patch python3 python3-pip unzip"
+    PACKAGES="docker findutils git golang-googlecode-tools-goimports java jq maven nodejs patch python3 python3-pip unzip"
 
 VOLUME ${APIGENTOOLS_SPEC_REPO_DIR}
 
@@ -20,7 +20,9 @@ ENTRYPOINT ["/usr/bin/docker-entrypoint.sh"]
 
 RUN mkdir -p ${APIGENTOOLS_SPEC_REPO_DIR}
 
-RUN dnf install -y ${PACKAGES} && \
+RUN dnf install -y gcc-c++ make && \
+    curl -sL https://rpm.nodesource.com/setup_12.x | bash - && \
+    dnf install -y ${PACKAGES} && \
     dnf clean all && \
     curl https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh > /usr/bin/openapi-generator && \
     chmod +x /usr/bin/openapi-generator
