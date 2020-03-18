@@ -7,7 +7,7 @@ import json
 import pytest
 import tempfile
 
-from apigentools.commands.list_config import ListConfigCommand
+from apigentools.commands.list_config import ConfigCommand
 from apigentools.config import Config
 
 
@@ -30,12 +30,12 @@ def setup_spec():
         yield fp.name
 
 
-def test_list_languages(setup_spec):
+def test_config(setup_spec):
     # Setup the arguments (The CLI tooling would do this, but we're testing the command
     # after that gets setup
     args = {"spec_dir": setup_spec, "full_spec_file": "full_spec.yaml"}
 
-    cmd = ListConfigCommand(SPEC_CONFIG_OBJ, args)
+    cmd = ConfigCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
     assert sorted(actual_languages) == sorted(
         [
@@ -46,7 +46,7 @@ def test_list_languages(setup_spec):
     )
 
 
-def test_list_only_languages(setup_spec):
+def test_config_only_languages(setup_spec):
     # Setup the arguments (The CLI tooling would do this, but we're testing the command
     # after that gets setup
     args = {
@@ -55,12 +55,12 @@ def test_list_only_languages(setup_spec):
         "full_spec_file": "full_spec.yaml",
     }
 
-    cmd = ListConfigCommand(SPEC_CONFIG_OBJ, args)
+    cmd = ConfigCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
     assert set(actual_languages) == set(["test-lang1", "test-lang2"])
 
 
-def test_list_only_versions(setup_spec):
+def test_config_only_versions(setup_spec):
     # Setup the arguments (The CLI tooling would do this, but we're testing the command
     # after that gets setup
     args = {
@@ -69,6 +69,6 @@ def test_list_only_versions(setup_spec):
         "full_spec_file": "full_spec.yaml",
     }
 
-    cmd = ListConfigCommand(SPEC_CONFIG_OBJ, args)
+    cmd = ConfigCommand(SPEC_CONFIG_OBJ, args)
     actual_languages = cmd.run()
     assert set(actual_languages) == set(["v1", "v2"])

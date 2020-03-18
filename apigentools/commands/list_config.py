@@ -47,7 +47,7 @@ def config(ctx, **kwargs):
     api versions, and the paths to the generated api yaml. These languages and api versions can be directly
     passed to the `--languages` and `--api-versions` flags of the supported commands."""
     ctx.update(kwargs)
-    cmd = ListConfigCommand({}, ctx)
+    cmd = ConfigCommand({}, ctx)
     with change_cwd(ctx.get("spec_repo_dir")):
         cmd.config = Config.from_file(
             os.path.join(ctx.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
@@ -55,7 +55,7 @@ def config(ctx, **kwargs):
         cmd.run()
 
 
-class ListConfigCommand(Command):
+class ConfigCommand(Command):
     def run(self):
         # Yields tuples (language, version, spec_path)
         language_info = self.yield_lang_version_specfile()
