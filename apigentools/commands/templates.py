@@ -100,7 +100,7 @@ class TemplatesCommand(Command):
             log.info("Obtaining upstream templates ...")
             patch_in = copy_from = td
             if self.args.get("templates_source") == "openapi-jar":
-                run_command(["unzip", "-q", self.args.get("repo_url"), "-d", td])
+                run_command(["unzip", "-q", self.args.get("jar_path"), "-d", td])
             elif self.args.get("templates_source") == "local-dir":
                 for lang in self.config.languages:
                     lang_upstream_templates_dir = self.config.get_language_config(
