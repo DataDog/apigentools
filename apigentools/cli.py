@@ -95,6 +95,6 @@ def cli(ctx, **kwargs):
         set_log_level(toplog, logging.DEBUG)
 
 
-## Register all click subcommands
+# Register all click sub-commands
 for command in ALL_COMMANDS:
     cli.add_command(command)

@@ -174,3 +174,14 @@ Argument | Description | Environment Variable | Default
 `-g GENERATED_CODE_DIR, --generated-code-dir GENERATED_CODE_DIR` | Path to directory where the generated source code is. | `APIGENTOOLS_GENERATED_CODE_DIR` | `generated`
 `-h, --help` | Show help message and exit.
 `--no-cache` | Build test image with `--no-cache` option. | `APIGENTOOLS_TEST_BUILD_NO_CACHE` | `False`
+
+## `apigentools config`
+
+Displays information about the configuration for the spec being worked on, including supported languages, api versions, and the paths to the generated api yaml.
+These languages and api versions can be directly passed to the `--languages` and `--api-versions` flags of the supported commands.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`-L, --list-languages` | Whether to only list the languages supported by this spec. Example: `apigentools -l` | `NA` | `None` to list both languages and versions
+`-V, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
+`-h, --help` | Show help message and exit.
