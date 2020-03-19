@@ -170,3 +170,21 @@ By design, apigentools doesn't operate on full OpenAPI specification files, but 
 * Any other `.yaml` files with arbitrary `components`, `paths`, `security`, and `tags` may be added. Note that these have to be explicitly listed in `config/config.json` in order to be used.
 
 On apigentools' invocation, these are merged into a single OpenAPI spec file and used as input for further operations, e.g. for openapi-generator.
+
+## `pre-commit` Hooks
+
+You can make sure that all contributors create syntactically valid specification
+that also follow all rules from `config.json` by creating a `pre-commit` check.
+Here is an example, to add in your `.pre-commit-config.yaml` file:
+
+    ---
+    # Update the rev variable with the release version that you want, from the apigentools repo.
+    - repo: https://github.com/DataDog/apigentools.git
+      rev: v0.10.0
+      hooks:
+        - id: apigentools-validate
+    # alternatively you can use the containerized version
+    - repo: https://github.com/DataDog/apigentools.git
+      rev: v0.10.0
+      hooks:
+        - id: container-apigentools-validate
