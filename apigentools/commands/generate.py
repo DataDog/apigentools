@@ -536,7 +536,7 @@ class GenerateCommand(Command):
                         "git",
                         "merge-base",
                         "--is-ancestor",
-                        self.get("args.is_ancestor"),
+                        self.args.get("is_ancestor"),
                         branch,
                     ],
                     cwd=output_dir,
