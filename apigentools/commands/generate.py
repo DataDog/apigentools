@@ -553,7 +553,7 @@ class GenerateCommand(Command):
                             "merge",
                             "--no-ff",
                             "--allow-unrelated-histories",
-                            self.get("args.is_ancestor"),
+                            self.args.get("is_ancestor"),
                         ],
                         cwd=output_dir,
                     )
