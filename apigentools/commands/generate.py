@@ -14,7 +14,7 @@ import click
 
 from apigentools import __version__, constants
 from apigentools.commands.command import Command
-from apigentools.commands.templates import templates
+from apigentools.commands.templates import TemplatesCommand
 from apigentools.config import Config
 from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
 from apigentools.utils import (
@@ -351,8 +351,12 @@ class GenerateCommand(Command):
         if self.args.get("templates_source") == constants.TEMPLATES_SOURCE_SKIP:
             log.info("Skipping templates processing")
         else:
-            ctx = click.get_current_context()
-            ctx.forward(templates, self.args)
+            log.info("Generating templates")
+            template_cmd = TemplatesCommand({}, self.args)
+            template_cmd.config = Config.from_file(
+                os.path.join(self.args.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            )
+            template_cmd.run()
 
         info = collections.defaultdict(dict)
         fs_files = set()
