@@ -11,7 +11,9 @@ import sys
 
 import flexmock
 import pytest
+import yaml
 
+from apigentools.config import Config
 from apigentools.constants import REDACTED_OUT_SECRET
 from apigentools.utils import (
     change_cwd,
@@ -25,6 +27,7 @@ from apigentools.utils import (
     set_log_level,
     validate_duplicates,
     volumes_from,
+    write_full_spec,
 )
 
 
@@ -232,3 +235,67 @@ def test_volumes_from(monkeypatch):
             "--volumes-from",
             "3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
         ]
+
+
+def test_write_full_spec(tmpdir):
+    s1 = {
+        "components": {"schemas": {"MySchema": {"type": "object",},},},
+        "paths": {
+            "/api/v1/foo": {"get": {"operationId": "getFoo", "summary": "get",},},
+        },
+    }
+    s2 = {
+        "components": {"schemas": {"MyOtherSchema": {"type": "string",},},},
+        "paths": {
+            "/api/v1/foo": {  # add a new operation to the same path
+                "post": {"operationId": "postFoo", "summary": "post",},
+            },
+        },
+    }
+
+    expected = {
+        "components": {
+            "callbacks": {},
+            "examples": {},
+            "headers": {},
+            "links": {},
+            "parameters": {},
+            "requestBodies": {},
+            "responses": {},
+            "schemas": {
+                "MySchema": {"type": "object",},
+                "MyOtherSchema": {"type": "string",},
+            },
+            "securitySchemes": {},
+        },
+        "paths": {
+            "/api/v1/foo": {
+                "get": {"operationId": "getFoo", "summary": "get",},
+                "post": {"operationId": "postFoo", "summary": "post",},
+            },
+        },
+        "security": [],
+        "servers": [{"url": "http://base.url"}],
+        "tags": [],
+    }
+    specdir = tmpdir.mkdir("spec")
+    versiondir = specdir.mkdir("v1")
+    p1 = os.path.join(str(versiondir), "s1.yaml")
+    p2 = os.path.join(str(versiondir), "s2.yaml")
+
+    with open(p1, "w") as f:
+        yaml.dump(s1, f)
+
+    with open(p2, "w") as f:
+        yaml.dump(s2, f)
+
+    written = write_full_spec(
+        Config.from_dict({"server_base_urls": {"v1": "http://base.url"}}),
+        str(specdir),
+        "v1",
+        {"v1": ["s1.yaml", "s2.yaml"]},
+        os.path.join(str(versiondir), "full.yaml"),
+    )
+
+    with open(written, "r") as f:
+        assert yaml.load(f) == expected

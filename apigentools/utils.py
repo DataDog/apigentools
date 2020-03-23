@@ -296,8 +296,8 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
     :type spec_version: ``str``
     :param spec_sections: List of spec sections to combine
     :type spec_sections: ``list`` of ``str``
-    :param full_spec_file: Full path of the output file for the combined OpenAPI spec
-    :type full_spec_file: ``str``
+    :param fs_path: Full path of the output file for the combined OpenAPI spec
+    :type fs_path: ``str``
     :return: Path to the written combined OpenAPI spec file
     :rtype: ``str``
     """
@@ -336,8 +336,10 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
             if filename == HEADER_FILE_NAME:
                 full_spec.update(loaded)
             else:
-                validate_duplicates(loaded.get("paths", {}), full_spec["paths"].keys())
-                full_spec["paths"].update(loaded.get("paths", {}))
+                for k, v in loaded.get("paths", {}).items():
+                    full_spec["paths"].setdefault(k, {})
+                    validate_duplicates(v, full_spec["paths"][k])
+                    full_spec["paths"][k].update(v)
 
                 validate_duplicates(loaded.get("tags", []), full_spec.get("tags", []))
                 full_spec["tags"].extend(loaded.get("tags", []))
