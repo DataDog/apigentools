@@ -510,7 +510,7 @@ class GenerateCommand(Command):
                     {"item": repo, "secret": secret_repo_url},
                     output_dir,
                 ],
-                sensitive_output=True,
+                sensitive_output=secret_repo_url,
             )
         except subprocess.CalledProcessError as e:
             log.error(
