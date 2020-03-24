@@ -39,59 +39,59 @@ log = logging.getLogger(__name__)
         constants.DEFAULT_TEMPLATE_PATCHES_DIR
     ),
 )
-@click.pass_obj
-def templates(ctx_obj, **kwargs):
+@click.pass_context
+def templates(ctx, **kwargs):
     """Get upstream templates and apply downstream patches"""
-    ctx_obj.update(kwargs)
+    ctx.obj.update(kwargs)
 
 
 @templates.command()
 @click.option("-u", "--repo-url", default=constants.OPENAPI_GENERATOR_GIT)
 @click.option("--git-committish", default="master", nargs=1)
-@click.pass_obj
-def openapi_git(ctx_obj, **kwargs):
+@click.pass_context
+def openapi_git(ctx, **kwargs):
     """Pull templates from the git reposotiry specified by --repo-url and --git-committish"""
-    ctx_obj.update(kwargs)
-    ctx_obj["templates_source"] = "openapi-git"
-    cmd = TemplatesCommand({}, ctx_obj)
-    with change_cwd(ctx_obj.get("spec_repo_dir")):
+    ctx.obj.update(kwargs)
+    ctx.obj["templates_source"] = "openapi-git"
+    cmd = TemplatesCommand({}, ctx.obj)
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 @templates.command()
 @click.argument("local-path")
-@click.pass_obj
-def local_dir(ctx_obj, **kwargs):
+@click.pass_context
+def local_dir(ctx, **kwargs):
     """Pull templates from the specified local-path"""
-    ctx_obj.update(kwargs)
-    ctx_obj["templates_source"] = "local-dir"
-    cmd = TemplatesCommand({}, ctx_obj)
+    ctx.obj.update(kwargs)
+    ctx.obj["templates_source"] = "local-dir"
+    cmd = TemplatesCommand({}, ctx.obj)
 
-    with change_cwd(ctx_obj.get("spec_repo_dir")):
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 @templates.command()
 @click.argument(
     "jar-path", default=env_or_val("APIGENTOOLS_OPENAPI_JAR", constants.OPENAPI_JAR)
 )
-@click.pass_obj
-def openapi_jar(ctx_obj, **kwargs):
+@click.pass_context
+def openapi_jar(ctx, **kwargs):
     """Pull templates from the openapi-jar specified by jar-path"""
-    ctx_obj.update(kwargs)
-    ctx_obj["templates_source"] = "openapi-jar"
-    cmd = TemplatesCommand({}, ctx_obj)
-    with change_cwd(ctx_obj.get("spec_repo_dir")):
+    ctx.obj.update(kwargs)
+    ctx.obj["templates_source"] = "openapi-jar"
+    cmd = TemplatesCommand({}, ctx.obj)
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 class TemplatesCommand(Command):

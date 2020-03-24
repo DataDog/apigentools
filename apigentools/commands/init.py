@@ -25,12 +25,12 @@ log = logging.getLogger(__name__)
     default=False,
     is_flag=True,
 )
-@click.pass_obj
-def init(ctx_obj, **kwargs):
+@click.pass_context
+def init(ctx, **kwargs):
     """Initialize a new spec repo in the provided projectdir (will be created if it doesn't exist)"""
-    ctx_obj.update(kwargs)
-    cmd = InitCommand({}, ctx_obj)
-    cmd.run()
+    ctx.obj.update(kwargs)
+    cmd = InitCommand({}, ctx.obj)
+    ctx.exit(cmd.run())
 
 
 class InitCommand(Command):

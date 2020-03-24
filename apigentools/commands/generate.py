@@ -169,16 +169,16 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
     help="Git 'committish' to check out before obtaining templates "
     "(default: 'master'; use if --templates-source=openapi-git)",
 )
-@click.pass_obj
+@click.pass_context
 def generate(ctx, **kwargs):
     """Generate client code"""
-    ctx.update(kwargs)
-    cmd = GenerateCommand({}, ctx)
-    with change_cwd(ctx.get("spec_repo_dir")):
+    ctx.obj.update(kwargs)
+    cmd = GenerateCommand({}, ctx.obj)
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 class GenerateCommand(Command):

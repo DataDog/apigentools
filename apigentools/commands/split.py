@@ -37,17 +37,17 @@ log = logging.getLogger(__name__)
         constants.DEFAULT_SPEC_DIR
     ),
 )
-@click.pass_obj
-def split(ctx_obj, **kwargs):
+@click.pass_context
+def split(ctx, **kwargs):
     """Split single specified input-file OpenAPI spec file into multiple files"""
-    ctx_obj.update(kwargs)
-    cmd = SplitCommand({}, ctx_obj)
+    ctx.obj.update(kwargs)
+    cmd = SplitCommand({}, ctx.obj)
 
-    with change_cwd(ctx_obj.get("spec_repo_dir")):
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 class SplitCommand(Command):

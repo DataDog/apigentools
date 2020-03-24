@@ -41,18 +41,18 @@ log = logging.getLogger(__name__)
 @click.option(
     "-V", "--list-versions", is_flag=True, help="List only what versions are supported"
 )
-@click.pass_obj
+@click.pass_context
 def config(ctx, **kwargs):
     """Displays information about the configuration for the spec being worked on, including supported languages,
     api versions, and the paths to the generated api yaml. These languages and api versions can be directly
     passed to the `--languages` and `--api-versions` flags of the supported commands."""
-    ctx.update(kwargs)
-    cmd = ConfigCommand({}, ctx)
-    with change_cwd(ctx.get("spec_repo_dir")):
+    ctx.obj.update(kwargs)
+    cmd = ConfigCommand({}, ctx.obj)
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 class ConfigCommand(Command):
