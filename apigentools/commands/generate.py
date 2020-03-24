@@ -362,7 +362,6 @@ class GenerateCommand(Command):
             log.info(
                 "Templates processed successfully, proceeding with code generation"
             )
-                
 
         info = collections.defaultdict(dict)
         fs_files = set()
