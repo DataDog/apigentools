@@ -357,12 +357,12 @@ class GenerateCommand(Command):
                 os.path.join(self.args.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
             )
             templates_result = template_cmd.run()
-            if templates_result == 0:
-                log.info(
-                    "Templates processed successfully, proceeding with code generation"
-                )
-            else:
+            if templates_result != 0:
                 return templates_result
+            log.info(
+                "Templates processed successfully, proceeding with code generation"
+            )
+                
 
         info = collections.defaultdict(dict)
         fs_files = set()
