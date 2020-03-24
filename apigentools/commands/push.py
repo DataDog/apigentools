@@ -52,17 +52,17 @@ log = logging.getLogger(__name__)
     " modify the local repos git config to use this author",
     default=env_or_val("APIGENTOOLS_GIT_AUTHOR_NAME", None),
 )
-@click.pass_obj
-def push(ctx_obj, **kwargs):
+@click.pass_context
+def push(ctx, **kwargs):
     """Push the generated source code into each git repository specified in the config"""
-    ctx_obj.update(kwargs)
-    cmd = PushCommand({}, ctx_obj)
+    ctx.obj.update(kwargs)
+    cmd = PushCommand({}, ctx.obj)
 
-    with change_cwd(ctx_obj.get("spec_repo_dir")):
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 class PushCommand(Command):

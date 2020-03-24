@@ -32,17 +32,17 @@ log = logging.getLogger(__name__)
     + "Note that if some languages override config's spec_sections, additional "
     + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
 )
-@click.pass_obj
-def validate(ctx_obj, **kwargs):
+@click.pass_context
+def validate(ctx, **kwargs):
     """Validate OpenAPI spec"""
-    ctx_obj.update(kwargs)
-    cmd = ValidateCommand({}, ctx_obj)
+    ctx.obj.update(kwargs)
+    cmd = ValidateCommand({}, ctx.obj)
 
-    with change_cwd(ctx_obj.get("spec_repo_dir")):
+    with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx_obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
         )
-        cmd.run()
+        ctx.exit(cmd.run())
 
 
 class ValidateCommand(Command):
