@@ -1,6 +1,5 @@
-# Built from upstream commit 928d065bbfc8e3bb620934c6c6a6d8540cce1974
-# contains PR https://github.com/OpenAPITools/openapi-generator/pull/5414 that fixes Go nullables
-FROM openapitools/openapi-generator@sha256:121e3a56be10156fff90eb9875f0d35513dbe7dc081085cbd45cd3e936d990f1 AS jar
+# Upstream release 4.3.0
+FROM openapitools/openapi-generator@sha256:310ea18da9e9abba6d16092d2ab420807c5c21a6813f829a4d5d2c304f768e7f AS jar
 # Ensure the jar file is build
 RUN /usr/local/bin/docker-entrypoint.sh version
 
