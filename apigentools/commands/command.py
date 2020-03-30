@@ -9,7 +9,12 @@ import os
 
 import chevron
 
-from apigentools.utils import get_full_spec_file_name, run_command, volumes_from
+from apigentools.utils import (
+    get_full_spec_file_name,
+    glob_re,
+    run_command,
+    volumes_from,
+)
 
 log = logging.getLogger(__name__)
 
@@ -119,7 +124,11 @@ class Command(abc.ABC):
         to_run = []
         for part in self._render_command_args(command.commandline, chevron_vars):
             if isinstance(part, dict):
-                allowed_functions = {"glob": glob.glob, "volumes_from": volumes_from}
+                allowed_functions = {
+                    "glob": glob.glob,
+                    "glob_re": glob_re,
+                    "volumes_from": volumes_from,
+                }
                 function_name = part.get("function")
                 function = allowed_functions.get(function_name)
                 if function:

@@ -20,6 +20,7 @@ from apigentools.utils import (
     env_or_val,
     fmt_cmd_out_for_log,
     get_current_commit,
+    glob_re,
     log,
     logging_enabled,
     run_command,
@@ -299,3 +300,18 @@ def test_write_full_spec(tmpdir):
 
     with open(written, "r") as f:
         assert yaml.load(f) == expected
+
+
+@pytest.mark.parametrize(
+    "glob_pattern, regex, expected",
+    [
+        ("*", ".*", ["testx.go", "x_test.go"]),
+        ("*", "^$", []),
+        ("*", r".*(?<!_test.go)$", ["testx.go"]),
+    ],
+)
+def test_glob_re(tmpdir, glob_pattern, regex, expected):
+    tmpdir.join("testx.go").ensure(file=True)
+    tmpdir.join("x_test.go").ensure(file=True)
+    with change_cwd(str(tmpdir)):
+        assert list(sorted(glob_re(glob_pattern, regex))) == expected

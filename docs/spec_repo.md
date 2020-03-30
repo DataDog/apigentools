@@ -137,6 +137,20 @@ The structure of the general config file is as follows, starting with top level 
 This section lists recognized functions for language phase and validation commands, as mentioned in the section above.
 
 * `glob` - runs Python's `glob.glob`
+* `glob_re` - runs Python's `glob.glob` and then filters its results by calling `re.match` using given Python regular expression
+
+  When used as this:
+  ```json
+  {
+    "function": "glob_re",
+    "args": [
+      "*.go",
+      ".*(?<!_test.go)$"
+    ]
+  }
+  ```
+  It will match all files ending with `.go` except files that end with `_test.go`.
+
 * `volumes_from` - useful when running a dockerized tools and you need them to run from apigentools container
 
   When used as this:
