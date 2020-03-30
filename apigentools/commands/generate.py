@@ -226,7 +226,7 @@ class GenerateCommand(Command):
         if not os.path.exists(templates_dir):
             return
 
-        settings = copy.deepcopy(self.config.languages[language].raw_dict)
+        settings = dict(self.config.languages[language])
         settings["github_repo_url"] = chevron.render(GITHUB_REPO_URL_TEMPLATE, settings)
         settings["apigentoolStamp"] = self.get_stamp()
 

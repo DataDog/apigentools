@@ -5,7 +5,7 @@
 import json
 import pathlib
 
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, BaseSettings, Field, validator
 
@@ -13,7 +13,7 @@ from pydantic import BaseModel, BaseSettings, Field, validator
 class ConfigCommand(BaseModel):
     """Command line configuration."""
 
-    commandline: List[str]
+    commandline: List[Union[str, Dict]]
     description: str = "Generic command"
 
 
@@ -42,6 +42,7 @@ class Config(BaseSettings):
     """Define configuration schema."""
 
     codegen_exec = "openapi-generator"
+    container_apigentools_image: Optional[str]
     server_base_urls: Optional[Dict] = {}
     spec_sections: Optional[Dict] = {}
     spec_versions: Optional[List] = []
