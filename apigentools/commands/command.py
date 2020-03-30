@@ -95,23 +95,6 @@ class Command(abc.ABC):
                 cwd=cwd,
             )
 
-    def _render_command_args(self, args, chevron_vars):
-        """ Recursively renders all args, including list items and dict values """
-        retval = args
-
-        if isinstance(args, str):
-            retval = chevron.render(args, chevron_vars)
-        elif isinstance(args, list):
-            retval = []
-            for i in args:
-                retval.append(self._render_command_args(i, chevron_vars))
-        elif isinstance(args, dict):
-            retval = {}
-            for k, v in args.items():
-                retval[k] = self._render_command_args(v, chevron_vars)
-
-        return retval
-
     def run_config_command(
         self, command, what_command, additional_env=None, chevron_vars=None
     ):

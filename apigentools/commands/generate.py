@@ -15,7 +15,7 @@ import click
 from apigentools import __version__, constants
 from apigentools.commands.command import Command
 from apigentools.commands.templates import TemplatesCommand
-from apigentools.config import Config
+from apigentools.config import Config, ConfigCommand
 from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
 from apigentools.utils import (
     change_cwd,
@@ -461,7 +461,7 @@ class GenerateCommand(Command):
                 )
 
                 run_command(
-                    self._render_command_args(generate_cmd, chevron_vars),
+                    list(ConfigCommand(commandline=generate_cmd)(chevron_vars)),
                     additional_env=language_config.command_env,
                 )
 
