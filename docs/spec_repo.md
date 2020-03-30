@@ -137,7 +137,7 @@ The structure of the general config file is as follows, starting with top level 
 This section lists recognized functions for language phase and validation commands, as mentioned in the section above.
 
 * `glob` - runs Python's `glob.glob`
-* `glob` - runs Python's `glob.glob` and then filters its results by calling `re.match` using given Python regular expression
+* `glob_re` - runs Python's `glob.glob` and then filters its results by calling `re.match` using given Python regular expression
 
   When used as this:
   ```json
