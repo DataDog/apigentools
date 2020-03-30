@@ -303,11 +303,12 @@ def test_write_full_spec(tmpdir):
 
 
 @pytest.mark.parametrize(
-    "glob_pattern, regex, expected", [
+    "glob_pattern, regex, expected",
+    [
         ("*", ".*", ["testx.go", "x_test.go"]),
         ("*", "^$", []),
         ("*", r".*(?<!_test.go)$", ["testx.go"]),
-    ]
+    ],
 )
 def test_glob_re(tmpdir, glob_pattern, regex, expected):
     tmpdir.join("testx.go").ensure(file=True)
