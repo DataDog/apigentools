@@ -32,14 +32,14 @@ def test_config():
     # check a value that should have a default
     assert c.codegen_exec == "openapi-generator"
 
-    with pytest.raises(KeyError):
+    with pytest.raises(AttributeError):
         c.unknown
 
-    java = c.get_language_config("java")
+    java = c.languages["java"]
     assert type(java) == LanguageConfig
     assert java.upstream_templates_dir == "Java"
 
-    pre = java.get_stage_commands("pre")[0]
+    pre = java.commands["pre"][0]
     assert type(pre) == ConfigCommand
     assert pre.description == "Some command"
     assert pre.commandline == ["some", "cmd"]
@@ -51,16 +51,14 @@ def test_config_from_file():
     assert c.codegen_exec == "openapi-generator"
 
     # check the "inheritance" of "spec_versions" and "spec_sections"
-    assert c.get_language_config("java").spec_versions == ["v1", "v2"]
-    assert c.get_language_config("java").spec_sections["v1"] == ["user.yaml"]
-    assert c.get_language_config("java").spec_sections["v2"] == [
+    assert c.languages["java"].spec_versions == ["v1", "v2"]
+    assert c.languages["java"].spec_sections["v1"] == ["user.yaml"]
+    assert c.languages["java"].spec_sections["v2"] == [
         "user.yaml",
         "permission.yaml",
     ]
-    assert c.get_language_config("java").generate_extra_args == [
+    assert c.languages["java"].generate_extra_args == [
         "--skip-overwrite",
         "--generate-alias-as-model",
     ]
-    assert c.get_language_config("go").generate_extra_args == [
-        "--generate-alias-as-model"
-    ]
+    assert c.languages["go"].generate_extra_args == ["--generate-alias-as-model"]

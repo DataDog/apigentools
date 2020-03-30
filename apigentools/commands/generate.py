@@ -197,8 +197,8 @@ class GenerateCommand(Command):
         :type chevron_vars: ``dict``
         """
         with change_cwd(cwd):
-            lc = self.config.get_language_config(language)
-            commands = lc.get_stage_commands(phase)
+            lc = self.config.languages[language]
+            commands = lc.commands[phase]
             if commands:
                 log.info("Running '%s' commands for language '%s'", phase, language)
             else:
@@ -226,7 +226,7 @@ class GenerateCommand(Command):
         if not os.path.exists(templates_dir):
             return
 
-        settings = copy.deepcopy(self.config.get_language_config(language).raw_dict)
+        settings = copy.deepcopy(self.config.languages[language].raw_dict)
         settings["github_repo_url"] = chevron.render(GITHUB_REPO_URL_TEMPLATE, settings)
         settings["apigentoolStamp"] = self.get_stamp()
 
@@ -380,7 +380,7 @@ class GenerateCommand(Command):
                 self.config,
                 self.args.get("spec_dir"),
                 version,
-                self.config.get_language_config(language).spec_sections,
+                self.config.languages[language].spec_sections,
                 fs_file,
             )
             log.info(f"Generated {fs_file} for {language} and {version}")
@@ -404,7 +404,7 @@ class GenerateCommand(Command):
         # listed in its settings (meaning that we can have languages that don't support all major
         # API versions)
         for language, versions in info.items():
-            language_config = self.config.get_language_config(language)
+            language_config = self.config.languages[language]
 
             # Clone the language target repo into the output directory
             if pull_repo:

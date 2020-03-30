@@ -70,7 +70,7 @@ class ValidateCommand(Command):
             return False
 
     def run_validation_commands(self, spec_path):
-        vcs = self.config.get_validation_commands()
+        vcs = self.config.validation_commands
         if vcs:
             log.info("Running custom validation commands")
 
@@ -90,7 +90,7 @@ class ValidateCommand(Command):
                 self.config,
                 self.args.get("spec_dir"),
                 version,
-                self.config.get_language_config(language).spec_sections,
+                self.config.languages[language].spec_sections,
                 fs_file,
             )
 

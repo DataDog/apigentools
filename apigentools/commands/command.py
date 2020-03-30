@@ -33,7 +33,7 @@ class Command(abc.ABC):
             versions or self.args.get("api_versions", []) or self.config.spec_versions
         )
         for language in languages:
-            language_config = self.config.get_language_config(language)
+            language_config = self.config.languages[language]
             versions = set(language_config.spec_versions or self.config.spec_versions)
             for version in versions & allowed_versions:
                 spec_version_dir = os.path.join(self.args.get("spec_dir"), version)
@@ -57,7 +57,7 @@ class Command(abc.ABC):
         """
         return os.path.join(
             self.args.get("generated_code_dir"),
-            self.config.get_language_config(lang).github_repo_name,
+            self.config.languages[lang].github_repo,
         )
 
     def get_generated_lang_version_dir(self, lang, version):
@@ -71,7 +71,7 @@ class Command(abc.ABC):
         :return: path to directory with generated language code
         :rtype: ``str``
         """
-        lc = self.config.get_language_config(lang)
+        lc = self.config.languages[lang]
         return os.path.join(
             self.get_generated_lang_dir(lang),
             chevron.render(lc.version_path_template, {"spec_version": version}),

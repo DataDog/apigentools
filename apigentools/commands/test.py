@@ -106,7 +106,7 @@ class TestCommand(Command):
         versions = self.args.get("api_versions") or self.config.spec_versions
         languages = self.args.get("languages") or self.config.languages
 
-        for lang_name, lang_config in self.config.language_configs.items():
+        for lang_name, lang_config in self.config.languages.items():
             # Skip any non user provided languages
             if lang_name not in languages:
                 continue
