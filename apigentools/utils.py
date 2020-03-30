@@ -4,8 +4,10 @@
 # Copyright 2019-Present Datadog, Inc.
 import contextlib
 import copy
+import glob
 import logging
 import os
+import re
 import subprocess
 import sys
 
@@ -398,3 +400,12 @@ def volumes_from(alt_volumes):
             retval.append("-v")
             retval.append(av)
     return retval
+
+
+def glob_re(glob_pattern, re_filter):
+    glob_result = glob.glob(glob_pattern)
+    re_compiled = re.compile(re_filter)
+
+    result = [r for r in glob_result if re_compiled.match(r)]
+    log.debug('"glob_re" result: %s', result)
+    return result
