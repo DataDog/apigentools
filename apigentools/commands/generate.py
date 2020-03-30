@@ -198,7 +198,7 @@ class GenerateCommand(Command):
         """
         with change_cwd(cwd):
             lc = self.config.languages[language]
-            commands = lc.commands[phase]
+            commands = lc.commands.get(phase, [])
             if commands:
                 log.info("Running '%s' commands for language '%s'", phase, language)
             else:

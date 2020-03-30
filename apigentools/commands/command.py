@@ -121,32 +121,7 @@ class Command(abc.ABC):
             chevron_vars = {}
         chevron_vars["cwd"] = os.getcwd()
 
-        to_run = []
-        for part in self._render_command_args(command.commandline, chevron_vars):
-            if isinstance(part, dict):
-                allowed_functions = {
-                    "glob": glob.glob,
-                    "glob_re": glob_re,
-                    "volumes_from": volumes_from,
-                }
-                function_name = part.get("function")
-                function = allowed_functions.get(function_name)
-                if function:
-                    result = function(*part.get("args", []), **part.get("kwargs", {}))
-                    # NOTE: we may need to improve this logic if/when we add more functions
-                    if isinstance(result, list):
-                        to_run.extend(result)
-                    else:
-                        to_run.append(result)
-                else:
-                    raise ValueError(
-                        "Unknow function '{f}' in command '{d}' for '{l}'".format(
-                            f=function_name, d=command.description, l=what_command
-                        )
-                    )
-            else:
-                to_run.append(str(part))
-
+        to_run = list(command(chevron_vars=chevron_vars))
         run_command(to_run, additional_env=additional_env)
 
     @abc.abstractmethod
