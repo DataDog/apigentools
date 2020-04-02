@@ -7,6 +7,7 @@ import copy
 import json
 import logging
 import os
+import re
 import subprocess
 
 import chevron
@@ -16,7 +17,11 @@ from apigentools import __version__, constants
 from apigentools.commands.command import Command
 from apigentools.commands.templates import TemplatesCommand
 from apigentools.config import Config
-from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
+from apigentools.constants import (
+    GITHUB_REPO_URL_TEMPLATE,
+    LANGUAGE_OAPI_CONFIGS,
+    GENERATION_BLACKLIST_FILENAME,
+)
 from apigentools.utils import (
     change_cwd,
     get_current_commit,
@@ -168,6 +173,12 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
     nargs=1,
     help="Git 'committish' to check out before obtaining templates "
     "(default: 'master'; use if --templates-source=openapi-git)",
+)
+@click.option(
+    "--delete-generated-files",
+    is_flag=True,
+    default=False,
+    help="Delete generated files in output_dir before generation",
 )
 @click.pass_context
 def generate(ctx, **kwargs):
@@ -412,6 +423,9 @@ class GenerateCommand(Command):
             if pull_repo:
                 self.pull_repository(language_config, branch=self.args.get("branch"))
 
+            if self.args.get("delete_generated_files"):
+                self.remove_generated_files(language)
+
             for version, input_spec in versions.items():
                 chevron_vars = {"spec_version": version}  # used to modify commands
 
@@ -461,7 +475,6 @@ class GenerateCommand(Command):
                 self.run_language_commands(
                     language, "pre", version_output_dir, chevron_vars
                 )
-
                 run_command(
                     self._render_command_args(generate_cmd, chevron_vars),
                     additional_env=language_config.command_env,
@@ -580,3 +593,42 @@ class GenerateCommand(Command):
                         f"Could not merge {self.args.get('is_ancestor')} to {branch} to keep it up-to-date"
                     )
                     raise
+
+    def remove_generated_files(self, language):
+        """
+        Remove all generated files from the generate output directory
+        Files are deemed as "generated" if they match any regex in the .generated_files file
+        at the root of the output repository.
+        """
+        blacklist_regexes = set()
+        output_dir = os.path.abspath(self.get_generated_lang_dir(language))
+        blacklist_file = os.path.join(output_dir, GENERATION_BLACKLIST_FILENAME)
+
+        log.info(f"Removing generated files from the output directory: {output_dir}")
+
+        if not os.path.exists(blacklist_file):
+            log.warning(
+                f"File: {blacklist_file} doesn't exist, skipping removal of generated files"
+            )
+            return
+
+        # We should already be in this directory, but its explicit and safer since we're deleting
+        with change_cwd(output_dir):
+            # Read in and compile the regexes of files we want to delete
+            with open(blacklist_file, "r") as blacklist_file:
+                for line in blacklist_file.readlines():
+                    blacklist_regexes.add(re.compile(line.strip()))
+
+            # Get all files from current directory recursively
+            all_files = [
+                os.path.relpath(os.path.join(root, filename), start=output_dir)
+                for root, _, files in os.walk(output_dir)
+                for filename in files
+            ]
+            # Match the regex against the list of all files and delete
+            for file in all_files:
+                for blacklist_regex in blacklist_regexes:
+                    if blacklist_regex.match(file):
+                        log.debug(f"Removing generated file: {file}")
+                        os.remove(file)
+                        break

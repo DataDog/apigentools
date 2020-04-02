@@ -174,6 +174,7 @@ Argument | Description | Environment Variable | Default
 `-g GENERATED_CODE_DIR, --generated-code-dir GENERATED_CODE_DIR` | Path to directory where the generated source code is. | `APIGENTOOLS_GENERATED_CODE_DIR` | `generated`
 `-h, --help` | Show help message and exit.
 `--no-cache` | Build test image with `--no-cache` option. | `APIGENTOOLS_TEST_BUILD_NO_CACHE` | `False`
+`--delete-generated-files` | Delete generated files in output_dir before generation | NA | `False`
 
 ## `apigentools config`
 
