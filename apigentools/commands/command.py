@@ -9,7 +9,10 @@ import os
 
 import chevron
 
+from apigentools.config import Config
+from apigentools import constants
 from apigentools.utils import (
+    change_cwd,
     get_full_spec_file_name,
     glob_re,
     run_command,
@@ -17,6 +20,24 @@ from apigentools.utils import (
 )
 
 log = logging.getLogger(__name__)
+
+
+def run_command_with_config(command_class, click_ctx, **kwargs):
+    click_ctx.obj.update(kwargs)
+    cmd = command_class({}, click_ctx.obj)
+
+    with change_cwd(click_ctx.obj.get("spec_repo_dir")):
+        configfile = os.path.join(
+            click_ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE
+        )
+        try:
+            cmd.config = Config.from_file(configfile)
+        except OSError:
+            log.error(
+                "Couldn't find {}. Are you running in spec repo?".format(configfile)
+            )
+            click_ctx.exit(1)
+        click_ctx.exit(cmd.run())
 
 
 class Command(abc.ABC):

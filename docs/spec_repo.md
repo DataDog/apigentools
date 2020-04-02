@@ -106,7 +106,7 @@ Example:
 The structure of the general config file is as follows, starting with top level keys:
 
 * `codegen_exec` - Name of the executable of the code generating tool.
-* `container_apigentools_image` - Container image to use by the `container-apigentools` script by default.
+* `container_apigentools_image` - Container image to use by the `apigentools` script by default.
 * `generate_extra_args` - Additional arguments to pass to the `openapi-generator` call.
 * `languages` - Settings for individual languages; contains a mapping of language names to their settings.
   * individual language settings:
@@ -197,8 +197,3 @@ Here is an example, to add in your `.pre-commit-config.yaml` file:
       rev: v0.10.0
       hooks:
         - id: apigentools-validate
-    # alternatively you can use the containerized version
-    - repo: https://github.com/DataDog/apigentools.git
-      rev: v0.10.0
-      hooks:
-        - id: container-apigentools-validate

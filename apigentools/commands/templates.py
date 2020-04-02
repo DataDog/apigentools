@@ -12,7 +12,7 @@ import tempfile
 import click
 
 from apigentools import constants
-from apigentools.commands.command import Command
+from apigentools.commands.command import Command, run_command_with_config
 from apigentools.config import Config
 from apigentools.constants import OPENAPI_GENERATOR_GIT
 from apigentools.utils import run_command, change_cwd, env_or_val
@@ -51,14 +51,8 @@ def templates(ctx, **kwargs):
 @click.pass_context
 def openapi_git(ctx, **kwargs):
     """Pull templates from the git reposotiry specified by --repo-url and --git-committish"""
-    ctx.obj.update(kwargs)
     ctx.obj["templates_source"] = "openapi-git"
-    cmd = TemplatesCommand({}, ctx.obj)
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(TemplatesCommand, ctx, **kwargs)
 
 
 @templates.command()
@@ -66,15 +60,8 @@ def openapi_git(ctx, **kwargs):
 @click.pass_context
 def local_dir(ctx, **kwargs):
     """Pull templates from the specified local-path"""
-    ctx.obj.update(kwargs)
     ctx.obj["templates_source"] = "local-dir"
-    cmd = TemplatesCommand({}, ctx.obj)
-
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(TemplatesCommand, ctx, **kwargs)
 
 
 @templates.command()
@@ -84,14 +71,8 @@ def local_dir(ctx, **kwargs):
 @click.pass_context
 def openapi_jar(ctx, **kwargs):
     """Pull templates from the openapi-jar specified by jar-path"""
-    ctx.obj.update(kwargs)
     ctx.obj["templates_source"] = "openapi-jar"
-    cmd = TemplatesCommand({}, ctx.obj)
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(TemplatesCommand, ctx, **kwargs)
 
 
 class TemplatesCommand(Command):

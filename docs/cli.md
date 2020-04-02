@@ -1,33 +1,13 @@
 # apigentools CLI Reference
 
-## Containerized Version
+## Standard Usage (Containerized)
 
-The apigentools PyPI package ships with two scripts: `apigentools` and `container-apigentools`. The containerized version executes all commands in a container created from given image. Additionally, all `APIGENTOOLS_*` environment variables from current environment are passed inside the container. Basic usage:
-
-`container-apigentools [--spec-repo-volume SPEC_REPO_VOLUME] [APIGENTOOLS_ARG ...]`
-
-Argument | Description | Environment Variable | Default
----------|-------------|----------------------|--------
-`--spec-repo-volume SPEC_REPO_VOLUME` | Path to directory with the spec repo. | | `.`
-
-Positional Argument | Description | Environment Variable | Default
---------------------|-------------|----------------------|--------
-`APIGENTOOLS_ARGS` | Arguments to pass to apigentools running inside container. Refer to the below [apigentools][#non-containerized-version] section for information about argument behavior.
-
-The container image to use is determined from these sources:
-
-* If `APIGENTOOLS_IMAGE` environment variable exists, its content is used.
-* Otherwise [config.json](spec_repo.md#configconfigjson) is parsed and value of `container_apigentools_image` key is used if present.
-* Otherwise `datadog/apigentools:latest` is used.
-
-Note that if `APIGENTOOLS_ARGS` is not provided, a [full automated workflow](workflow.md#run-all-automated-parts-of-the-workflow) is run.
-
-## Non-containerized Version
+Note that since 0.11.0, the `apigentools` command always executes apigentools inside a container.
 
 Basic usage:
 
 ```
-apigentools <APIGENTOOLS_ARGS> <SUBCOMMAND> <SUBCOMMAND_ARGS>
+apigentools [--spec-repo-volume SPEC_REPO_VOLUME] <APIGENTOOLS_ARGS> <SUBCOMMAND> <SUBCOMMAND_ARGS>
 ```
 
 Many arguments take values from environment variables and coded-in defaults. In this case, the actual value is obtained like this:
@@ -38,8 +18,11 @@ Many arguments take values from environment variables and coded-in defaults. In 
 
 Throughout this document, arguments with this behavior have a value both in their "Environment Variable" column as well as in their "Default" column.
 
+Note that the `--spec-repo-volume` is a special argument. It is processed before other arguments to find out spec repo directory to mount inside the container.
+
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
+`--spec-repo-volume SPEC_REPO_VOLUME` | Path to directory with the spec repo. | | `.`
 `-av API_VERSIONS, --api-versions API_VERSIONS` | The API version to run the specified action against. These must match what the config in the spec repo contains. Example: `apigentools -av v1 -av v2 test` | `APIGENTOOLS_API_VERSION` | `None` to run against all
 `-c CONFIG_DIR, --config-dir CONFIG_DIR` | Path to config directory. | `APIGENTOOLS_CONFIG_DIR` | `config`
 `-g GENERATED_CODE_DIR, --generated-code-dir GENERATED_CODE_DIR` | Path to directory where generated source code is saved. | `APIGENTOOLS_GENERATED_CODE_DIR` | `generated`
@@ -50,6 +33,18 @@ Argument | Description | Environment Variable | Default
 `--git-via-https-installation-access-token` | Use installation access token (authenticating a Github app) for git actions. Mutually exclusive with `--git-via-https-oauth-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_INSTALLATION_ACCESS_TOKEN` |
 `--git-via-https-oauth-token` | Use OAuth over HTTPS, passing this token for git actions. Mutually exclusive with `--git-via-https-installation-access-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN` |
 `-v, --verbose` | Log generation in verbose mode.
+
+## Container Environment
+
+The container image to use is determined from these sources:
+
+* If `APIGENTOOLS_IMAGE` environment variable exists, its content is used.
+* Otherwise [config.json](spec_repo.md#configconfigjson) is parsed and value of `container_apigentools_image` key is used if present.
+* Otherwise `datadog/apigentools:latest` is used.
+
+Note that if `APIGENTOOLS_ARGS` is not provided, a [full automated workflow](workflow.md#run-all-automated-parts-of-the-workflow) is run.
+
+Additionally, all `APIGENTOOLS_*` environment variables from current environment are passed inside the container
 
 ## `apigentools generate`
 
@@ -71,6 +66,8 @@ Argument | Description | Environment Variable | Default
 
 Since version 0.10.0, apigentools also supports processing templates (equivalent to the `apigentools templates` subcommand) as part of generation. The arguments related to this functionality are:
 
+Note that when executing via `apigentools` command and using the default `datadog/apigentools` container, `APIGENTOOLS_TEMPLATES_SOURCE` is set to `openapi-jar`.
+
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `--templates-source {local-dir,openapi-git,openapi-jar,skip}` | Source to use for obtaining templates to be processed (`skip` to not process templates) | `APIGENTOOLS_TEMPLATES_SOURCE`| `skip`
@@ -83,7 +80,7 @@ Argument | Description | Environment Variable | Default
 
 ## `apigentools init`
 
-Initializes a new [spec repo](spec_repo.md).
+Initializes a new [spec repo](spec_repo.md). Note that this operation doesn't run inside a container.
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
@@ -129,7 +126,7 @@ Argument | Description | Environment Variable | Default
 
 ### `apigentools templates local-dir`
 
-Obtains upstream templates from a given local directory.
+Obtains upstream templates from a given local directory. Note that when used through `apigentools` command, the local path would need to be inside your spec repo.
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
@@ -185,3 +182,10 @@ Argument | Description | Environment Variable | Default
 `-L, --list-languages` | Whether to only list the languages supported by this spec. Example: `apigentools -l` | `NA` | `None` to list both languages and versions
 `-V, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
 `-h, --help` | Show help message and exit.
+
+
+## Non-containerized Version
+
+The apigentools PyPI package ships with two scripts: `apigentools` and `container-apigentools`. Historically, `apigentools` ran outside Docker container, while `container-apigentools` invoked apigentools inside container. Since 0.11.0, they both invoke apigentools inside container.
+
+To invoke apigentools outside of a container (not recommended for most users), you can use `python -m apigentools`.

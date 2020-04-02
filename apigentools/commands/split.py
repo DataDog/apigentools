@@ -12,7 +12,7 @@ import click
 import yaml
 
 from apigentools import constants
-from apigentools.commands.command import Command
+from apigentools.commands.command import Command, run_command_with_config
 from apigentools.commands.validate import ValidateCommand
 from apigentools.config import Config
 from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME
@@ -40,14 +40,7 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def split(ctx, **kwargs):
     """Split single specified input-file OpenAPI spec file into multiple files"""
-    ctx.obj.update(kwargs)
-    cmd = SplitCommand({}, ctx.obj)
-
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(SplitCommand, ctx, **kwargs)
 
 
 class SplitCommand(Command):

@@ -13,7 +13,7 @@ import chevron
 import click
 
 from apigentools import __version__, constants
-from apigentools.commands.command import Command
+from apigentools.commands.command import Command, run_command_with_config
 from apigentools.commands.templates import TemplatesCommand
 from apigentools.config import Config
 from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
@@ -172,13 +172,7 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
 @click.pass_context
 def generate(ctx, **kwargs):
     """Generate client code"""
-    ctx.obj.update(kwargs)
-    cmd = GenerateCommand({}, ctx.obj)
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(GenerateCommand, ctx, **kwargs)
 
 
 class GenerateCommand(Command):

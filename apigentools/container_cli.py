@@ -10,24 +10,50 @@ import logging
 import os
 import subprocess
 import sys
+import warnings
 
+from apigentools.cli import cli
 from apigentools import constants
 from apigentools.utils import set_log
 
 log = logging.getLogger(__name__)
 
 
-def container_cli():
-    toplog = logging.getLogger(__name__.split(".")[0])
-    set_log(toplog)
+def is_container_apigentools_entrypoint(parser):
+    if parser.prog == "container-apigentools":
+        return True
+    return False
 
-    parser = argparse.ArgumentParser(description="Run apigentools in a container")
+
+def container_cli():
+    parser = argparse.ArgumentParser(
+        description="Run apigentools in a container", add_help=False
+    )
     parser.add_argument(
         "--spec-repo-volume",
         default=os.path.abspath(os.getcwd()),
         help="Full path to spec repo (defaults to current working directory)",
     )
     args, remainder = parser.parse_known_args()
+    warnings.simplefilter("default")
+    if is_container_apigentools_entrypoint(parser):
+        warnings.warn(
+            "container-apigentools has been deprecated, use apigentools instead",
+            DeprecationWarning,
+        )
+
+    # init command is an exception that we don't want to run inside the container
+    # as we wouldn't know what directory to mount inside it
+    if len(remainder) > 0 and remainder[0] == "init":
+        cli()
+
+    if len(remainder) > 0 and remainder[0] in ["-h", "--help"]:
+        # if `apigentools --help` is called, we want to display both help for the local argparse
+        # and help for the apigentools running inside the container
+        parser.print_help()
+
+    toplog = logging.getLogger(__name__.split(".")[0])
+    set_log(toplog)
 
     if len(remainder) > 0 and (":" in remainder[0] or "/" in remainder[0]):
         log.error(
@@ -49,13 +75,14 @@ def container_cli():
             ),
             constants.DEFAULT_CONFIG_FILE,
         )
-        with open(config, "r") as f:
-            try:
-                loaded_config = json.load(f)
-                image = loaded_config.get(constants.CONFIG_CONTAINER_IMAGE_KEY)
-            except json.JSONDecodeError as e:
-                log.error("Failed to parse {}: {}".format(config, str(e)))
-                sys.exit(1)
+        if os.path.exists(config):
+            with open(config, "r") as f:
+                try:
+                    loaded_config = json.load(f)
+                    image = loaded_config.get(constants.CONFIG_CONTAINER_IMAGE_KEY)
+                except json.JSONDecodeError as e:
+                    log.error("Failed to parse {}: {}".format(config, str(e)))
+                    sys.exit(1)
     if image is None:
         image = constants.DEFAULT_CONTAINER_IMAGE
     log.info("Using apigentools image %s", image)
@@ -79,6 +106,9 @@ def container_cli():
             command.append("-e")
             command.append("{}={}".format(k, v))
     command.extend(["-e", "APIGENTOOLS_IMAGE={}".format(image)])
+    if is_container_apigentools_entrypoint(parser):
+        # invoke the whole validate/generate/test workflow when running via the old container-apigentools entrypoint
+        command.extend(["-e", "APIGENTOOLS_WHOLE_WORKFLOW=true"])
 
     for mountdir, mountopts in mountpoints.items():
         command.append("-v")
