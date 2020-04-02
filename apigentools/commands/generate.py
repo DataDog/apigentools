@@ -509,11 +509,17 @@ class GenerateCommand(Command):
                 else repo
             )
             log.info("Pulling repository %s", log_repo)
-            if not self.__ssh_will_ask_passphrase_logged and not self.args.get("git_via_https"):
+            if not self.__ssh_will_ask_passphrase_logged and not self.args.get(
+                "git_via_https"
+            ):
                 self.__ssh_will_ask_passphrase_logged = True
-                log.info("If your SSH key is protected by passphrase, you'll be asked for it.")
+                log.info(
+                    "If your SSH key is protected by passphrase, you'll be asked for it."
+                )
                 if self.get_image_name() is not None:
-                    log.info("Note that your SSH keys are mounted under /root/.ssh/ in the container.")
+                    log.info(
+                        "Note that your SSH keys are mounted under /root/.ssh/ in the container."
+                    )
             run_command(
                 [
                     "git",
