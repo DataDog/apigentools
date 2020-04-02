@@ -183,6 +183,7 @@ def generate(ctx, **kwargs):
 
 class GenerateCommand(Command):
     __cached_codegen_version = None
+    __ssh_will_ask_passphrase_logged = False
 
     def run_language_commands(self, language, phase, cwd, chevron_vars=None):
         """ Runs commands specified in language settings for given language and phase
@@ -348,6 +349,7 @@ class GenerateCommand(Command):
         return missing
 
     def run(self):
+        self.__ssh_will_ask_passphrase_logged = False
         if self.args.get("templates_source") == constants.TEMPLATES_SOURCE_SKIP:
             log.info("Skipping templates processing")
         else:
@@ -507,6 +509,17 @@ class GenerateCommand(Command):
                 else repo
             )
             log.info("Pulling repository %s", log_repo)
+            if not self.__ssh_will_ask_passphrase_logged and not self.args.get(
+                "git_via_https"
+            ):
+                self.__ssh_will_ask_passphrase_logged = True
+                log.info(
+                    "If your SSH key is protected by passphrase, you'll be asked for it."
+                )
+                if self.get_image_name() is not None:
+                    log.info(
+                        "Note that your SSH keys are mounted under /root/.ssh/ in the container."
+                    )
             run_command(
                 [
                     "git",
