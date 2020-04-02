@@ -66,7 +66,8 @@ def container_cli():
         os.path.expanduser("~/.ssh"): ("/root/.ssh/", "ro"),
     }
 
-    command = ["docker", "run", "--rm"]
+    # we add "-ti" so that git cloning can stop and ask for passphrase for keys if necessary
+    command = ["docker", "run", "-ti", "--rm"]
     # Some people on MacOS use `UseKeychain` option not recognized by linux ssh
     # so make sure we ignore it
     command.append("-e")
