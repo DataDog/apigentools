@@ -69,4 +69,4 @@ class ConfigCommand(Command):
             out = [lang_info for lang_info in language_info]
 
         click.echo(out)
-        return out
+        return 0

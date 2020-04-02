@@ -10,10 +10,10 @@ import os
 import chevron
 
 from apigentools.utils import (
+    change_cwd,
     get_full_spec_file_name,
     glob_re,
     run_command,
-    volumes_from,
 )
 
 log = logging.getLogger(__name__)
@@ -24,28 +24,35 @@ class Command(abc.ABC):
         self.config = config
         self.args = args
 
-    def yield_lang_version_specfile(self, languages=None, versions=None):
-        """Yield valid combinations of (language, version, specfile)."""
+    def yield_lang_version(self, languages=None, versions=None):
         languages = set(
             languages or self.args.get("languages", []) or self.config.languages
         )
         allowed_versions = set(
             versions or self.args.get("api_versions", []) or self.config.spec_versions
         )
-        for language in languages:
+        for language in sorted(languages):
             language_config = self.config.get_language_config(language)
             versions = set(language_config.spec_versions or self.config.spec_versions)
-            for version in versions & allowed_versions:
-                spec_version_dir = os.path.join(self.args.get("spec_dir"), version)
-                suffix = (
-                    language
-                    if language_config.spec_sections != self.config.spec_sections
-                    else None
-                )
-                yield language, version, os.path.join(
-                    spec_version_dir,
-                    get_full_spec_file_name(self.args.get("full_spec_file"), suffix),
-                )
+            for version in sorted(versions & allowed_versions):
+                yield language, version
+
+    def yield_lang_version_specfile(self, languages=None, versions=None):
+        """Yield valid combinations of (language, version, specfile)."""
+        for language, version in self.yield_lang_version():
+            language_config = self.config.get_language_config(language)
+            language_config = self.config.get_language_config(language)
+            spec_version_dir = os.path.join(self.args.get("spec_dir"), version)
+            suffix = (
+                language
+                if language_config.spec_sections_for(version)
+                != self.config.spec_sections_for(version)
+                else None
+            )
+            yield language, version, os.path.join(
+                spec_version_dir,
+                get_full_spec_file_name(self.args.get("full_spec_file"), suffix),
+            )
 
     def get_generated_lang_dir(self, lang):
         """ Returns path to the directory with generated code for given language.
@@ -57,7 +64,7 @@ class Command(abc.ABC):
         """
         return os.path.join(
             self.args.get("generated_code_dir"),
-            self.config.get_language_config(lang).github_repo_name,
+            self.config.get_language_config(lang).github_repo,
         )
 
     def get_generated_lang_version_dir(self, lang, version):
@@ -112,14 +119,12 @@ class Command(abc.ABC):
 
         return retval
 
-    def run_config_command(
-        self, command, what_command, additional_env=None, chevron_vars=None
-    ):
+    def run_config_command(self, command, what_command, cwd=".", chevron_vars=None):
         log.info("Running command '%s'", command.description)
 
         if chevron_vars is None:
             chevron_vars = {}
-        chevron_vars["cwd"] = os.getcwd()
+        chevron_vars["cwd"] = cwd
 
         to_run = []
         for part in self._render_command_args(command.commandline, chevron_vars):
@@ -127,12 +132,14 @@ class Command(abc.ABC):
                 allowed_functions = {
                     "glob": glob.glob,
                     "glob_re": glob_re,
-                    "volumes_from": volumes_from,
                 }
                 function_name = part.get("function")
                 function = allowed_functions.get(function_name)
                 if function:
-                    result = function(*part.get("args", []), **part.get("kwargs", {}))
+                    with change_cwd(cwd):
+                        result = function(
+                            *part.get("args", []), **part.get("kwargs", {})
+                        )
                     # NOTE: we may need to improve this logic if/when we add more functions
                     if isinstance(result, list):
                         to_run.extend(result)
@@ -147,7 +154,21 @@ class Command(abc.ABC):
             else:
                 to_run.append(str(part))
 
-        run_command(to_run, additional_env=additional_env)
+        # dockerize
+        to_run = [
+            "docker",
+            "run",
+            "--rm",
+            "-ti",
+            "-v",
+            "{}:{}".format(os.getcwd(), "/tmp/spec-repo"),
+            "--entrypoint",
+            to_run[0],
+            "--workdir",
+            os.path.join("/tmp/spec-repo", cwd),
+            command.container_opts["image"],
+        ] + to_run[1:]
+        run_command(to_run)
 
     @abc.abstractmethod
     def run(self):

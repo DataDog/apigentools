@@ -305,7 +305,7 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
     """
     spec_version_dir = os.path.join(spec_dir, spec_version)
 
-    filenames = spec_sections[spec_version] + [
+    filenames = spec_sections + [
         SHARED_SECTION_NAME + ".yaml",
         HEADER_FILE_NAME,
     ]
@@ -325,10 +325,6 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
         },
         "security": [],
     }
-    if spec_version in config.server_base_urls:
-        # Servers should be defined in header.yaml or endpoints
-        full_spec["servers"] = [{"url": config.server_base_urls[spec_version]}]
-
     for filename in filenames:
         fpath = os.path.join(spec_version_dir, filename)
         if not os.path.exists(fpath):
@@ -376,30 +372,6 @@ def validate_duplicates(loaded_keys, full_spec_keys):
     for key in loaded_keys:
         if key in full_spec_keys:
             raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
-
-
-def volumes_from(alt_volumes):
-    retval = []
-    is_image_run = env_or_val("APIGENTOOLS_IMAGE", None)
-    if is_image_run:
-        if os.path.exists("/proc/self/cgroup"):
-            with open("/proc/self/cgroup") as f:
-                for line in f.readlines():
-                    # github actions use "/actions_job/" in cgroups lines to identify docker container id
-                    if "/docker/" in line or "/actions_job/" in line:
-                        container_id = line.rsplit("/")
-                        retval.append("--volumes-from")
-                        retval.append(container_id[-1].strip())
-                        break
-        if not retval:
-            log.warning(
-                "APIGENTOOLS_IMAGE is set, but docker container ID not found in /proc/self/cgroup"
-            )
-    if not retval:
-        for av in alt_volumes:
-            retval.append("-v")
-            retval.append(av)
-    return retval
 
 
 def glob_re(glob_pattern, re_filter):

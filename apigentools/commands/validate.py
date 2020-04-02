@@ -54,7 +54,6 @@ class ValidateCommand(Command):
         )
         log_string += " ({})".format(fs_path)
         try:
-            run_command([self.config.codegen_exec, "validate", "-i", fs_path])
             self.run_validation_commands(fs_path)
             log.info("Validation %s for API version %s successful", log_string, version)
             return True
@@ -75,7 +74,10 @@ class ValidateCommand(Command):
             log.info("Running custom validation commands")
 
         for cmd in vcs:
-            self.run_config_command(cmd, "validation", chevron_vars={"spec": spec_path})
+            # TODO: deduplicate chevron_vars with generate command
+            self.run_config_command(
+                cmd, "validation", chevron_vars={"full_spec_path": spec_path}
+            )
 
     def run(self):
         cmd_result = 0
@@ -90,7 +92,7 @@ class ValidateCommand(Command):
                 self.config,
                 self.args.get("spec_dir"),
                 version,
-                self.config.get_language_config(language).spec_sections,
+                self.config.get_language_config(language).spec_sections_for(version),
                 fs_file,
             )
 

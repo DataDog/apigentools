@@ -35,8 +35,8 @@ def init(ctx, **kwargs):
 
 class InitCommand(Command):
     CONFIG_FILE_JSON = {
-        "codegen_exec": "openapi-generator",
         "languages": {},
+        "container_image": constants.DEFAULT_CONTAINER_IMAGE,
         "spec_sections": {"v1": []},
         "spec_versions": ["v1"],
     }
@@ -102,7 +102,7 @@ class InitCommand(Command):
             )
             if not os.path.exists(config_file):
                 with open(config_file, "w") as f:
-                    json.dump(self.CONFIG_FILE_JSON, f, indent=4)
+                    yaml.dump(self.CONFIG_FILE_JSON, f, indent=4)
             v1_header = os.path.join(dirs["spec_v1_dir"], constants.HEADER_FILE_NAME)
             v1_shared = os.path.join(
                 dirs["spec_v1_dir"], constants.SHARED_SECTION_NAME + ".yaml"
