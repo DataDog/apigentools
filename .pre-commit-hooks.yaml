@@ -8,7 +8,7 @@
     pass_filenames: false
 # left here for historical purposes, `apigentools-validate` is now containerized because `apigentools` itself is containerized
 -   id: container-apigentools-validate
-    name: Validate OpenAPI specification files using container wrapper
+    name: "DEPRECATED: use 'apigentools-validate'"
     language: python
     entry: container-apigentools
     args:
