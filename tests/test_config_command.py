@@ -14,10 +14,10 @@ from apigentools.config import Config
 SPEC_CONFIG = {
     "spec_versions": ["v1", "v2"],
     "languages": {
-        "test-lang1": {"spec_versions": []},
+        "test-lang1": {"spec_versions": [], "spec_sections": {"v1": [], "v2": []}},
         "test-lang2": {"spec_versions": ["v1"]},
     },
-    "spec_sections": {"v1": [], "v2": []},
+    "spec_sections": {"v1": ["x.yaml"], "v2": ["y.yaml"]},
 }
 SPEC_CONFIG_OBJ = Config.from_dict(SPEC_CONFIG)
 
@@ -30,23 +30,20 @@ def setup_spec():
         yield fp.name
 
 
-def test_config(setup_spec):
+def test_config(setup_spec, capsys):
     # Setup the arguments (The CLI tooling would do this, but we're testing the command
     # after that gets setup
     args = {"spec_dir": setup_spec, "full_spec_file": "full_spec.yaml"}
 
-    cmd = ConfigCommand(SPEC_CONFIG_OBJ, args)
-    actual_languages = cmd.run()
-    assert sorted(actual_languages) == sorted(
-        [
-            ("test-lang1", "v1", f"{setup_spec}/v1/full_spec.test-lang1.yaml"),
-            ("test-lang1", "v2", f"{setup_spec}/v2/full_spec.test-lang1.yaml"),
-            ("test-lang2", "v1", f"{setup_spec}/v1/full_spec.test-lang2.yaml"),
-        ]
-    )
+    ConfigCommand(SPEC_CONFIG_OBJ, args).run()
+    captured = capsys.readouterr()
+    out = captured.out
+    assert f"'test-lang1', 'v1', '{setup_spec}/v1/full_spec.test-lang1.yaml'" in out
+    assert f"'test-lang1', 'v2', '{setup_spec}/v2/full_spec.test-lang1.yaml'" in out
+    assert f"'test-lang2', 'v1', '{setup_spec}/v1/full_spec.yaml'" in out
 
 
-def test_config_only_languages(setup_spec):
+def test_config_only_languages(setup_spec, capsys):
     # Setup the arguments (The CLI tooling would do this, but we're testing the command
     # after that gets setup
     args = {
@@ -55,12 +52,15 @@ def test_config_only_languages(setup_spec):
         "full_spec_file": "full_spec.yaml",
     }
 
-    cmd = ConfigCommand(SPEC_CONFIG_OBJ, args)
-    actual_languages = cmd.run()
-    assert set(actual_languages) == set(["test-lang1", "test-lang2"])
+    ConfigCommand(SPEC_CONFIG_OBJ, args).run()
+    captured = capsys.readouterr()
+    assert captured.out.strip() in [
+        "{'test-lang1', 'test-lang2'}",
+        "{'test-lang2', 'test-lang1'}",
+    ]
 
 
-def test_config_only_versions(setup_spec):
+def test_config_only_versions(setup_spec, capsys):
     # Setup the arguments (The CLI tooling would do this, but we're testing the command
     # after that gets setup
     args = {
@@ -69,6 +69,6 @@ def test_config_only_versions(setup_spec):
         "full_spec_file": "full_spec.yaml",
     }
 
-    cmd = ConfigCommand(SPEC_CONFIG_OBJ, args)
-    actual_languages = cmd.run()
-    assert set(actual_languages) == set(["v1", "v2"])
+    ConfigCommand(SPEC_CONFIG_OBJ, args).run()
+    captured = capsys.readouterr()
+    assert captured.out.strip() in ["{'v1', 'v2'}", "{'v2', 'v1'}"]

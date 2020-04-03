@@ -1,0 +1,37 @@
+languages:
+  java:
+    default:
+      commands:
+        post:
+        - commandline:
+          - some
+          - post
+          - cmd
+          description: Some post command
+        pre:
+        - commandline:
+          - some
+          - pre
+          - cmd
+          description: Some pre command
+      templates:
+        patches:
+        - patch1
+        - patch2
+        source:
+          jar_path: /some/path.jar
+          templates_dir: Java
+          type: openapi-jar
+    spec_sections:
+    - v1
+    - v2
+    v1:
+      commands:
+        pre:
+        - commandline:
+          - v1
+          - pre
+          - cmd
+          description: Some pre command
+      container_image: other:image
+user_agent_client_name: MyClient

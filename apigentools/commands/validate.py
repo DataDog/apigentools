@@ -89,7 +89,6 @@ class ValidateCommand(Command):
 
             # Generate full spec file is needed
             fs_path = write_full_spec(
-                self.config,
                 self.args.get("spec_dir"),
                 version,
                 self.config.get_language_config(language).spec_sections_for(version),

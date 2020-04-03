@@ -286,11 +286,9 @@ def get_full_spec_file_name(default_fsf, l):
     return "{}.{}".format(default_fsf, l)
 
 
-def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
+def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     """ Write a full OpenAPI spec file
 
-    :param config: apigentools config
-    :type config: ``apigentools.config.Config``
     :param spec_dir: Directory containing per-major-version subdirectories
         with parts of OpenAPI spec to combine
     :type spec_dir: ``str``
