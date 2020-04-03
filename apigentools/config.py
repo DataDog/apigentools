@@ -158,9 +158,6 @@ class Config(BaseSettings):
 
         return v
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
     @classmethod
     def from_file(cls, fpath):
         with open(fpath) as f:
