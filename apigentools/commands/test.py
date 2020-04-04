@@ -34,16 +34,6 @@ log = logging.getLogger(__name__)
     + "them during runtime. (NOTE: if the testing container itself prints this value, "
     + "it *will* be logged as part of the test output by apigentools).",
 )
-@click.option(
-    "-g",
-    "--generated-code-dir",
-    default=env_or_val(
-        "APIGENTOOLS_GENERATED_CODE_DIR", constants.DEFAULT_GENERATED_CODE_DIR
-    ),
-    help="Path to directory where to save the generated source code (default: '{}')".format(
-        constants.DEFAULT_GENERATED_CODE_DIR
-    ),
-)
 @click.pass_context
 def test(ctx, **kwargs):
     """Run tests for generated source code"""
@@ -52,7 +42,7 @@ def test(ctx, **kwargs):
 
     with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
         )
         ctx.exit(cmd.run())
 

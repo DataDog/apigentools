@@ -16,21 +16,13 @@ import click
 from apigentools import constants
 from apigentools.commands.command import Command
 from apigentools.config import Config
-from apigentools.constants import OPENAPI_GENERATOR_GIT
+from apigentools.constants import OPENAPI_GENERATOR_GIT, SPEC_REPO_TEMPLATES_DIR
 from apigentools.utils import run_command, change_cwd, env_or_val
 
 log = logging.getLogger(__name__)
 
 
 @click.command()
-@click.option(
-    "-T",
-    "--templates-output-dir",
-    default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
-    help="Path to directory where to put processed upstream templates (default: {})".format(
-        constants.DEFAULT_TEMPLATES_DIR
-    ),
-)
 @click.pass_context
 def templates(ctx, **kwargs):
     """Get upstream templates and apply downstream patches"""
@@ -38,7 +30,7 @@ def templates(ctx, **kwargs):
     cmd = TemplatesCommand({}, ctx.obj)
     with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
         )
         ctx.exit(cmd.run())
 
@@ -163,9 +155,7 @@ class TemplatesCommand(Command):
                         return 1
 
             # copy the processed templates from the temporary dir to templates dir
-            outdir = os.path.join(
-                self.args.get("templates_output_dir"), lc.language, spec_version
-            )
+            outdir = os.path.join(SPEC_REPO_TEMPLATES_DIR, lc.language, spec_version)
             if os.path.exists(outdir):
                 shutil.rmtree(outdir)
             shutil.copytree(

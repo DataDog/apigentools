@@ -17,7 +17,7 @@ from apigentools import __version__, constants
 from apigentools.commands.command import Command
 from apigentools.commands.templates import TemplatesCommand
 from apigentools.config import Config, ConfigCommand
-from apigentools.constants import GITHUB_REPO_URL_TEMPLATE, LANGUAGE_OAPI_CONFIGS
+from apigentools.constants import GITHUB_REPO_URL_TEMPLATE
 from apigentools.utils import (
     change_cwd,
     get_current_commit,
@@ -33,14 +33,6 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
 
 
 @click.command()
-@click.option(
-    "-s",
-    "--spec-dir",
-    default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
-    help="Path to directory with OpenAPI specs (default: '{}')".format(
-        constants.DEFAULT_SPEC_DIR
-    ),
-)
 @click.option(
     "--clone-repo",
     is_flag=True,
@@ -87,14 +79,6 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
     default=env_or_val("APIGENTOOLS_GIT_AUTHOR_NAME", None),
 )
 @click.option(
-    "-T",
-    "--templates-output-dir",
-    default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
-    help="Path to directory where to put processed upstream templates (default: {})".format(
-        constants.DEFAULT_TEMPLATES_DIR
-    ),
-)
-@click.option(
     "--skip-templates",
     is_flag=True,
     default=env_or_val("APIGENTOOLS_SKIP_TEMPLATES", False, __type=bool),
@@ -107,7 +91,7 @@ def generate(ctx, **kwargs):
     cmd = GenerateCommand({}, ctx.obj)
     with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
         )
         ctx.exit(cmd.run())
 
@@ -208,7 +192,7 @@ class GenerateCommand(Command):
         stamp = "Generated with: apigentools version {version}".format(
             version=__version__
         )
-        spec_repo_commit = get_current_commit(self.args.get("spec_repo_dir"))
+        spec_repo_commit = get_current_commit(".")
         stamp = (stamp,)
         if spec_repo_commit:
             stamp + ("spec repo commit {commit}".format(commit=spec_repo_commit),)
@@ -240,7 +224,7 @@ class GenerateCommand(Command):
             "additional_stamps": self.args.get("additional_stamp"),
             "apigentools_version": __version__,
             "info_version": "2",
-            "spec_repo_commit": get_current_commit(self.args.get("spec_repo_dir")),
+            "spec_repo_commit": get_current_commit("."),
         }
         loaded.update(info)
         loaded.setdefault("spec_versions", {})
@@ -265,7 +249,7 @@ class GenerateCommand(Command):
 
             # Generate full spec file is needed
             write_full_spec(
-                self.args.get("spec_dir"),
+                constants.SPEC_REPO_SPEC_DIR,
                 version,
                 self.config.get_language_config(language).spec_sections_for(version),
                 fs_file,
@@ -312,8 +296,8 @@ class GenerateCommand(Command):
                         return retval
                 log.info("Generation in %s, spec version %s", language, version)
                 language_oapi_config_path = os.path.join(
-                    self.args.get("config_dir"),
-                    LANGUAGE_OAPI_CONFIGS,
+                    constants.SPEC_REPO_CONFIG_DIR,
+                    constants.SPEC_REPO_LANGUAGES_CONFIG_DIR,
                     "{lang}_{v}.json".format(lang=language, v=version),
                 )
                 version_output_dir = self.get_generated_lang_version_dir(

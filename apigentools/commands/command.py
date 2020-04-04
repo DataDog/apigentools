@@ -9,6 +9,7 @@ import os
 
 import chevron
 
+from apigentools import constants
 from apigentools.utils import (
     change_cwd,
     get_full_spec_file_name,
@@ -42,7 +43,7 @@ class Command(abc.ABC):
         for language, version in self.yield_lang_version():
             language_config = self.config.get_language_config(language)
             language_config = self.config.get_language_config(language)
-            spec_version_dir = os.path.join(self.args.get("spec_dir"), version)
+            spec_version_dir = os.path.join(constants.SPEC_REPO_SPEC_DIR, version)
             suffix = (
                 language
                 if language_config.spec_sections_for(version)
@@ -63,7 +64,7 @@ class Command(abc.ABC):
         :rtype: ``str``
         """
         return os.path.join(
-            self.args.get("generated_code_dir"),
+            constants.SPEC_REPO_GENERATED_DIR,
             self.config.get_language_config(lang).github_repo,
         )
 

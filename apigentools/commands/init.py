@@ -84,16 +84,15 @@ class InitCommand(Command):
         os.makedirs(self.args.get("projectdir"), exist_ok=True)
         with change_cwd(self.args.get("projectdir")):
             dirs = {
-                "config_dir": constants.DEFAULT_CONFIG_DIR,
-                "downstream_templates_dir": constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,
+                "config_dir": constants.SPEC_REPO_CONFIG_DIR,
                 "languages_config_dir": os.path.join(
-                    constants.DEFAULT_CONFIG_DIR, constants.DEFAULT_LANGUAGES_CONFIG_DIR
+                    constants.SPEC_REPO_CONFIG_DIR,
+                    constants.SPEC_REPO_LANGUAGES_CONFIG_DIR,
                 ),
-                "generated_dir": constants.DEFAULT_GENERATED_CODE_DIR,
-                "spec_dir": constants.DEFAULT_SPEC_DIR,
-                "spec_v1_dir": os.path.join(constants.DEFAULT_SPEC_DIR, "v1"),
-                "template_patches_dir": constants.DEFAULT_TEMPLATE_PATCHES_DIR,
-                "templates_dir": constants.DEFAULT_TEMPLATES_DIR,
+                "generated_dir": constants.SPEC_REPO_GENERATED_DIR,
+                "spec_dir": constants.SPEC_REPO_SPEC_DIR,
+                "spec_v1_dir": os.path.join(constants.SPEC_REPO_SPEC_DIR, "v1"),
+                "templates_dir": constants.SPEC_REPO_TEMPLATES_DIR,
             }
             for _, v in dirs.items():
                 os.makedirs(v, exist_ok=True)

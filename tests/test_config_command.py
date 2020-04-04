@@ -38,9 +38,9 @@ def test_config(setup_spec, capsys):
     ConfigCommand(SPEC_CONFIG_OBJ, args).run()
     captured = capsys.readouterr()
     out = captured.out
-    assert f"'test-lang1', 'v1', '{setup_spec}/v1/full_spec.test-lang1.yaml'" in out
-    assert f"'test-lang1', 'v2', '{setup_spec}/v2/full_spec.test-lang1.yaml'" in out
-    assert f"'test-lang2', 'v1', '{setup_spec}/v1/full_spec.yaml'" in out
+    assert f"'test-lang1', 'v1', 'spec/v1/full_spec.test-lang1.yaml'" in out
+    assert f"'test-lang1', 'v2', 'spec/v2/full_spec.test-lang1.yaml'" in out
+    assert f"'test-lang2', 'v1', 'spec/v1/full_spec.yaml'" in out
 
 
 def test_config_only_languages(setup_spec, capsys):
