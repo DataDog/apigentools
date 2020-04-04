@@ -2,6 +2,7 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+import contextlib
 import glob
 import logging
 import os
@@ -43,35 +44,45 @@ def templates(ctx, **kwargs):
 
 
 class TemplatesCommand(Command):
+    @contextlib.contextmanager
+    def create_container(self, lc, spec_version):
+        image = lc.container_opts_for(spec_version)["image"]
+        cn = "very-unique-container-name-{}".format(time.time())
+        run_command(["docker", "create", "--name", cn, image])
+        yield cn
+        run_command(["docker", "rm", cn])
+
     def templates_for_language_spec_version(self, lc, spec_version):
         templates_cfg = lc.templates_config_for(spec_version)
+        from_container = not templates_cfg.get("no_container", False)
         if not templates_cfg:
             log.info(
                 "No templates configured for {}/{}, skipping", lc.language, spec_version
             )
             return 0
+
         with tempfile.TemporaryDirectory() as td:
             log.info("Obtaining upstream templates ...")
             patch_in = copy_from = td
+            image = lc.container_opts_for(spec_version)["image"]
             if templates_cfg["source"]["type"] == "openapi-jar":
-                image = lc.container_opts_for(spec_version)["image"]
-                log.info("Extracting openapi-generator jar from image {}".format(image))
                 jar_path = templates_cfg["source"]["jar_path"]
-                # TODO: properly create temp directory
-                # TODO: properly remove created container
-                cn = "very-unique-container-name-{}".format(time.time())
-                run_command(["docker", "create", "--name", cn, image])
-                run_command(
-                    [
-                        "docker",
-                        "cp",
-                        "{}:{}".format(cn, jar_path),
-                        "/tmp/openapi-generator.jar",
-                    ]
-                )
-                jar_path = "/tmp/openapi-generator.jar"
+                if from_container:
+                    log.info("Extracting openapi-generator jar from image {}".format(image))
+                    new_jar_path = os.path.join(td, "openapi-generator.jar")
+                    with self.create_container(lc, spec_version) as container:
+                        run_command(
+                            [
+                                "docker",
+                                "cp",
+                                "{}:{}".format(container, jar_path),
+                                new_jar_path,
+                            ]
+                        )
+                    jar_path = new_jar_path
                 run_command(["unzip", "-q", jar_path, "-d", td])
-            elif templates_cfg["source"]["type"] == "local-dir":
+            elif templates_cfg["source"]["type"] == "directory":
+
                 # TODO
                 """
                 for lang in self.config.languages:
