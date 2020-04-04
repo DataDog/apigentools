@@ -1,5 +1,10 @@
 languages:
   java:
+    container_opts:
+      environment:
+        JAVA: y
+        LEVEL: '1'
+      image: java:image
     generation:
       default:
         commands:
@@ -14,7 +19,15 @@ languages:
             - some
             - pre
             - cmd
+            container_opts:
+              environment:
+                CMD: y
+                LEVEL: '3'
             description: Some pre command
+        container_opts:
+          environment:
+            DEFAULT: y
+            LEVEL: '2'
         templates:
           patches:
           - patch1
@@ -31,7 +44,12 @@ languages:
             - pre
             - cmd
             description: Some pre command
-        container_image: other:image
+        container_opts:
+          environment:
+            LEVEL: '2'
+            V1: y
+          image: other:image
+          inherit: false
     spec_sections:
     - v1
     - v2

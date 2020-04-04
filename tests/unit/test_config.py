@@ -15,8 +15,13 @@ FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixture
 config_sample = {
     "languages": {
         "java": {
+            "container_opts": {
+                "image": "java:image",
+                "environment": {"LEVEL": "1", "JAVA": "y",},
+            },
             "generation": {
                 "default": {
+                    "container_opts": {"environment": {"LEVEL": "2", "DEFAULT": "y",},},
                     "templates": {
                         "patches": ["patch1", "patch2"],
                         "source": {
@@ -28,6 +33,9 @@ config_sample = {
                     "commands": {
                         "pre": [
                             {
+                                "container_opts": {
+                                    "environment": {"LEVEL": "3", "CMD": "y",},
+                                },
                                 "commandline": ["some", "pre", "cmd"],
                                 "description": "Some pre command",
                             }
@@ -41,7 +49,11 @@ config_sample = {
                     },
                 },
                 "v1": {
-                    "container_image": "other:image",
+                    "container_opts": {
+                        "image": "other:image",
+                        "inherit": False,
+                        "environment": {"LEVEL": "2", "V1": "y",},
+                    },
                     "commands": {
                         "pre": [
                             {
@@ -63,19 +75,53 @@ def check_config(c):
     # check a value that was explicitly given
     assert c.user_agent_client_name == "MyClient"
     # check a value that should have a default
-    assert c.container_image == constants.DEFAULT_CONTAINER_IMAGE
 
     with pytest.raises(KeyError):
         c.unknown
 
     java = c.get_language_config("java")
     assert type(java) == LanguageConfig
+    assert java.language_container_opts == {
+        "image": "java:image",
+        "environment": {"LEVEL": "1", "JAVA": "y",},
+    }
+
     cmd = java.pre_commands_for("v1")[0]
     assert type(cmd) == ConfigCommand
     assert cmd.commandline == ["v1", "pre", "cmd"]
+
     assert java.post_commands_for("v2")[0].commandline == ["some", "post", "cmd"]
-    assert java.container_image_for("v1") == "other:image"
-    assert java.container_image_for("v2") == constants.DEFAULT_CONTAINER_IMAGE
+
+    # make sure that nothing was inherited for v1
+    assert java.container_opts_for("v1") == {
+        "image": "other:image",
+        "inherit": False,
+        "environment": {"LEVEL": "2", "V1": "y"},
+    }
+    # make sure that environment was inherited properly for V2
+    assert java.container_opts_for("v2") == {
+        "image": "java:image",
+        "environment": {"JAVA": "y", "DEFAULT": "y", "LEVEL": "2"},
+    }
+
+    # when we have one command taken from "default" for V1 vs V2, it should inherit proper container_opts
+    assert java.post_commands_for("v1")[0].container_opts == {
+        "image": "other:image",
+        "inherit": False,
+        "environment": {"LEVEL": "2", "V1": "y"},
+    }
+    assert java.post_commands_for("v2")[0].container_opts == {
+        "image": "java:image",
+        "environment": {"LEVEL": "2", "JAVA": "y", "DEFAULT": "y"},
+    }
+
+    # test inherited values on cmd itself
+    assert java.pre_commands_for("v2")[0].container_opts == {
+        "image": "java:image",
+        "environment": {"JAVA": "y", "DEFAULT": "y", "CMD": "y", "LEVEL": "3"},
+    }
+
+    # test templates config
     assert java.templates_config_for("v1") == {
         "patches": ["patch1", "patch2"],
         "source": {
@@ -87,7 +133,7 @@ def check_config(c):
     assert java.templates_config_for("v1") == java.templates_config_for("v2")
 
 
-def test_config():
+def test_config_from_dict():
     c = Config.from_dict(config_sample)
     check_config(c)
 

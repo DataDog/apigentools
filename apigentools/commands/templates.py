@@ -54,7 +54,7 @@ class TemplatesCommand(Command):
             log.info("Obtaining upstream templates ...")
             patch_in = copy_from = td
             if templates_cfg["source"]["type"] == "openapi-jar":
-                image = lc.container_image_for(spec_version)
+                image = lc.container_opts_for(spec_version)["image"]
                 log.info("Extracting openapi-generator jar from image {}".format(image))
                 jar_path = templates_cfg["source"]["jar_path"]
                 # TODO: properly create temp directory

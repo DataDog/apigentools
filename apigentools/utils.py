@@ -379,3 +379,30 @@ def glob_re(glob_pattern, re_filter):
     result = [r for r in glob_result if re_compiled.match(r)]
     log.debug('"glob_re" result: %s', result)
     return result
+
+
+def inherit_container_opts(local, parent):
+    """ Implements handling of inheritance of container_opts
+
+    :param local: Container opts that are inheriting
+    :type local: ``dict``
+    :param parent: Container opts that need to be inherited from
+    :type parent: ``dict``
+    :return: New container opts after doing inheritance
+    :rtype: ``dict``
+    """
+    result = copy.deepcopy(local)
+    # we always inherit parent image if not set locally
+    if not result.get("image"):
+        result["image"] = parent["image"]
+    if result.get("inherit", True):
+        # each attribute we add in future might need special handling
+        # to properly implement its inheritance
+        if "environment" in parent:
+            # get copy of parent environment and update it with local environment
+            updated_env = copy.deepcopy(parent["environment"])
+            updated_env.update(result.get("environment", {}))
+            result["environment"] = updated_env
+        if "inherit" in parent:
+            result["inherit"] = parent["inherit"]
+    return result

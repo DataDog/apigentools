@@ -5,6 +5,7 @@
 import yaml
 
 from apigentools import constants
+from apigentools.utils import inherit_container_opts
 
 
 class Config:
@@ -12,7 +13,7 @@ class Config:
         # TODO: verify the schema of the raw config dict, possibly use jsonschema for that
         self.raw_dict = raw_dict
         self.defaults = {
-            "container_image": constants.DEFAULT_CONTAINER_IMAGE,
+            "container_opts": {"image": constants.DEFAULT_CONTAINER_IMAGE,},
             "languages": {},
             "spec_sections": {},
             "spec_versions": [],
@@ -115,12 +116,16 @@ class LanguageConfig:
             tpl_cfg = self.generation[version]["templates"]
         return tpl_cfg
 
-    def container_image_for(self, version):
-        return (
-            self.generation.get(version, {}).get("container_image", None)
-            or self.generation.get("default", {}).get("container_image")
-            or self.top_level_config.container_image
-        )
+    @property
+    def language_container_opts(self):
+        lco = self.raw_dict.get("container_opts", {})
+        return inherit_container_opts(lco, self.top_level_config.container_opts)
+
+    def container_opts_for(self, version):
+        version_co = self.generation.get(version, {}).get("container_opts", {})
+        if not version_co:
+            version_co = self.generation.get("default", {}).get("container_opts", {})
+        return inherit_container_opts(version_co, self.language_container_opts)
 
     @property
     def downstream_templates(self):
@@ -144,9 +149,7 @@ class ConfigCommand:
 
     @property
     def container_opts(self):
-        copts = {
-            "image": self.language_config.container_image_for(self.version),
-        }
-        if "container_opts" in self.config:
-            copts.update(self.config["container_opts"])
-        return copts
+        return inherit_container_opts(
+            self.config.get("container_opts", {}),
+            self.language_config.container_opts_for(self.version),
+        )
