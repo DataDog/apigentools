@@ -154,21 +154,25 @@ class Command(abc.ABC):
             else:
                 to_run.append(str(part))
 
-        # dockerize
-        to_run = [
-            "docker",
-            "run",
-            "--rm",
-            "-ti",
-            "-v",
-            "{}:{}".format(os.getcwd(), "/tmp/spec-repo"),
-            "--entrypoint",
-            to_run[0],
-            "--workdir",
-            os.path.join("/tmp/spec-repo", cwd),
-            command.container_opts["image"],
-        ] + to_run[1:]
-        run_command(to_run)
+        additional_env = {}
+        if command.container_opts.get("no_container"):
+            additional_env = command.container_opts.get("environment", {})
+        else:
+            # dockerize
+            to_run = [
+                "docker",
+                "run",
+                "--rm",
+                "-ti",
+                "-v",
+                "{}:{}".format(os.getcwd(), "/tmp/spec-repo"),
+                "--entrypoint",
+                to_run[0],
+                "--workdir",
+                os.path.join("/tmp/spec-repo", cwd),
+                command.container_opts["image"],
+            ] + to_run[1:]
+        run_command(to_run, additional_env=additional_env)
 
     @abc.abstractmethod
     def run(self):

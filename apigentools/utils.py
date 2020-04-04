@@ -403,6 +403,8 @@ def inherit_container_opts(local, parent):
             updated_env = copy.deepcopy(parent["environment"])
             updated_env.update(result.get("environment", {}))
             result["environment"] = updated_env
-        if "inherit" in parent:
+        if "inherit" in parent and "inherit" not in result:
             result["inherit"] = parent["inherit"]
+        if "no_container" in parent and "inherit" not in result:
+            result["no_container"] = parent["no_container"]
     return result
