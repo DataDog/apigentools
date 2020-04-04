@@ -53,22 +53,25 @@ class TemplatesCommand(Command):
         run_command(["docker", "rm", cn])
 
     def templates_for_language_spec_version(self, lc, spec_version):
+        # TODO: select directory specified by "templates_dir" in "templates.source"
+        # *before* applying patches
         templates_cfg = lc.templates_config_for(spec_version)
-        from_container = not templates_cfg.get("no_container", False)
         if not templates_cfg:
             log.info(
                 "No templates configured for {}/{}, skipping", lc.language, spec_version
             )
             return 0
 
+        from_container = not templates_cfg["source"].get("no_container", False)
+        source_type = templates_cfg["source"]["type"]
         with tempfile.TemporaryDirectory() as td:
             log.info("Obtaining upstream templates ...")
             patch_in = copy_from = td
             image = lc.container_opts_for(spec_version)["image"]
-            if templates_cfg["source"]["type"] == "openapi-jar":
+            if source_type == "openapi-jar":
                 jar_path = templates_cfg["source"]["jar_path"]
                 if from_container:
-                    log.info("Extracting openapi-generator jar from image {}".format(image))
+                    log.info("Extracting openapi-generator jar from image %s", image)
                     new_jar_path = os.path.join(td, "openapi-generator.jar")
                     with self.create_container(lc, spec_version) as container:
                         run_command(
@@ -81,41 +84,56 @@ class TemplatesCommand(Command):
                         )
                     jar_path = new_jar_path
                 run_command(["unzip", "-q", jar_path, "-d", td])
-            elif templates_cfg["source"]["type"] == "directory":
-
-                # TODO
-                """
-                for lang in self.config.languages:
-                    lang_upstream_templates_dir = self.config.get_language_config(
-                        lang
-                    ).upstream_templates_dir
-                    local_lang_dir = os.path.join(
-                        self.args.get("local_path"), lang_upstream_templates_dir
-                    )
-                    if not os.path.exists(local_lang_dir):
+            elif source_type == "directory":
+                lang_dir = os.path.join(
+                    templates_cfg["source"]["directory_path"],
+                    templates_cfg["source"]["templates_dir"],
+                )
+                output_dir = os.path.join(td, templates_cfg["source"]["templates_dir"],)
+                if from_container:
+                    log.info("Extracting templates directory from image %s", image)
+                    with self.create_container(lc, spec_version) as container:
+                        run_command(
+                            [
+                                "docker",
+                                "cp",
+                                "{}:{}".format(container, lang_dir),
+                                output_dir,
+                            ]
+                        )
+                else:
+                    if not os.path.exists(lang_dir):
                         log.error(
-                            "Directory %s doesn't contain '%s' directory with templates. "
-                            + "Make sure %s contains directories with templates for all languages",
-                            self.args.get("templates_source"),
-                            lang_upstream_templates_dir,
-                            self.args.get("local_path"),
-                            )
+                            "Directory %s doesn't contain '%s' subdirectory with templates",
+                            templates_cfg["source"]["directory_path"],
+                            templates_cfg["source"]["templates_dir"],
+                        )
                         return 1
                     shutil.copytree(
-                        local_lang_dir, os.path.join(td, lang_upstream_templates_dir)
+                        lang_dir,
+                        os.path.join(td, templates_cfg["source"]["templates_dir"]),
                     )
-                """
-            else:
-                # TODO
-                """
+            elif source_type == "openapi-git":
+                if from_container:
+                    log.error(
+                        "Templates with source 'openapi-git' must be used with 'no_container: true'"
+                    )
                 patch_in = copy_from = os.path.join(
                     td, "modules", "openapi-generator", "src", "main", "resources"
                 )
                 run_command(["git", "clone", OPENAPI_GENERATOR_GIT, td])
                 run_command(
-                    ["git", "-C", td, "checkout", self.args.get("git_committish")]
+                    [
+                        "git",
+                        "-C",
+                        td,
+                        "checkout",
+                        templates_cfg["source"]["git_committish"],
+                    ]
                 )
-                """
+            else:
+                log.error("Unknown templates source type {}".format(source_type))
+                return 1
 
             patches = templates_cfg.get("patches")
             if patches:
