@@ -224,12 +224,12 @@ class GenerateCommand(Command):
             "additional_stamps": self.args.get("additional_stamp"),
             "apigentools_version": __version__,
             "info_version": "2",
-            "spec_repo_commit": get_current_commit("."),
         }
         loaded.update(info)
         loaded.setdefault("spec_versions", {})
         loaded["spec_versions"][version] = {
-            "regenerated": str(datetime.datetime.utcnow())
+            "regenerated": str(datetime.datetime.utcnow()),
+            "spec_repo_commit": get_current_commit("."),
         }
         with open(outfile, "w") as f:
             json.dump(loaded, f, indent=4)
