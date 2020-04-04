@@ -15,39 +15,41 @@ FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixture
 config_sample = {
     "languages": {
         "java": {
-            "default": {
-                "templates": {
-                    "patches": ["patch1", "patch2"],
-                    "source": {
-                        "type": "openapi-jar",
-                        "jar_path": "/some/path.jar",
-                        "templates_dir": "Java",
+            "generation": {
+                "default": {
+                    "templates": {
+                        "patches": ["patch1", "patch2"],
+                        "source": {
+                            "type": "openapi-jar",
+                            "jar_path": "/some/path.jar",
+                            "templates_dir": "Java",
+                        },
+                    },
+                    "commands": {
+                        "pre": [
+                            {
+                                "commandline": ["some", "pre", "cmd"],
+                                "description": "Some pre command",
+                            }
+                        ],
+                        "post": [
+                            {
+                                "commandline": ["some", "post", "cmd"],
+                                "description": "Some post command",
+                            }
+                        ],
                     },
                 },
-                "commands": {
-                    "pre": [
-                        {
-                            "commandline": ["some", "pre", "cmd"],
-                            "description": "Some pre command",
-                        }
-                    ],
-                    "post": [
-                        {
-                            "commandline": ["some", "post", "cmd"],
-                            "description": "Some post command",
-                        }
-                    ],
-                },
-            },
-            "v1": {
-                "container_image": "other:image",
-                "commands": {
-                    "pre": [
-                        {
-                            "commandline": ["v1", "pre", "cmd"],
-                            "description": "Some pre command",
-                        }
-                    ]
+                "v1": {
+                    "container_image": "other:image",
+                    "commands": {
+                        "pre": [
+                            {
+                                "commandline": ["v1", "pre", "cmd"],
+                                "description": "Some pre command",
+                            }
+                        ]
+                    },
                 },
             },
             "spec_sections": ["v1", "v2"],

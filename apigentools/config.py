@@ -60,12 +60,13 @@ class LanguageConfig:
     def __init__(self, language, raw_dict, top_level_config):
         self.language = language
         self.raw_dict = raw_dict
+        self.generation = raw_dict.get("generation", {})
         self.top_level_config = top_level_config
 
     def get_commands(self, version, stage):
-        raw = self.raw_dict.get("default", {}).get("commands", {}).get(stage, [])
-        if version in self.raw_dict:
-            version_cmds = self.raw_dict[version].get("commands", {})
+        raw = self.generation.get("default", {}).get("commands", {}).get(stage, [])
+        if version in self.generation:
+            version_cmds = self.generation[version].get("commands", {})
             if stage in version_cmds:
                 raw = version_cmds[stage]
         ret = []
@@ -109,15 +110,15 @@ class LanguageConfig:
         return self.top_level_config.spec_sections_for(version)
 
     def templates_config_for(self, version):
-        tpl_cfg = self.raw_dict.get("default", {}).get("templates", {})
-        if version in self.raw_dict and "templates" in self.raw_dict[version]:
-            tpl_cfg = self.raw_dict[version]["templates"]
+        tpl_cfg = self.generation.get("default", {}).get("templates", {})
+        if version in self.generation and "templates" in self.generation[version]:
+            tpl_cfg = self.generation[version]["templates"]
         return tpl_cfg
 
     def container_image_for(self, version):
         return (
-            self.raw_dict.get(version, {}).get("container_image", None)
-            or self.raw_dict.get("default", {}).get("container_image")
+            self.generation.get(version, {}).get("container_image", None)
+            or self.generation.get("default", {}).get("container_image")
             or self.top_level_config.container_image
         )
 
