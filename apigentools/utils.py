@@ -405,6 +405,6 @@ def inherit_container_opts(local, parent):
             result["environment"] = updated_env
         if "inherit" in parent and "inherit" not in result:
             result["inherit"] = parent["inherit"]
-        if "no_container" in parent and "inherit" not in result:
+        if "no_container" in parent and "no_container" not in result:
             result["no_container"] = parent["no_container"]
     return result

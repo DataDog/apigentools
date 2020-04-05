@@ -39,7 +39,7 @@ class TemplatesCommand(Command):
     @contextlib.contextmanager
     def create_container(self, lc, spec_version):
         image = lc.container_opts_for(spec_version)["image"]
-        cn = "very-unique-container-name-{}".format(time.time())
+        cn = "apigentools-created-container-{}".format(time.time())
         run_command(["docker", "create", "--name", cn, image])
         yield cn
         run_command(["docker", "rm", cn])
@@ -50,7 +50,7 @@ class TemplatesCommand(Command):
         templates_cfg = lc.templates_config_for(spec_version)
         if not templates_cfg:
             log.info(
-                "No templates configured for {}/{}, skipping", lc.language, spec_version
+                "No templates configured for %s/%s, skipping", lc.language, spec_version
             )
             return 0
 

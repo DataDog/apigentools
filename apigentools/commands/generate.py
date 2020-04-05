@@ -98,12 +98,12 @@ def generate(ctx, **kwargs):
 
 class GenerateCommand(Command):
     __cached_codegen_version = None
+    # NOTE: update docs/spec_repo.md when changing this
     __default_generate_command = ConfigCommand(
         "default",
         "generate",
         {
             "description": "Generate code using openapi-generator",
-            "use_container": True,
             "commandline": [
                 "openapi-generator",
                 "generate",
@@ -119,12 +119,18 @@ class GenerateCommand(Command):
                 "{{version_output_dir}}",
                 "--additional-properties",
                 "apigentoolsStamp='{{stamp}}'",
-                "-t",
-                "templates/{{language_name}}/{{spec_version}}",
             ],
         },
         None,
     )
+
+    def get_default_generate_command(self, builtin_templates):
+        ret = copy.deepcopy(self.__default_generate_command)
+        if not builtin_templates:
+            ret.commandline.extend(
+                ["-t", "templates/{{language_name}}/{{spec_version}}"]
+            )
+        return ret
 
     def run_language_commands(
         self, language, version, phase, cwd, chevron_vars=None, default_commands=None
@@ -222,12 +228,12 @@ class GenerateCommand(Command):
 
         info = {
             "additional_stamps": self.args.get("additional_stamp"),
-            "apigentools_version": __version__,
             "info_version": "2",
         }
         loaded.update(info)
         loaded.setdefault("spec_versions", {})
         loaded["spec_versions"][version] = {
+            "apigentools_version": __version__,
             "regenerated": str(datetime.datetime.utcnow()),
             "spec_repo_commit": get_current_commit("."),
         }
@@ -313,7 +319,12 @@ class GenerateCommand(Command):
                         "version_output_dir": version_output_dir,
                     }
                 )
-                default_generate_cmd = copy.deepcopy(self.__default_generate_command)
+                use_builtin_templates = not bool(
+                    language_config.templates_config_for(version)
+                )
+                default_generate_cmd = self.get_default_generate_command(
+                    use_builtin_templates
+                )
                 default_generate_cmd.language_config = language_config
 
                 os.makedirs(version_output_dir, exist_ok=True)
