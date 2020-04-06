@@ -8,13 +8,6 @@ languages:
     generation:
       default:
         commands:
-          post:
-          - commandline:
-            - some
-            - post
-            - cmd
-            description: Some post command
-          pre:
           - commandline:
             - some
             - pre
@@ -24,6 +17,11 @@ languages:
                 CMD: y
                 LEVEL: '3'
             description: Some pre command
+          - commandline:
+            - some
+            - post
+            - cmd
+            description: Some post command
         container_opts:
           environment:
             DEFAULT: y
@@ -38,7 +36,6 @@ languages:
             type: openapi-jar
       v1:
         commands:
-          pre:
           - commandline:
             - v1
             - pre

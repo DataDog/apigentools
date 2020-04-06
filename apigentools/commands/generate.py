@@ -99,41 +99,38 @@ def generate(ctx, **kwargs):
 class GenerateCommand(Command):
     __cached_codegen_version = None
     # NOTE: update docs/spec_repo.md when changing this
-    __default_generate_command = ConfigCommand(
-        "default",
+    __default_generate_command = [
+        "openapi-generator",
         "generate",
-        {
-            "description": "Generate code using openapi-generator",
-            "commandline": [
-                "openapi-generator",
-                "generate",
-                "--http-user-agent",
-                "{{user_agent_client_name}}/{{library_version}}/{{language_name}}",
-                "-g",
-                "{{language_name}}",
-                "-c",
-                "{{language_config}}",
-                "-i",
-                "{{full_spec_path}}",
-                "-o",
-                "{{version_output_dir}}",
-                "--additional-properties",
-                "apigentoolsStamp='{{stamp}}'",
-            ],
-        },
-        None,
-    )
+        "--http-user-agent",
+        "{{user_agent_client_name}}/{{library_version}}/{{language_name}}",
+        "-g",
+        "{{language_name}}",
+        "-c",
+        "{{language_config}}",
+        "-i",
+        "{{full_spec_path}}",
+        "-o",
+        "{{version_output_dir}}",
+        "--additional-properties",
+        "apigentoolsStamp='{{stamp}}'",
+    ]
 
-    def get_default_generate_command(self, builtin_templates):
+    def get_default_generate_function(self, builtin_templates):
+        """ Returns a function that can be used in commands to expand to
+
+        """
         ret = copy.deepcopy(self.__default_generate_command)
         if not builtin_templates:
-            ret.commandline.extend(
-                ["-t", "templates/{{language_name}}/{{spec_version}}"]
-            )
-        return ret
+            ret.extend(["-t", "{{templates_dir}}"])
+
+        def inner():
+            return ret
+
+        return inner
 
     def run_language_commands(
-        self, language, version, phase, cwd, chevron_vars=None, default_commands=None
+        self, language, version, cwd, chevron_vars=None,
     ):
         """ Runs commands specified in language settings for given language and phase
 
@@ -141,26 +138,29 @@ class GenerateCommand(Command):
         :type language: ``str``
         :param version: Version to run commands for
         :type version: ``str``
-        :param phase: Phase to run commands for (either ``pre``, ``generate`` or ``post``)
-        :type phase: ``str``
         :param cwd: Directory to change to while executing all commands
         :type cwd: ``str``
         :param chevron_vars: Placeholders to replace in command
         :type chevron_vars: ``dict``
         """
         lc = self.config.get_language_config(language)
-        commands = lc.get_commands(version, phase) or default_commands or []
-        if commands:
-            log.info("Running '%s' commands for %s/%s", phase, language, version)
-        else:
-            log.info("No '%s' commands found for %s/%s", phase, language, version)
+        commands = lc.get_commands(version)
+        log.info("Running commands for %s/%s", language, version)
+
+        use_builtin_templates = not bool(lc.templates_config_for(version))
+        default_generate_func = self.get_default_generate_function(
+            use_builtin_templates
+        )
 
         for command in commands:
             self.run_config_command(
                 command,
                 "language '{l}'".format(l=language),
                 cwd,
-                chevron_vars=chevron_vars,
+                chevron_vars,
+                additional_functions={
+                    "openapi_generator_generate": default_generate_func
+                },
             )
 
     def render_downstream_templates(self, language_config, chevron_vars):
@@ -309,40 +309,40 @@ class GenerateCommand(Command):
                 version_output_dir = self.get_generated_lang_version_dir(
                     language, version
                 )
+                # where is the spec repo relative to version_output_dir
+                version_output_dir_nesting_level = len(
+                    version_output_dir.strip("/").split("/")
+                )
+                spec_repo_from_version_output_dir = (
+                    "../" * version_output_dir_nesting_level
+                )
+                language_config_path = os.path.join(
+                    spec_repo_from_version_output_dir, language_oapi_config_path
+                )
+                templates_dir = os.path.join(
+                    spec_repo_from_version_output_dir,
+                    constants.SPEC_REPO_TEMPLATES_DIR,
+                    language,
+                    version,
+                )
+                full_spec_path = os.path.join(
+                    spec_repo_from_version_output_dir, input_spec
+                )
 
                 chevron_vars = copy.deepcopy(general_chevron_vars)
                 chevron_vars.update(
                     {
-                        "full_spec_path": input_spec,
-                        "language_config": language_oapi_config_path,
+                        "full_spec_path": full_spec_path,
+                        "language_config": language_config_path,
                         "spec_version": version,
-                        "version_output_dir": version_output_dir,
+                        "templates_dir": templates_dir,
+                        "version_output_dir": ".",
                     }
                 )
-                use_builtin_templates = not bool(
-                    language_config.templates_config_for(version)
-                )
-                default_generate_cmd = self.get_default_generate_command(
-                    use_builtin_templates
-                )
-                default_generate_cmd.language_config = language_config
 
                 os.makedirs(version_output_dir, exist_ok=True)
                 self.run_language_commands(
-                    language, version, "pre", version_output_dir, chevron_vars
-                )
-
-                self.run_language_commands(
-                    language,
-                    version,
-                    "generate",
-                    ".",
-                    chevron_vars,
-                    [default_generate_cmd],
-                )
-
-                self.run_language_commands(
-                    language, version, "post", version_output_dir, chevron_vars
+                    language, version, version_output_dir, chevron_vars,
                 )
                 self.write_dot_apigentools_info(language, version)
 

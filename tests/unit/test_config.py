@@ -30,23 +30,19 @@ config_sample = {
                             "templates_dir": "Java",
                         },
                     },
-                    "commands": {
-                        "pre": [
-                            {
-                                "container_opts": {
-                                    "environment": {"LEVEL": "3", "CMD": "y",},
-                                },
-                                "commandline": ["some", "pre", "cmd"],
-                                "description": "Some pre command",
-                            }
-                        ],
-                        "post": [
-                            {
-                                "commandline": ["some", "post", "cmd"],
-                                "description": "Some post command",
-                            }
-                        ],
-                    },
+                    "commands": [
+                        {
+                            "container_opts": {
+                                "environment": {"LEVEL": "3", "CMD": "y",},
+                            },
+                            "commandline": ["some", "pre", "cmd"],
+                            "description": "Some pre command",
+                        },
+                        {
+                            "commandline": ["some", "post", "cmd"],
+                            "description": "Some post command",
+                        },
+                    ],
                 },
                 "v1": {
                     "container_opts": {
@@ -54,14 +50,12 @@ config_sample = {
                         "inherit": False,
                         "environment": {"LEVEL": "2", "V1": "y",},
                     },
-                    "commands": {
-                        "pre": [
-                            {
-                                "commandline": ["v1", "pre", "cmd"],
-                                "description": "Some pre command",
-                            }
-                        ]
-                    },
+                    "commands": [
+                        {
+                            "commandline": ["v1", "pre", "cmd"],
+                            "description": "Some pre command",
+                        }
+                    ],
                 },
             },
             "spec_sections": ["v1", "v2"],
@@ -86,11 +80,11 @@ def check_config(c):
         "environment": {"LEVEL": "1", "JAVA": "y",},
     }
 
-    cmd = java.pre_commands_for("v1")[0]
+    cmd = java.commands_for("v1")[0]
     assert type(cmd) == ConfigCommand
     assert cmd.commandline == ["v1", "pre", "cmd"]
 
-    assert java.post_commands_for("v2")[0].commandline == ["some", "post", "cmd"]
+    assert java.commands_for("v2")[1].commandline == ["some", "post", "cmd"]
 
     # make sure that nothing was inherited for v1
     assert java.container_opts_for("v1") == {
@@ -105,18 +99,18 @@ def check_config(c):
     }
 
     # when we have one command taken from "default" for V1 vs V2, it should inherit proper container_opts
-    assert java.post_commands_for("v1")[0].container_opts == {
+    assert java.commands_for("v1")[0].container_opts == {
         "image": "other:image",
         "inherit": False,
         "environment": {"LEVEL": "2", "V1": "y"},
     }
-    assert java.post_commands_for("v2")[0].container_opts == {
+    assert java.commands_for("v2")[1].container_opts == {
         "image": "java:image",
         "environment": {"LEVEL": "2", "JAVA": "y", "DEFAULT": "y"},
     }
 
     # test inherited values on cmd itself
-    assert java.pre_commands_for("v2")[0].container_opts == {
+    assert java.commands_for("v2")[0].container_opts == {
         "image": "java:image",
         "environment": {"JAVA": "y", "DEFAULT": "y", "CMD": "y", "LEVEL": "3"},
     }

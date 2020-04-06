@@ -120,7 +120,14 @@ class Command(abc.ABC):
 
         return retval
 
-    def run_config_command(self, command, what_command, cwd=".", chevron_vars=None):
+    def run_config_command(
+        self,
+        command,
+        what_command,
+        cwd=".",
+        chevron_vars=None,
+        additional_functions=None,
+    ):
         log.info("Running command '%s'", command.description)
 
         if chevron_vars is None:
@@ -134,6 +141,7 @@ class Command(abc.ABC):
                     "glob": glob.glob,
                     "glob_re": glob_re,
                 }
+                allowed_functions.update(additional_functions or {})
                 function_name = part.get("function")
                 function = allowed_functions.get(function_name)
                 if function:
@@ -142,6 +150,7 @@ class Command(abc.ABC):
                             *part.get("args", []), **part.get("kwargs", {})
                         )
                     # NOTE: we may need to improve this logic if/when we add more functions
+                    result = self._render_command_args(result, chevron_vars)
                     if isinstance(result, list):
                         to_run.extend(result)
                     else:

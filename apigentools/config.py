@@ -64,25 +64,17 @@ class LanguageConfig:
         self.generation = raw_dict.get("generation", {})
         self.top_level_config = top_level_config
 
-    def get_commands(self, version, stage):
-        raw = self.generation.get("default", {}).get("commands", {}).get(stage, [])
-        if version in self.generation:
-            version_cmds = self.generation[version].get("commands", {})
-            if stage in version_cmds:
-                raw = version_cmds[stage]
+    def get_commands(self, version):
+        raw = self.generation.get(version, {}).get("commands", [])
+        if not raw:
+            raw = self.generation.get("default", {}).get("commands", [])
         ret = []
         for r in raw:
-            ret.append(ConfigCommand(version, stage, r, self))
+            ret.append(ConfigCommand(version, r, self))
         return ret
 
-    def post_commands_for(self, version):
-        return self.get_commands(version, "post")
-
-    def pre_commands_for(self, version):
-        return self.get_commands(version, "pre")
-
-    def generate_commands_for(self, version):
-        return self.get_commands(version, "generate")
+    def commands_for(self, version):
+        return self.get_commands(version)
 
     @property
     def github_repo(self):
@@ -133,9 +125,8 @@ class LanguageConfig:
 
 
 class ConfigCommand:
-    def __init__(self, version, stage, config, language_config):
+    def __init__(self, version, config, language_config):
         self.version = version
-        self.stage = stage
         self.config = config
         self.language_config = language_config
 

@@ -95,34 +95,16 @@ languages:
             jar_path: /usr/bin/openapi-generator-cli.jar
             templates_dir: Java
         commands:
-          pre:
           - commandline:
             - rm
             - -rf
             - src/main/java/com/datadog/api/{{spec_version}}
             description: Remove old generated files
-          generate:
             - commandline:
-              - openapi-generator
-              - generate
-              - --http-user-agent
-              - '{{user_agent_client_name}}/{{library_version}}/{{language_name}}'
-              - -g
-              - 'java'
-              - -c
-              - '{{language_config}}'
-              - -i
-              - '{{full_spec_path}}'
-              - -o
-              - '{{version_output_dir}}'
-              - --additional-properties
-              - apigentoolsStamp='{{stamp}}'
-              - -t
-              - "templates/{{language_name}}/{{spec_version}}"
+              - function: openapi_generator_generate # expands to the default generation command
               - --additional-properties
               - java8=true,dateLibrary=java8
               description: Generate code using openapi-generator
-          post:
           - commandline:
             - rm
             - -rf
@@ -159,7 +141,7 @@ The structure of the general config file is as follows, starting with top level 
         * `generation` - Setting for code generation.
             * `default` - Default settings for code generations. When any of the keys defined in the `default` mapping are not found in the spec-version-settings, it's taken from here.
                 * `container_opts` - See [container_opts section](#container_opts) below.
-                * `commands` - Commands to execute before/after code generation or to do the code generation itself. See [commands](#commands)`.
+                * `commands` - Commands to execute to generate code. See [commands](#commands)`.
                 * `templates` - Instructions on how to [preprocess templates](#preprocess-templates) to pass to code generator.
             * spec-version-settings - Exactly the same as `default` above, but used for overriding operations specifically for the given major API version.
         * `downstream_templates` - [Downstream templates](#downstream-templates).
@@ -246,13 +228,7 @@ temlates:
 
 ### Commands
 
-Commands provided inside `generated.default` and `generated.<spec_version>` are executed in three *phases*:
-
-* `pre` - Executed before code generation.
-* `generate` - Code generation itself. When not specified, [the default](#default-code-generation-command) command is used.
-* `post` - Executed after code generation.
-
-Note the `pre` and `post` commands are run inside the directory with code for that spec version, while `generate` commands are run inside the Spec Repo itself.
+Commands provided inside `generated.default` and `generated.<spec_version>` are executed one by one inside the directory with code for currenlty generated spec version.
 
 Each command has following attributes:
 
@@ -272,35 +248,7 @@ Validation commands have exactly the same structure as the above commands. They'
 
 The only templating variable these commands can use is `{{full_spec_path}}`, which is a path to the spec currently being validated.
 
-#### Default Code Generation Command
 
-The default code generation command is used when no `generate` commands are provided. It is:
-
-```yaml
-description: "Generate code using openapi-generator"
-commandline:
-- "openapi-generator",
-- "generate",
-- "--http-user-agent",
-- "{{user_agent_client_name}}/{{library_version}}/{{language_name}}",
-- "-g",
-- "{{language_name}}",
-- "-c",
-- "{{language_config}}",
-- "-i",
-- "{{full_spec_path}}",
-- "-o",
-- "{{version_output_dir}}",
-- "--additional-properties",
-- "apigentoolsStamp='{{stamp}}'",
-```
-
-If the spec version that the default command is being run for is using a `templates` section, the `commandline` is further appended with:
-
-```yaml
-- -t
-- "templates/{{language_name}}/{{spec_version}}"
-```
 
 #### Functions in Commands
 
@@ -321,18 +269,31 @@ This section lists recognized functions for language phase and validation comman
   ```
   It will match all files ending with `.go` except files that end with `_test.go`.
 
-* `volumes_from` - useful when running a dockerized tools and you need them to run from apigentools container
+* `openapi_generator_generate` - expands to
 
-  When used as this:
-  ```json
-  {
-    "function": "volumes_from",
-    "kwargs": {
-      "alt_volumes": ["{{cwd}}:{{cwd}}"]
-    }
-  }
-  ```
-  It will expand to `--volumes-from <current-container-id>` when running in container and to `-v {{cwd}}:{{cwd}}` when not running in container (furthermore, both `{{cwd}}` occurrences will be templated and noted below).
+    ```
+    - "openapi-generator"
+    - "generate"
+    - "--http-user-agent"
+    - "{{user_agent_client_name}}/{{library_version}}/{{language_name}}"
+    - "-g"
+    - "{{language_name}}"
+    - "-c"
+    - "{{language_config}}"
+    - "-i"
+    - "{{full_spec_path}}"
+    - "-o"
+    - "{{version_output_dir}}"
+    - "--additional-properties"
+    - "apigentoolsStamp='{{stamp}}'"
+    ```
+
+    If the spec version that the default command is being run for is using a `templates` section, the `commandline` is further appended with:
+
+    ```
+    - -t
+    - "{{templates_dir}}"
+    ```
 
 #### Templating Commands
 
@@ -347,6 +308,7 @@ The `commandline` arguments of commands can also use following templating values
 * `{{library_version}}` - Value from config
 * `{{spec_version}}` - Version of the spec currently being processed
 * `{{stamp}}` - Same as `apigentoolsStamp` mentioned in [reproducibility](reproducible.md)
+* `{{templates_dir}}` - Directory with templates for this language/API version combination
 * `{{user_agent_client_name}}` - Value from config
 * `{{version_output_dir}}` - Directory to which the output for this spec version will be put
 

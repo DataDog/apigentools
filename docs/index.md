@@ -131,6 +131,12 @@ container_opts:
   image: datadog/apigentools:latest
 languages:
   go:
+    generation:
+      default:
+        commands:
+          - commandline:
+            - function: openapi_generator_generate
+            description: Generate code using openapi-generator
     github_repo_name: my-api-client-go
     github_org_name: myorg
     library_version: "0.0.1"
@@ -147,6 +153,8 @@ This will make sure that Go client will be generated with the following aspects:
 * It will be generated inside `generated/my-api-client-go` directory.
 * Only the `v1` client will be generated. If you ever add another version of this API, you'll need to also explicitly add it to its `spec_versions`.
 * The code for `v1` of the API will reside under `generated/my-api-client-go/myapi_v1`. See [config.yaml format](spec_repo.md#configconfigyaml) for information on how the `version_path_template` works.
+* Thanks to using the `generation.default` section, all of your major API versions will use the same process for generating their code. You can override this behaviour later on per major API version if you wish.
+* The command uses a [builtin function](spec_repo.md#functions-in-commands) that expands to the proper command using openapi-generator to generate your code.
 
 Next, add an openapi-generator configuration file for Go, called `config/languages/go_v1.json`:
 
