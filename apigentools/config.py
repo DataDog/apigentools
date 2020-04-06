@@ -39,7 +39,7 @@ class Config:
         cmd_objects = []
         fake_language = LanguageConfig(None, {}, self)
         for cmd in self.validation_commands:
-            cmd_objects.append(ConfigCommand(None, "validation", cmd, fake_language))
+            cmd_objects.append(ConfigCommand(None, cmd, fake_language))
         return cmd_objects
 
     @classmethod
