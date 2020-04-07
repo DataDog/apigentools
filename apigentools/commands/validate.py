@@ -8,9 +8,8 @@ import os
 import click
 
 from apigentools import constants
-from apigentools.commands.command import Command
-from apigentools.config import Config
-from apigentools.utils import run_command, write_full_spec, change_cwd, env_or_val
+from apigentools.commands.command import Command, run_command_with_config
+from apigentools.utils import write_full_spec, env_or_val
 
 log = logging.getLogger(__name__)
 
@@ -27,14 +26,7 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def validate(ctx, **kwargs):
     """Validate OpenAPI spec"""
-    ctx.obj.update(kwargs)
-    cmd = ValidateCommand({}, ctx.obj)
-
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(ValidateCommand, ctx, **kwargs)
 
 
 class ValidateCommand(Command):

@@ -14,10 +14,9 @@ import time
 import click
 
 from apigentools import constants
-from apigentools.commands.command import Command
-from apigentools.config import Config
+from apigentools.commands.command import Command, run_command_with_config
 from apigentools.constants import OPENAPI_GENERATOR_GIT, SPEC_REPO_TEMPLATES_DIR
-from apigentools.utils import run_command, change_cwd, env_or_val
+from apigentools.utils import run_command
 
 log = logging.getLogger(__name__)
 
@@ -26,13 +25,7 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def templates(ctx, **kwargs):
     """Get upstream templates and apply downstream patches"""
-    ctx.obj.update(kwargs)
-    cmd = TemplatesCommand({}, ctx.obj)
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(TemplatesCommand, ctx, **kwargs)
 
 
 class TemplatesCommand(Command):
