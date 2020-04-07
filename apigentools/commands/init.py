@@ -36,7 +36,9 @@ def init(ctx, **kwargs):
 class InitCommand(Command):
     CONFIG_FILE_JSON = {
         "languages": {},
-        "container_opts": {"image": constants.DEFAULT_CONTAINER_IMAGE,},
+        "container_opts": {
+            constants.COMMAND_IMAGE_KEY: constants.DEFAULT_CONTAINER_IMAGE,
+        },
         "spec_sections": {"v1": []},
         "spec_versions": ["v1"],
     }

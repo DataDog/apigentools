@@ -13,7 +13,9 @@ class Config:
         # TODO: verify the schema of the raw config dict, possibly use jsonschema for that
         self.raw_dict = raw_dict
         self.defaults = {
-            "container_opts": {"image": constants.DEFAULT_CONTAINER_IMAGE,},
+            "container_opts": {
+                constants.COMMAND_IMAGE_KEY: constants.DEFAULT_CONTAINER_IMAGE,
+            },
             "languages": {},
             "spec_sections": {},
             "spec_versions": [],

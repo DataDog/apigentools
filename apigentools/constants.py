@@ -2,6 +2,10 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+COMMAND_ENVIRONMENT_KEY = "environment"
+COMMAND_IMAGE_KEY = "image"
+COMMAND_INHERIT_KEY = "inherit"
+COMMAND_SYSTEM_KEY = "system"
 CONFIG_CONTAINER_IMAGE_KEY = "container_apigentools_image"
 DEFAULT_CONFIG_FILE = "config.yaml"
 DEFAULT_CONTAINER_IMAGE = "datadog/apigentools:latest"

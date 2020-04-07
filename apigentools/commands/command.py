@@ -165,8 +165,10 @@ class Command(abc.ABC):
                 to_run.append(str(part))
 
         additional_env = {}
-        if command.container_opts.get("no_container"):
-            additional_env = command.container_opts.get("environment", {})
+        if command.container_opts.get(constants.COMMAND_SYSTEM_KEY):
+            additional_env = command.container_opts.get(
+                constants.COMMAND_ENVIRONMENT_KEY, {}
+            )
         else:
             # dockerize
             to_run = [
@@ -180,7 +182,7 @@ class Command(abc.ABC):
                 to_run[0],
                 "--workdir",
                 os.path.join("/tmp/spec-repo", cwd),
-                command.container_opts["image"],
+                command.container_opts[constants.COMMAND_IMAGE_KEY],
             ] + to_run[1:]
         run_command(to_run, additional_env=additional_env)
 

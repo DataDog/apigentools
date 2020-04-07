@@ -76,8 +76,10 @@ def check_config(c):
     java = c.get_language_config("java")
     assert type(java) == LanguageConfig
     assert java.language_container_opts == {
-        "image": "java:image",
         "environment": {"LEVEL": "1", "JAVA": "y",},
+        "image": "java:image",
+        "inherit": True,
+        "system": False,
     }
 
     cmd = java.commands_for("v1")[0]
@@ -88,31 +90,39 @@ def check_config(c):
 
     # make sure that nothing was inherited for v1
     assert java.container_opts_for("v1") == {
+        "environment": {"LEVEL": "2", "V1": "y"},
         "image": "other:image",
         "inherit": False,
-        "environment": {"LEVEL": "2", "V1": "y"},
+        "system": False,
     }
     # make sure that environment was inherited properly for V2
     assert java.container_opts_for("v2") == {
-        "image": "java:image",
         "environment": {"JAVA": "y", "DEFAULT": "y", "LEVEL": "2"},
+        "image": "java:image",
+        "inherit": True,
+        "system": False,
     }
 
     # when we have one command taken from "default" for V1 vs V2, it should inherit proper container_opts
     assert java.commands_for("v1")[0].container_opts == {
+        "environment": {"LEVEL": "2", "V1": "y"},
         "image": "other:image",
         "inherit": False,
-        "environment": {"LEVEL": "2", "V1": "y"},
+        "system": False,
     }
     assert java.commands_for("v2")[1].container_opts == {
-        "image": "java:image",
         "environment": {"LEVEL": "2", "JAVA": "y", "DEFAULT": "y"},
+        "image": "java:image",
+        "inherit": True,
+        "system": False,
     }
 
     # test inherited values on cmd itself
     assert java.commands_for("v2")[0].container_opts == {
-        "image": "java:image",
         "environment": {"JAVA": "y", "DEFAULT": "y", "CMD": "y", "LEVEL": "3"},
+        "image": "java:image",
+        "inherit": True,
+        "system": False,
     }
 
     # test templates config

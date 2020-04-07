@@ -106,7 +106,7 @@ class PushCommand(Command):
 
         languages = self.args.get("languages") or self.config.languages
         commit_msg = "Regenerate client from commit {} of spec repo".format(
-            get_current_commit(".")
+            get_current_commit()
         )
         commit_msg = self.args.get("push_commit_msg") or commit_msg
 

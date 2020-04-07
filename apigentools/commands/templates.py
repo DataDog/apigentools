@@ -38,7 +38,7 @@ def templates(ctx, **kwargs):
 class TemplatesCommand(Command):
     @contextlib.contextmanager
     def create_container(self, lc, spec_version):
-        image = lc.container_opts_for(spec_version)["image"]
+        image = lc.container_opts_for(spec_version)[constants.COMMAND_IMAGE_KEY]
         cn = "apigentools-created-container-{}".format(time.time())
         run_command(["docker", "create", "--name", cn, image])
         yield cn
@@ -54,12 +54,14 @@ class TemplatesCommand(Command):
             )
             return 0
 
-        from_container = not templates_cfg["source"].get("no_container", False)
+        from_container = not templates_cfg["source"].get(
+            constants.COMMAND_SYSTEM_KEY, False
+        )
         source_type = templates_cfg["source"]["type"]
         with tempfile.TemporaryDirectory() as td:
             log.info("Obtaining upstream templates ...")
             patch_in = copy_from = td
-            image = lc.container_opts_for(spec_version)["image"]
+            image = lc.container_opts_for(spec_version)[constants.COMMAND_IMAGE_KEY]
             if source_type == "openapi-jar":
                 jar_path = templates_cfg["source"]["jar_path"]
                 if from_container:
@@ -108,7 +110,8 @@ class TemplatesCommand(Command):
             elif source_type == "openapi-git":
                 if from_container:
                     log.error(
-                        "Templates with source 'openapi-git' must be used with 'no_container: true'"
+                        "Templates with source 'openapi-git' must be used with '%s: true'",
+                        constants.COMMAND_SYSTEM_KEY,
                     )
                 patch_in = copy_from = os.path.join(
                     td, "modules", "openapi-generator", "src", "main", "resources"

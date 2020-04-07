@@ -117,8 +117,12 @@ class GenerateCommand(Command):
     ]
 
     def get_default_generate_function(self, builtin_templates):
-        """ Returns a function that can be used in commands to expand to
+        """ Returns a function that can be used in commands to expand to the default generate command.
 
+        :param builtin_templates: Whether or not openapi-generator builtin templates should be used
+        :type builtin_templates: ``bool``
+        :return: Function that expands to the default generate command
+        :rtype: ``function``
         """
         ret = copy.deepcopy(self.__default_generate_command)
         if not builtin_templates:
