@@ -175,7 +175,6 @@ class Command(abc.ABC):
                 "docker",
                 "run",
                 "--rm",
-                "-ti",
                 "-v",
                 "{}:{}".format(os.getcwd(), "/tmp/spec-repo"),
                 "--entrypoint",
