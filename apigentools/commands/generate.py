@@ -628,5 +628,5 @@ class GenerateCommand(Command):
             # Match the regex against the list of all files and delete
             for file in all_files:
                 if any(blacklist_regex.match(file) for blacklist_regex in blacklist_regexes):
-                        log.debug(f"Removing generated file: {file}")
-                        os.remove(file)
+                    log.debug(f"Removing generated file: {file}")
+                    os.remove(file)
