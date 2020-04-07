@@ -60,7 +60,7 @@ def push(ctx, **kwargs):
 
     with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
         )
         ctx.exit(cmd.run())
 
@@ -106,7 +106,7 @@ class PushCommand(Command):
 
         languages = self.args.get("languages") or self.config.languages
         commit_msg = "Regenerate client from commit {} of spec repo".format(
-            get_current_commit(self.args.get("spec_repo_dir"))
+            get_current_commit()
         )
         commit_msg = self.args.get("push_commit_msg") or commit_msg
 

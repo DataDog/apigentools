@@ -17,14 +17,6 @@ log = logging.getLogger(__name__)
 
 @click.command()
 @click.option(
-    "-s",
-    "--spec-dir",
-    default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
-    help="Path to directory with OpenAPI specs (default: '{}')".format(
-        constants.DEFAULT_SPEC_DIR
-    ),
-)
-@click.option(
     "-f",
     "--full-spec-file",
     default=env_or_val("APIGENTOOLS_FULL_SPEC_FILE", "full_spec.yaml"),
@@ -50,7 +42,7 @@ def config(ctx, **kwargs):
     cmd = ConfigCommand({}, ctx.obj)
     with change_cwd(ctx.obj.get("spec_repo_dir")):
         cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
+            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
         )
         ctx.exit(cmd.run())
 
@@ -69,4 +61,4 @@ class ConfigCommand(Command):
             out = [lang_info for lang_info in language_info]
 
         click.echo(out)
-        return out
+        return 0

@@ -13,11 +13,7 @@ import sys
 
 import yaml
 
-from apigentools.constants import (
-    HEADER_FILE_NAME,
-    REDACTED_OUT_SECRET,
-    SHARED_SECTION_NAME,
-)
+from apigentools import constants
 
 log = logging.getLogger(__name__)
 
@@ -97,7 +93,7 @@ def env_or_val(env, val, *args, __type=str, **kwargs):
         raise ValueError("__type must be one of: str, int, float, bool, list")
 
 
-def get_current_commit(repo_path):
+def get_current_commit(repo_path="."):
     """ Get short name of the current commit
 
     :param repo_path: Path of the repository to get current commit for
@@ -178,7 +174,7 @@ def run_command(
         if isinstance(member, dict):
             cmd_strlist.append(member["item"])
             if member.get("secret", False):
-                cmd_logstr.append(REDACTED_OUT_SECRET)
+                cmd_logstr.append(constants.REDACTED_OUT_SECRET)
             else:
                 cmd_logstr.append(member["item"])
         else:
@@ -286,11 +282,9 @@ def get_full_spec_file_name(default_fsf, l):
     return "{}.{}".format(default_fsf, l)
 
 
-def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
+def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     """ Write a full OpenAPI spec file
 
-    :param config: apigentools config
-    :type config: ``apigentools.config.Config``
     :param spec_dir: Directory containing per-major-version subdirectories
         with parts of OpenAPI spec to combine
     :type spec_dir: ``str``
@@ -305,9 +299,9 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
     """
     spec_version_dir = os.path.join(spec_dir, spec_version)
 
-    filenames = spec_sections[spec_version] + [
-        SHARED_SECTION_NAME + ".yaml",
-        HEADER_FILE_NAME,
+    filenames = spec_sections + [
+        constants.SHARED_SECTION_NAME + ".yaml",
+        constants.HEADER_FILE_NAME,
     ]
     full_spec = {
         "paths": {},
@@ -325,17 +319,13 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
         },
         "security": [],
     }
-    if spec_version in config.server_base_urls:
-        # Servers should be defined in header.yaml or endpoints
-        full_spec["servers"] = [{"url": config.server_base_urls[spec_version]}]
-
     for filename in filenames:
         fpath = os.path.join(spec_version_dir, filename)
         if not os.path.exists(fpath):
             continue
         with open(fpath) as infile:
             loaded = yaml.safe_load(infile.read())
-            if filename == HEADER_FILE_NAME:
+            if filename == constants.HEADER_FILE_NAME:
                 full_spec.update(loaded)
             else:
                 for k, v in loaded.get("paths", {}).items():
@@ -378,34 +368,43 @@ def validate_duplicates(loaded_keys, full_spec_keys):
             raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
 
 
-def volumes_from(alt_volumes):
-    retval = []
-    is_image_run = env_or_val("APIGENTOOLS_IMAGE", None)
-    if is_image_run:
-        if os.path.exists("/proc/self/cgroup"):
-            with open("/proc/self/cgroup") as f:
-                for line in f.readlines():
-                    # github actions use "/actions_job/" in cgroups lines to identify docker container id
-                    if "/docker/" in line or "/actions_job/" in line:
-                        container_id = line.rsplit("/")
-                        retval.append("--volumes-from")
-                        retval.append(container_id[-1].strip())
-                        break
-        if not retval:
-            log.warning(
-                "APIGENTOOLS_IMAGE is set, but docker container ID not found in /proc/self/cgroup"
-            )
-    if not retval:
-        for av in alt_volumes:
-            retval.append("-v")
-            retval.append(av)
-    return retval
-
-
 def glob_re(glob_pattern, re_filter):
     glob_result = glob.glob(glob_pattern)
     re_compiled = re.compile(re_filter)
 
     result = [r for r in glob_result if re_compiled.match(r)]
     log.debug('"glob_re" result: %s', result)
+    return result
+
+
+def inherit_container_opts(local, parent):
+    """ Implements handling of inheritance of container_opts
+
+    :param local: Container opts that are inheriting
+    :type local: ``dict``
+    :param parent: Container opts that need to be inherited from
+    :type parent: ``dict``
+    :return: New container opts after doing inheritance
+    :rtype: ``dict``
+    """
+    result = copy.deepcopy(local)
+    result.setdefault(constants.COMMAND_ENVIRONMENT_KEY, {})
+    # we always inherit parent image if not set locally
+    result.setdefault(constants.COMMAND_IMAGE_KEY, parent[constants.COMMAND_IMAGE_KEY])
+    result.setdefault(constants.COMMAND_INHERIT_KEY, True)
+    result.setdefault(constants.COMMAND_SYSTEM_KEY, False)
+    if result["inherit"]:
+        # each attribute we add in future might need special handling
+        # to properly implement its inheritance
+        if constants.COMMAND_ENVIRONMENT_KEY in parent:
+            # get copy of parent environment and update it with local environment
+            updated_env = copy.deepcopy(parent[constants.COMMAND_ENVIRONMENT_KEY])
+            updated_env.update(result.get(constants.COMMAND_ENVIRONMENT_KEY, {}))
+            result[constants.COMMAND_ENVIRONMENT_KEY] = updated_env
+        result[constants.COMMAND_INHERIT_KEY] = parent.get(
+            constants.COMMAND_INHERIT_KEY, True
+        )
+        result[constants.COMMAND_SYSTEM_KEY] = parent.get(
+            constants.COMMAND_SYSTEM_KEY, False
+        )
     return result

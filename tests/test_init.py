@@ -2,7 +2,6 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
-import json
 import os
 
 import yaml
@@ -14,14 +13,14 @@ from apigentools.commands.init import InitCommand
 def test_init(tmpdir):
     # directories created by init command
     EXPECTED_DIRECTORY_NAMES = {
-        constants.DEFAULT_GENERATED_CODE_DIR,
-        constants.DEFAULT_TEMPLATE_PATCHES_DIR,
-        constants.DEFAULT_CONFIG_DIR,
-        os.path.join(constants.DEFAULT_CONFIG_DIR, constants.LANGUAGE_OAPI_CONFIGS),
-        constants.DEFAULT_DOWNSTREAM_TEMPLATES_DIR,
-        constants.DEFAULT_SPEC_DIR,
-        os.path.join(constants.DEFAULT_SPEC_DIR, "v1"),
-        constants.DEFAULT_TEMPLATES_DIR,
+        constants.SPEC_REPO_GENERATED_DIR,
+        constants.SPEC_REPO_CONFIG_DIR,
+        os.path.join(
+            constants.SPEC_REPO_CONFIG_DIR, constants.SPEC_REPO_LANGUAGES_CONFIG_DIR
+        ),
+        constants.SPEC_REPO_SPEC_DIR,
+        os.path.join(constants.SPEC_REPO_SPEC_DIR, "v1"),
+        constants.SPEC_REPO_TEMPLATES_DIR,
     }
 
     temp_dir = tmpdir.mkdir("test_init_git_dir")
@@ -42,14 +41,14 @@ def test_init(tmpdir):
     # test that file contents are what they are supposed to be
     with open(
         os.path.join(
-            temp_dir, constants.DEFAULT_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE
+            temp_dir, constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE
         )
     ) as f:
-        assert cmd_instance.CONFIG_FILE_JSON == json.loads(f.read())
+        assert cmd_instance.CONFIG_FILE_JSON == yaml.safe_load(f.read())
 
     with open(
         os.path.join(
-            temp_dir, constants.DEFAULT_SPEC_DIR, "v1", constants.HEADER_FILE_NAME
+            temp_dir, constants.SPEC_REPO_SPEC_DIR, "v1", constants.HEADER_FILE_NAME
         )
     ) as f:
         assert yaml.dump(cmd_instance.V1_HEADER_JSON) == f.read()
@@ -57,7 +56,7 @@ def test_init(tmpdir):
     with open(
         os.path.join(
             temp_dir,
-            constants.DEFAULT_SPEC_DIR,
+            constants.SPEC_REPO_SPEC_DIR,
             "v1",
             constants.SHARED_SECTION_NAME + ".yaml",
         )

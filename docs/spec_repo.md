@@ -1,27 +1,30 @@
 # Spec Repo
 
-A "spec repo" is a repository (or, more generally, a directory), that contains files necessary for apigentools to generate your client code. The layout is as follows:
+!!! note
+    This is documentation for apigentools major version 1, which has significant differences from the 0.X series. Refer to [upgrading docs](upgrading.md) for further details.
+
+A "spec repo" is a repository (or, more generally, a directory), that contains files necessary for apigentools to generate your client code. The recommended layout is as follows:
 
 ```
 .
 ├── .gitignore
-├── config
-│   ├── config.json                 # general config for apigentools
-│   └── languages
+├── config                          # config directory is mandatory
+│   ├── config.json                 # general config for apigentools, mandatory
+│   └── languages                   # languages directory is mandatory when using openapi-generator
 │       └── java_v1.json            # openapi-generator config for Java client for v1 API
-├── downstream-templates
+├── downstream-templates            # optional directory for downstream templates, name can be arbitrary
 │   └── java
 │       └── LICENSE                 # a file/template to add to generated client
-├── generated                       # generated code will end up in this directory
+├── generated                       # generated code will end up in this directory, mandatory
 │   └── .gitkeep
-├── spec
+├── spec                            # directory with all OpenAPI spec files, mandatory
 │   └── v1                          # directory with spec of v1 of the API
 │       ├── accounts.yaml           # example: spec of the accounts API
 │       ├── header.yaml             # header of the OpenAPI spec
 │       └── shared.yaml             # entities shared between multiple parts of the OpenAPI spec
-├── template-patches
+├── template-patches                # optional directory for template patches, name can be arbitrary
 │   └── java-01-minor-change.patch  # a patch to apply to openapi-generator template
-└── templates                       # openapi-generator templates with applied patches end up here
+└── templates                       # openapi-generator templates with applied patches end up here, mandatory
     └── .gitkeep
 ```
 
@@ -41,7 +44,7 @@ This is a standard [.gitignore file](https://git-scm.com/docs/gitignore).
 
 ### config/
 
-This is a directory containing [config.json](#configconfigjson), which is a configuration file for apigentools.
+This is a directory containing [config.yaml](#configconfigyaml), which is a configuration file for apigentools.
 
 ### config/languages/
 
@@ -49,7 +52,7 @@ This directory contains openapi-generator configuration files. There must be one
 
 ### downstream-templates/
 
-This directory contains downstream templates (i.e. templates that are provided by the user, rather than openapi-generator. Place these templates in language specific directories, e.g. `downstream-templates/java`. Place files like top-level `README.md`s, top-level `pom.xml`s, etc., here.
+This directory contains downstream templates, if used (i.e. templates that are provided by the user, rather than openapi-generator).
 
 ### generated/
 
@@ -61,78 +64,193 @@ This directory contains per-major-API-version OpenAPI specifications of your API
 
 ### template-patches/
 
-This directory contains your downstream template patches. These are applied to openapi-generator templates before the generation process using the `apigentools templates` command, thus allowing you to customize the upstream templates.
+This directory contains your downstream template patches, if you decide to use these. These are applied to openapi-generator templates before the generation process using the `apigentools templates` command, thus allowing you to customize the upstream templates.
 
 ### templates/
 
-This directory contains processed upstream templates, i.e. IOW templates from openapi-generator with your template patches applied on top. These are usually gitignored from the spec repo; generate them locally using the `apigentools templates` command.
+This directory contains processed upstream templates, i.e. IOW templates from openapi-generator with your template patches applied on top. These are usually gitignored from the spec repo; to process templates without running the whole code generation, use the `apigentools templates` command.
 
 # File Formats
 
 This document serves as a reference of various file formats used by apigentools.
 
-## `config/config.json`
+## `config/config.yaml`
 
 This is a configuration file for apigentools. It must be present in the spec repo for apigentools to work.
 
 Example:
 
-```
-{
-    "codegen_exec": "openapi-generator",
-    "container_apigentools_image": "datadog/apigentools:0.9.0",
-    "languages": {
-        "java": {
-            "github_org_name": "my-github-org",
-            "github_repo_name": "my-java-client",
-            "spec_sections": {
-                "v1": ["accounts.yaml"]
-            }
-            "spec_versions": ["v1", "v2"],
-            "version_path_template": "myapi_{{spec_version}}",
-            "generate_extra_args": ["--skip-overwrite", "--generate-model-as-alias"]
-        }
-    },
-    "spec_sections": {
-        "v1": ["accounts.yaml", "users.yaml"],
-        "v2": ["users.yaml"]
-    },
-    "spec_versions": ["v1", "v2"],
-    "generate_extra_args": ["--generate-model-as-alias"],
-    "user_agent_client_name": "MyCompany"
-}
+```yaml
+container_opts:
+  image: datadog/apigentools:latest
+languages:
+  java:
+    generation:
+      default:
+        templates:
+          patches:
+            - template-patches/java-0001-custom-license-header.patch
+          source:
+            type: openapi-jar
+            jar_path: /usr/bin/openapi-generator-cli.jar
+            templates_dir: Java
+        commands:
+          - commandline:
+            - rm
+            - -rf
+            - src/main/java/com/datadog/api/{{spec_version}}
+            description: Remove old generated files
+            - commandline:
+              - function: openapi_generator_generate # expands to the default generation command
+              - --additional-properties
+              - java8=true,dateLibrary=java8
+              description: Generate code using openapi-generator
+          - commandline:
+            - rm
+            - -rf
+            - docs
+            description: Remove unwanted docs folder
+    downstream_templates:
+      downstream-templates/java/README.md: README.md
+    github_org_name: my-github-org
+    github_repo_name: my-java-client
+    library_version: "0.0.1"
+    spec_versions: ["v1", "v2"]
+    version_path_template: "myapi_{{spec_version}}"
+spec_sections":
+  v1: ["accounts.yaml", "users.yaml"]
+  v2: ["users.yaml"]
+spec_versions: ["v1", "v2"]
+user_agent_client_name: "MyCompany"
+validation_commands:
+- commandline:
+    - openapi-generator
+    - validate
+    - -i
+    - "{{full_spec_path}}"
+  description: "Validate full spec using openapi-generator"
 ```
 
 The structure of the general config file is as follows, starting with top level keys:
 
-* `codegen_exec` - Name of the executable of the code generating tool.
-* `container_apigentools_image` - Container image to use by the `container-apigentools` script by default.
-* `generate_extra_args` - Additional arguments to pass to the `openapi-generator` call.
+* `container_opts` - Options for containerized command execution. See [container_opts section](#container_opts) below.
 * `languages` - Settings for individual languages; contains a mapping of language names to their settings.
-  * individual language settings:
-    * `commands` - Commands to execute before/after code generation; commands are executed in two *phases* - `pre` (executed before code generation) or `post` (executed after code generation). Note that each command is run once for each of the langauge's `spec_versions`, and inside the directory with code for that spec version.
-       * *phase* commands - Each phase can contain a list of commands to be executed; each command is represented as a map:
-         * `description` - A description of the command.
-         * `commandline` - The command itself; the items in the list are templatable strings and, potentially, *functions* that represent callbacks to the Python code. Each function is represented as a map:
-            * `function` - Name of the function (see below for list of recognized functions).
-            * `args` - List of args to pass to the function in Python code (as in `*args`).
-            * `kwargs` - Mapping of args to pass to the function in Python code (as in `**kwargs`).
-            * The result of the *function* call is then used in the actual command line call.
-    * `command_env` - Additional environment values with which both commands from `commands` and code generation itself are executed (mapping of environment variable names to their values)
-    * `github_org_name` - Name of the Github organization of the client for this language.
-    * `github_repo_name` - Name of the Github repository of the client for this language.
-    * `spec_sections` - Same as top-level `spec_sections`. Use to override the subset of spec sections to generate for each spec version of this language. For every spec version not specified as a key, the top-level list of sections for this spec version is used.
-    * `spec_versions` - Same as top-level `spec_versions`. Use to override the subset of major versions to generate for this language. If not specified, the top-level `spec_versions` value is used.
-    * `upstream_templates_dir` - Name of the directory in openapi-generator that holds templates for this language. This is optional and, by default, the name of the language is used.
-    * `version_path_template` - Mustache template for the name of the subdirectory in the Github repo where code for individual major versions of the API will end up, e.g. with `myapi_{{spec_version}}` as value and a `github_repo_name` of value `my-java-client`, the code for `v1` of the API will end up in `myapi-java-client/myapi_v1`
-    * `generate_extra_args` - Same as top-level `generate_extra_args`. Use to override the additional arguments to pass to the `openapi-generator` call for this language.
-* `server_base_urls` - Mapping of major spec versions (these must be in `spec_versions`) to URLs of servers that provide them.
+    * `container_opts` - See [container_opts section](#container_opts) below.
+    * individual-language-settings:
+        * `container_opts` - See [container_opts section](#container_opts) below.
+        * `generation` - Setting for code generation.
+            * `default` - Default settings for code generations. When any of the keys defined in the `default` mapping are not found in the spec-version-settings, it's taken from here.
+                * `container_opts` - See [container_opts section](#container_opts) below.
+                * `commands` - Commands to execute to generate code. See [commands](#commands)`.
+                * `templates` - Instructions on how to [preprocess templates](#preprocess-templates) to pass to code generator.
+            * spec-version-settings - Exactly the same as `default` above, but used for overriding operations specifically for the given major API version.
+        * `downstream_templates` - [Downstream templates](#downstream-templates).
+        * `github_org_name` - Name of the Github organization of the client for this language.
+        * `github_repo_name` - Name of the Github repository of the client for this language.
+        * `library_version` - Version of the generated library, for now this only serves as a variable useful in [command templating](#templating-commands) 
+        * `spec_sections` - Same as top-level `spec_sections`. Use to override the subset of spec sections to generate for each spec version of this language. For every spec version not specified as a key, the top-level list of sections for this spec version is used.
+        * `spec_versions` - Same as top-level `spec_versions`. Use to override the subset of major versions to generate for this language. If not specified, the top-level `spec_versions` value is used.
+        * `version_path_template` - Mustache template for the name of the subdirectory in the Github repo where code for individual major versions of the API will end up, e.g. with `myapi_{{spec_version}}` as value and a `github_repo_name` of value `my-java-client`, the code for `v1` of the API will end up in `myapi-java-client/myapi_v1`
 * `spec_sections` - Mapping of major spec versions (these must be in `spec_versions`) to lists of files with paths/tags/components definitions to merge when creating full spec. Files not explicitly listed here are ignored.
 * `spec_versions` - List of major versions currently known and operated on. These must be subdirectories of the `spec` directory.
 * `user_agent_client_name` - The HTTP User Agent string will be set to `{user_agent_client_name}/{package_version}/{language}`.
-* `validation_commands` - List of commands to run during validation phase. The commands have the same structure and mechanics like language commands (see above). Validation commands will be executed for each full spec that is created.
+* `validation_commands` - List of [commands](#validation-commands) to run during validation phase. The commands have the same structure and mechanics like language commands (see above). Validation commands will be executed for each full spec that is created.
 
-### Functions in Commands
+### `container_opts`
+
+Since apigentools major version 1, all [commands](#commands) are expected to be executed inside containers by default. In order to achieve this a `container_opts` structure can be provided on different levels of the configuration file to modify how containers are executed.
+
+The `container_opts` defined at various levels have certain inheritance set up. To compute resulting `container_opts` for a command, the `container_opts` are taken and considered in the following order:
+
+* `container_opts` defined for the command
+* `container_opts` defined for the spec version that the command is being run
+* `container_opts` for the `default` generation
+* `container_opts` for the language
+* `container_opts` for the top level
+
+If at any point an `inherit: False` value is reached, the inheritance process stops. The inheritance is mostly intuitive, for example if `environment` value `FOO` is defined for the command and for the language, the one for the command is used.
+
+Following `container_opts` are recognized:
+
+* `environment` - Environment variables to pass to the container. These are merged while inheriting, so different environment variables from different levels will all be used.
+* `image` - What image to use to run the command. This is the only option that's not stopped by inheritance. If a command has `inherit: False` but no `image` defined, the `image` value is still inherited. There is always a default global value `datadog/apigentools:latest` unless specified otherwise.
+* `inherit` - Stop the inheritance at this point (if `False`; the default is `True`).
+* `no_container` - Run this command outside of container (recommended for development/debugging purposes only).
+
+### Preprocess Templates
+
+Template preprocessing is a key feature of apigentools, as it allows for downstream modification of templates used for code generation. Preprocessing templates is a two-step operation:
+
+* First, upstream templates are obtained (by default, these are obtained from the container specified by [container_opts](#container_opts) for given spec version; `container_opts` inheritance applies).
+* Second, template patches are applied (optional).
+
+Based on the above, the templates step contains two keys:
+
+* `patches` - List of paths to patches (inside the Spec Repo) to apply to templates 
+* `source` - Source for the upstream templates; recognized configurations follow in subsections bellow. Additionally, following configuration keys are recognized:
+    * `no_container` - Don't obtain the templates from container, but from local host.
+
+#### openapi-jar
+
+Extract templates from openapi-generator JAR file.
+
+```yaml
+templates:
+  source:
+    type: openapi-jar
+    jar_path: /usr/bin/openapi-generator-cli.jar # path to the openapi generator JAR file
+    templates_dir: Java # directory with templates for this language
+```
+
+#### openapi-git
+
+Extract templates from openapi-generator Github repository.
+
+```yaml
+templates:
+  source:
+    type: openapi-git
+    git_committish: "v4.3.0" # git committish to checkout before extracting the templates
+    templates_dir: Java # directory with templates for this language
+```
+
+#### directory
+
+Extract templates from a directory on filesystem.
+
+```yaml
+temlates:
+  source:
+    type: directory
+    directory_path: /path/to/templates
+    templates_dir: Java # directory with templates for this language
+```
+
+### Commands
+
+Commands provided inside `generated.default` and `generated.<spec_version>` are executed one by one inside the directory with code for currenlty generated spec version.
+
+Each command has following attributes:
+
+* `description` - A description of the command.
+* `commandline` - The command itself; the items in the list are:
+    * [templatable](#templating-commands) strings and, potentially
+    * *functions* that represent callbacks to the Python code. Each function is represented as a map:
+        * `function` - Name of the function (see below for list of recognized functions).
+        * `args` - List of args to pass to the function in Python code (as in `*args`).
+        * `kwargs` - Mapping of args to pass to the function in Python code (as in `**kwargs`).
+        * The result of the *function* call is then used in the actual command line call (note that the functions are called by apigentools outside the container that actually executes the command).
+* `container_opts` - [container_opts](#container_opts) describing how to execute the command inside a container.
+
+#### Validation commands
+
+Validation commands have exactly the same structure as the above commands. They're run for every created full OpenAPI spec (since there might be more of these based on how different languages define their `spec_sections`).
+
+The only templating variable these commands can use is `{{full_spec_path}}`, which is a path to the spec currently being validated.
+
+
+
+#### Functions in Commands
 
 This section lists recognized functions for language phase and validation commands, as mentioned in the section above.
 
@@ -151,28 +269,62 @@ This section lists recognized functions for language phase and validation comman
   ```
   It will match all files ending with `.go` except files that end with `_test.go`.
 
-* `volumes_from` - useful when running a dockerized tools and you need them to run from apigentools container
+* `openapi_generator_generate` - expands to
 
-  When used as this:
-  ```json
-  {
-    "function": "volumes_from",
-    "kwargs": {
-      "alt_volumes": ["{{cwd}}:{{cwd}}"]
-    }
-  }
-  ```
-  It will expand to `--volumes-from <current-container-id>` when running in container and to `-v {{cwd}}:{{cwd}}` when not running in container (furthermore, both `{{cwd}}` occurrences will be templated and noted below).
+    ```
+    - "openapi-generator"
+    - "generate"
+    - "--http-user-agent"
+    - "{{user_agent_client_name}}/{{library_version}}/{{language_name}}"
+    - "-g"
+    - "{{language_name}}"
+    - "-c"
+    - "{{language_config}}"
+    - "-i"
+    - "{{full_spec_path}}"
+    - "-o"
+    - "{{version_output_dir}}"
+    - "--additional-properties"
+    - "apigentoolsStamp='{{stamp}}'"
+    ```
 
-### Template Values in Commands
+    If the spec version that the default command is being run for is using a `templates` section, the `commandline` is further appended with:
+
+    ```
+    - -t
+    - "{{templates_dir}}"
+    ```
+
+#### Templating Commands
 
 The `commandline` arguments of commands can also use following templating values (Mustache templating is used):
 
 * `{{cwd}}` - Current working directory
+* `{{full_spec_path}}` - Path to the input full OpenAPI spec
+* `{{github_repo_name}}` - Value from config
+* `{{github_repo_org}}` - Value from config
+* `{{language_config}}` - Path to the proper config file under `config/languages/` directory
+* `{{language_name}}` - Name of the language from the config
+* `{{library_version}}` - Value from config
+* `{{spec_version}}` - Version of the spec currently being processed
+* `{{stamp}}` - Same as `apigentoolsStamp` mentioned in [reproducibility](reproducible.md)
+* `{{templates_dir}}` - Directory with templates for this language/API version combination
+* `{{user_agent_client_name}}` - Value from config
+* `{{version_output_dir}}` - Directory to which the output for this spec version will be put
 
-These templating values are available to `validation_commands`:
+### Downstream Templates
 
-* `{{spec}}` - Path to the spec currently being validated (path is relative to Spec Repo directory). If there are multiple full spec files, this will always point to the one currently being validated.
+`downstream_templates` are a mapping of additional templates (relative to the Spec Repo directory) to files they'll be rendered as (relative the top level directory of the generated library).
+
+Downstream templates are only generated once per language and have access to a subset of templating values available for [commands](#templating-commands):
+
+* `{{full_spec_path}}`
+* `{{github_repo_name}}`
+* `{{github_repo_org}}`
+* `{{language_name}}`
+* `{{library_version}}`
+* `{{stamp}}`
+* `{{user_agent_client_name}}`
 
 ## Section Files
 

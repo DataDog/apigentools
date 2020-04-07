@@ -1,0 +1,53 @@
+languages:
+  java:
+    container_opts:
+      environment:
+        JAVA: y
+        LEVEL: '1'
+      image: java:image
+    generation:
+      default:
+        commands:
+          - commandline:
+            - some
+            - pre
+            - cmd
+            container_opts:
+              environment:
+                CMD: y
+                LEVEL: '3'
+            description: Some pre command
+          - commandline:
+            - some
+            - post
+            - cmd
+            description: Some post command
+        container_opts:
+          environment:
+            DEFAULT: y
+            LEVEL: '2'
+        templates:
+          patches:
+          - patch1
+          - patch2
+          source:
+            jar_path: /some/path.jar
+            templates_dir: Java
+            type: openapi-jar
+      v1:
+        commands:
+          - commandline:
+            - v1
+            - pre
+            - cmd
+            description: Some pre command
+        container_opts:
+          environment:
+            LEVEL: '2'
+            V1: y
+          image: other:image
+          inherit: false
+    spec_sections:
+    - v1
+    - v2
+user_agent_client_name: MyClient
