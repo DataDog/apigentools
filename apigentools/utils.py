@@ -298,11 +298,6 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     :rtype: ``str``
     """
     spec_version_dir = os.path.join(spec_dir, spec_version)
-
-    filenames = spec_sections + [
-        constants.SHARED_SECTION_NAME + ".yaml",
-        constants.HEADER_FILE_NAME,
-    ]
     full_spec = {
         "paths": {},
         "tags": [],
@@ -319,42 +314,47 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
         },
         "security": [],
     }
-    for filename in filenames:
+    for filename in spec_sections:
         fpath = os.path.join(spec_version_dir, filename)
         if not os.path.exists(fpath):
             continue
         with open(fpath) as infile:
             loaded = yaml.safe_load(infile.read())
-            if filename == constants.HEADER_FILE_NAME:
-                full_spec.update(loaded)
-            else:
-                for k, v in loaded.get("paths", {}).items():
-                    full_spec["paths"].setdefault(k, {})
-                    validate_duplicates(v, full_spec["paths"][k])
-                    full_spec["paths"][k].update(v)
+            for k, v in loaded.get("paths", {}).items():
+                full_spec["paths"].setdefault(k, {})
+                validate_duplicates(v, full_spec["paths"][k])
+                full_spec["paths"][k].update(v)
 
-                validate_duplicates(loaded.get("tags", []), full_spec.get("tags", []))
-                full_spec["tags"].extend(loaded.get("tags", []))
+            validate_duplicates(loaded.get("tags", []), full_spec.get("tags", []))
+            full_spec["tags"].extend(loaded.get("tags", []))
 
+            validate_duplicates(
+                loaded.get("security", []), full_spec.get("security", [])
+            )
+            full_spec["security"].extend(loaded.get("security", []))
+
+            for field in COMPONENT_FIELDS:
+                # Validate there aren't duplicate fields across files
+                # Note: This won't raise an error if there is a duplicate component in a single file
+                # That would alredy be deduped by the safe_load above.
                 validate_duplicates(
-                    loaded.get("security", []), full_spec.get("security", [])
+                    loaded.get("components", {}).get(field, {}).keys(),
+                    full_spec.get("components", {}).get(field).keys(),
                 )
-                full_spec["security"].extend(loaded.get("security", []))
-
-                for field in COMPONENT_FIELDS:
-                    # Validate there aren't duplicate fields across files
-                    # Note: This won't raise an error if there is a duplicate component in a single file
-                    # That would alredy be deduped by the safe_load above.
-                    validate_duplicates(
-                        loaded.get("components", {}).get(field, {}).keys(),
-                        full_spec.get("components", {}).get(field).keys(),
-                    )
-                    full_spec["components"][field].update(
-                        loaded.get("components", {}).get(field, {})
-                    )
+                full_spec["components"][field].update(
+                    loaded.get("components", {}).get(field, {})
+                )
 
             # https://speccy.io/rules/1-rulesets#openapi-tags-alphabetical
             full_spec["tags"].sort(key=lambda x: x["name"])
+
+            # handle the rest of top level attributes
+            loaded_keys = set(loaded.keys()) - set(
+                ["components", "paths", "security", "tags"]
+            )
+            validate_duplicates(loaded_keys, full_spec.keys())
+            for k in loaded_keys:
+                full_spec[k] = loaded[k]
 
     with open(fs_path, "w", encoding="utf-8") as f:
         f.write(yaml.dump(full_spec))

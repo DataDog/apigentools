@@ -115,7 +115,7 @@ container_opts:
   image: datadog/apigentools:latest
 languages: {}
 spec_sections:
-  v1: ["users.yaml"]
+  v1: ["header.yaml", "shared.yaml", "users.yaml"]
 spec_versions:
 - v1
 ```
@@ -124,7 +124,7 @@ Now that you have a complete spec with a single API endpoint and all schemas def
 
 ### Add a Language Configuration
 
-Configure apigentools to actually generate code for one language. Try doing this for Go. First, add it to `config/config.json`:
+Configure apigentools to actually generate code for one language. Try doing this for Go. First, add it to `config/config.yaml`:
 
 ```
 container_opts:
@@ -143,7 +143,7 @@ languages:
     spec_versions: ["v1"]
     version_path_template: "myapi_{{spec_version}}"
 spec_sections:
-  v1: ["users.yaml"]
+  v1: ["header.yaml", "shared.yaml", "users.yaml"]
 spec_versions:
 - v1
 ```
