@@ -19,7 +19,7 @@ def run_apigentools(command):
     [
         (
             os.path.join(GOOD, "openapi-generator-java"),
-            ["validate", "templates", "generate"],
+            ["validate", "templates", "generate", "test"],
             [],
         ),
         (os.path.join(BAD, "openapi-generator-java-fail-validate"), [], ["validate"]),
@@ -32,6 +32,11 @@ def run_apigentools(command):
             os.path.join(BAD, "openapi-generator-java-fail-generate"),
             ["validate", "templates"],
             ["generate"],
+        ),
+        (
+            os.path.join(BAD, "openapi-generator-java-fail-tests"),
+            ["validate", "templates", "generate"],
+            ["test"],
         ),
     ],
 )

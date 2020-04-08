@@ -41,6 +41,10 @@ The [Spec Repo](spec_repo.md) structure now has less assumptions. [Downstream te
 
 [Template preprocessing](spec_repo.md#preprocess-templates) is now configured in the configuration file, including specifying the templates source, list of template patches (and their order, which is implied by their position in the list).
 
+### Tests
+
+Apigentools no longer automatically searches for Dockerfiles to build and run tests in. There is now a `tests` section in the [configuration file](spec_repo.md#configconfigyaml) where you can define a list of commands that constitute tests.
+
 ### New Configuration File Syntax
 
 The [configuration file](spec_repo.md#configconfigyaml) now uses Yaml as a markup language. It's been overhauled to support the above usecases, but should look very familiar to existing apigentools users.

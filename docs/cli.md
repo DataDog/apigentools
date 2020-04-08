@@ -93,7 +93,7 @@ Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `--container-env [CONTAINER_ENV [CONTAINER_ENV ...]]` | Additional environment variables to pass to containers running the tests, for example `--container-env API_KEY=123 OTHER_KEY=234`. Note that apigentools contains additional logic to treat these values as sensitive and avoid logging them during runtime. (**NOTE**: if the testing container itself prints this value, it *will* be logged as part of the test output by apigentools).
 `--help` | Show help message and exit.
-`--no-cache` | Build test image with `--no-cache` option. | `APIGENTOOLS_TEST_BUILD_NO_CACHE` | `False`
+`--no-sensitive-output` | By default, it is considered that the environment values provided through `--container-env` may contain sensitive values and the whole command and its output is therefore hidden. You can override this behaviour by using this flag. | `APIGENTOOLS_NO_SENSITIVE_OUTPUT` | `False`
 
 ## `apigentools config`
 

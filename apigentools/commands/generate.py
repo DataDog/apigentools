@@ -16,9 +16,7 @@ import click
 from apigentools import __version__, constants
 from apigentools.commands.command import Command, run_command_with_config
 from apigentools.commands.templates import TemplatesCommand
-from apigentools.constants import GITHUB_REPO_URL_TEMPLATE
 from apigentools.utils import (
-    change_cwd,
     get_current_commit,
     run_command,
     write_full_spec,
@@ -176,9 +174,7 @@ class GenerateCommand(Command):
         log.info("Rendering downstream templates ...")
 
         for source, destination in tpls.items():
-            target_path = os.path.join(
-                self.get_generated_lang_dir(language_config.language), destination
-            )
+            target_path = os.path.join(language_config.generated_lang_dir, destination)
             # build the full path to the target if it doesn't exist
             os.makedirs(os.path.dirname(target_path), exist_ok=True)
             log.info("Writing {target}".format(target=target_path))
@@ -201,17 +197,15 @@ class GenerateCommand(Command):
             stamp + ("spec repo commit {commit}".format(commit=spec_repo_commit),)
         return "; ".join(stamp + (self.args.get("additional_stamp")))
 
-    def write_dot_apigentools_info(self, language, version):
+    def write_dot_apigentools_info(self, language_config, version):
         """ Write a record for language/version in .apigentools-info file in the top-level directory of the language
 
-        :param language: Language to write .apigentools-info for
-        :type language: ``str``
+        :param language_config: Config of language to write .apigentools-info for
+        :type language: ``LanguageConfig``
         :param version: Version to write .apigentools-info record for
         :type version: ``str``
         """
-        outfile = os.path.join(
-            self.get_generated_lang_dir(language), ".apigentools-info"
-        )
+        outfile = os.path.join(language_config.generated_lang_dir, ".apigentools-info")
         loaded = {}
         if os.path.exists(outfile):
             with open(outfile) as f:
@@ -266,17 +260,8 @@ class GenerateCommand(Command):
         # API versions)
         for language, versions in info.items():
             language_config = self.config.get_language_config(language)
-            general_chevron_vars = {
-                "github_repo_name": language_config.github_repo,
-                "github_repo_org": language_config.github_org,
-                "github_repo_url": chevron.render(
-                    GITHUB_REPO_URL_TEMPLATE, language_config.raw_dict
-                ),
-                "language_name": language,
-                "library_version": language_config.library_version,
-                "stamp": self.get_stamp(),
-                "user_agent_client_name": self.config.user_agent_client_name,
-            }
+            general_chevron_vars = language_config.chevron_vars_for()
+            general_chevron_vars["stamp"] = self.get_stamp()
 
             # Clone the language target repo into the output directory
             if pull_repo:
@@ -298,57 +283,26 @@ class GenerateCommand(Command):
                     if retval != 0:
                         return retval
                 log.info("Generation in %s, spec version %s", language, version)
-                language_oapi_config_path = os.path.join(
-                    constants.SPEC_REPO_CONFIG_DIR,
-                    constants.SPEC_REPO_LANGUAGES_CONFIG_DIR,
-                    "{lang}_{v}.json".format(lang=language, v=version),
+                version_output_dir = language_config.generated_lang_version_dir_for(
+                    version
                 )
-                version_output_dir = self.get_generated_lang_version_dir(
-                    language, version
-                )
-                # where is the spec repo relative to version_output_dir
-                version_output_dir_nesting_level = len(
-                    version_output_dir.strip("/").split("/")
-                )
-                spec_repo_from_version_output_dir = (
-                    "../" * version_output_dir_nesting_level
-                )
-                language_config_path = os.path.join(
-                    spec_repo_from_version_output_dir, language_oapi_config_path
-                )
-                templates_dir = os.path.join(
-                    spec_repo_from_version_output_dir,
-                    constants.SPEC_REPO_TEMPLATES_DIR,
-                    language,
-                    version,
-                )
-                full_spec_path = os.path.join(
-                    spec_repo_from_version_output_dir, input_spec
-                )
-
-                chevron_vars = copy.deepcopy(general_chevron_vars)
-                chevron_vars.update(
-                    {
-                        "full_spec_path": full_spec_path,
-                        "language_config": language_config_path,
-                        "spec_version": version,
-                        "templates_dir": templates_dir,
-                        "version_output_dir": ".",
-                    }
-                )
-
                 os.makedirs(version_output_dir, exist_ok=True)
                 self.run_language_commands(
-                    language, version, version_output_dir, chevron_vars,
+                    language,
+                    version,
+                    version_output_dir,
+                    language_config.chevron_vars_for(version, input_spec),
                 )
-                self.write_dot_apigentools_info(language, version)
+                self.write_dot_apigentools_info(language_config, version)
 
-            self.render_downstream_templates(language_config, general_chevron_vars)
+            self.render_downstream_templates(
+                language_config, language_config.chevron_vars_for()
+            )
 
         return 0
 
     def pull_repository(self, language, branch=None):
-        output_dir = self.get_generated_lang_dir(language.language)
+        output_dir = language.generated_lang_dir
         secret_repo_url = False
         if self.args.get("git_via_https"):
             checkout_url = ""

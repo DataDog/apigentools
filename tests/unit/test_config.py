@@ -58,7 +58,10 @@ config_sample = {
                     ],
                 },
             },
+            "github_repo_name": "my-gh-repo",
+            "library_version": "1.0.0",
             "spec_sections": ["v1", "v2"],
+            "version_path_template": "{{spec_version}}/",
         }
     },
     "user_agent_client_name": "MyClient",
@@ -135,6 +138,36 @@ def check_config(c):
         },
     }
     assert java.templates_config_for("v1") == java.templates_config_for("v2")
+
+    assert java.generated_lang_dir.strip("/") == "generated/my-gh-repo"
+    assert (
+        java.generated_lang_version_dir_for("v1").strip("/")
+        == "generated/my-gh-repo/v1"
+    )
+
+    expected_chevron_vars = {
+        "github_repo_name": "my-gh-repo",
+        "github_repo_org": None,
+        "github_repo_url": "github.com//my-gh-repo",
+        "language_name": "java",
+        "library_version": "1.0.0",
+        "user_agent_client_name": "MyClient",
+    }
+
+    assert java.chevron_vars_for() == expected_chevron_vars
+    expected_chevron_vars.update(
+        {
+            "full_spec_path": "../../../spec/v1/full_spec.yaml",
+            "language_config": "../../../config/languages/java_v1.json",
+            "spec_version": "v1",
+            "templates_dir": "../../../templates/java/v1",
+            "version_output_dir": ".",
+            "top_level_dir": "../",
+        }
+    )
+    assert (
+        java.chevron_vars_for("v1", "spec/v1/full_spec.yaml") == expected_chevron_vars
+    )
 
 
 def test_config_from_dict():
