@@ -1,0 +1,12 @@
+components:
+  callbacks: {}
+  examples: {}
+  headers: {}
+  links: {}
+  parameters: {}
+  requestBodies: {}
+  responses: {}
+  schemas: {}
+  securitySchemes: {}
+security: []
+tags: []

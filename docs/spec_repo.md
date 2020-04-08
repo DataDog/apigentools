@@ -240,7 +240,7 @@ Each command has following attributes:
         * `args` - List of args to pass to the function in Python code (as in `*args`).
         * `kwargs` - Mapping of args to pass to the function in Python code (as in `**kwargs`).
         * The result of the *function* call is then used in the actual command line call (note that the functions are called by apigentools outside the container that actually executes the command).
-* `container_opts` - [container_opts](#container_opts) describing how to execute the command inside a container.
+* `container_opts` - [container_opts](#container_opts) describing how to execute the command inside a container. Do note that commands are executed in non-interactive containers.
 
 #### Validation commands
 
