@@ -8,11 +8,9 @@ import subprocess
 
 import click
 
-from apigentools import constants
-from apigentools.commands.command import Command
-from apigentools.config import Config
+from apigentools.commands.command import Command, run_command_with_config
 from apigentools.constants import REDACTED_OUT_SECRET
-from apigentools.utils import run_command, change_cwd, env_or_val
+from apigentools.utils import run_command, env_or_val
 
 log = logging.getLogger(__name__)
 
@@ -37,14 +35,7 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def test(ctx, **kwargs):
     """Run tests for generated source code"""
-    ctx.obj.update(kwargs)
-    cmd = TestCommand({}, ctx.obj)
-
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(TestCommand, ctx, **kwargs)
 
 
 class TestCommand(Command):
