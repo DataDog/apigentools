@@ -14,7 +14,7 @@ import yaml
 from apigentools import constants
 from apigentools.commands.command import Command, run_command_with_config
 from apigentools.commands.validate import ValidateCommand
-from apigentools.constants import HEADER_FILE_NAME, SHARED_SECTION_NAME
+from apigentools.constants import HEADER_FILE_NAME, SHARED_FILE_NAME
 from apigentools.utils import env_or_val
 
 log = logging.getLogger(__name__)
@@ -35,6 +35,9 @@ def split(ctx, **kwargs):
 
 
 class SplitCommand(Command):
+    def get_shared_section_name(self):
+        return os.path.splitext(SHARED_FILE_NAME)[0]
+
     def deduplicate_tags(self, all_sections, all_tags):
         """ Find all tags that appear in more than one section and move them
         to the ``shared`` section.
@@ -46,7 +49,7 @@ class SplitCommand(Command):
         """
         tag_sections = {}
         for section_name, section in all_sections.items():
-            if section_name == SHARED_SECTION_NAME:
+            if section_name == self.get_shared_section_name():
                 continue
             for tag in section["tags"]:
                 tag_sections.setdefault(tag["name"], [])
@@ -56,7 +59,7 @@ class SplitCommand(Command):
                 tag = self.get_tag_object(all_tags, tag_name)
                 for section_name in section_names:
                     all_sections[section_name]["tags"].remove(tag)
-                all_sections[SHARED_SECTION_NAME]["tags"].append(tag)
+                all_sections[self.get_shared_section_name()]["tags"].append(tag)
 
     def deduplicate_components(self, all_sections, all_components):
         """ Find all component schemas that appear in more than one section and move them
@@ -71,7 +74,7 @@ class SplitCommand(Command):
         # not be very easy (or readable) to unify them, so we keep them separate
         component_sections = {}
         for section_name, section in all_sections.items():
-            if section_name == SHARED_SECTION_NAME:
+            if section_name == self.get_shared_section_name():
                 continue
             for schema_name in section["components"]["schemas"]:
                 component_sections.setdefault(schema_name, [])
@@ -81,7 +84,7 @@ class SplitCommand(Command):
                 schema = all_components["schemas"][schema_name]
                 for section_name in section_names:
                     all_sections[section_name]["components"]["schemas"].pop(schema_name)
-                all_sections[SHARED_SECTION_NAME]["components"]["schemas"][
+                all_sections[self.get_shared_section_name()]["components"]["schemas"][
                     schema_name
                 ] = schema
 
@@ -253,7 +256,7 @@ class SplitCommand(Command):
 
         # now split the spec into multiple sections per top-level API endpoint
         all_sections = {
-            SHARED_SECTION_NAME: {"components": {"schemas": {}}, "tags": []}
+            self.get_shared_section_name(): {"components": {"schemas": {}}, "tags": []}
         }
         for section_name, endpoints in self.get_endpoints_for_sections(
             paths.keys()

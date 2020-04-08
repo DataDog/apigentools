@@ -44,3 +44,7 @@ The [Spec Repo](spec_repo.md) structure now has less assumptions. [Downstream te
 ### New Configuration File Syntax
 
 The [configuration file](spec_repo.md#configconfigyaml) now uses Yaml as a markup language. It's been overhauled to support the above usecases, but should look very familiar to existing apigentools users.
+
+### Default Spec Sections
+
+Apigentools 1.X code doesn't have any special treatment for `spec/<version>/header.yaml` and `spec/<version>/shared.yaml` files. While they are stil recommended for `openapi`/`info`/`servers`/... resp. shared components, they have to be explicitly listed in `spec_sections`.

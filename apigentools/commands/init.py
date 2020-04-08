@@ -39,7 +39,9 @@ class InitCommand(Command):
         "container_opts": {
             constants.COMMAND_IMAGE_KEY: constants.DEFAULT_CONTAINER_IMAGE,
         },
-        "spec_sections": {"v1": []},
+        "spec_sections": {
+            "v1": [constants.HEADER_FILE_NAME, constants.SHARED_FILE_NAME]
+        },
         "spec_versions": ["v1"],
     }
     V1_HEADER_JSON = {
@@ -105,9 +107,7 @@ class InitCommand(Command):
                 with open(config_file, "w") as f:
                     yaml.dump(self.CONFIG_FILE_JSON, f, indent=2)
             v1_header = os.path.join(dirs["spec_v1_dir"], constants.HEADER_FILE_NAME)
-            v1_shared = os.path.join(
-                dirs["spec_v1_dir"], constants.SHARED_SECTION_NAME + ".yaml"
-            )
+            v1_shared = os.path.join(dirs["spec_v1_dir"], constants.SHARED_FILE_NAME)
             if not os.path.exists(v1_header):
                 with open(v1_header, "w") as f:
                     yaml.dump(self.V1_HEADER_JSON, f)

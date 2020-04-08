@@ -9,7 +9,7 @@ A "spec repo" is a repository (or, more generally, a directory), that contains f
 .
 ├── .gitignore
 ├── config                          # config directory is mandatory
-│   ├── config.json                 # general config for apigentools, mandatory
+│   ├── config.yaml                 # general config for apigentools, mandatory
 │   └── languages                   # languages directory is mandatory when using openapi-generator
 │       └── java_v1.json            # openapi-generator config for Java client for v1 API
 ├── downstream-templates            # optional directory for downstream templates, name can be arbitrary
@@ -328,19 +328,16 @@ Downstream templates are only generated once per language and have access to a s
 
 ## Section Files
 
-By design, apigentools doesn't operate on full OpenAPI specification files, but on "section files". These are, essentially, an exploded OpenAPI spec—these aid the development experience when working on these individual files instead of one huge file. The rules for these files are as follows:
-
-* The below rules apply specification of every major API version.
-* `spec/<MAJOR_API_VERSION>/header.yaml` is expected to be present. This is a header file that should only contain OpenAPI keys `openapi`, `info`, and `externalDocs` (note that `servers` is filled in dynamically by apigentools based on your `config/config.yaml`).
-* `spec/<MAJOR_API_VERSION>/shared.yaml` is expected to be present. This is a file containing any OpenAPI objects that are referenced from more than one "section"—`components` (which includes `schemas` and `security_schemes`), `security` ,and `tags`.
-* Any other `.yaml` files with arbitrary `components`, `paths`, `security`, and `tags` may be added. Note that these have to be explicitly listed in `config/config.json` in order to be used.
+By design, apigentools doesn't operate on full OpenAPI specification files, but on "section files". These are, essentially, an exploded OpenAPI spec—these aid the development experience when working on these individual files instead of one huge file. Note that these files have to be listed explicitly in `spec_sections`.
 
 On apigentools' invocation, these are merged into a single OpenAPI spec file and used as input for further operations, e.g. for openapi-generator.
+
+We recommend having a `header.yaml` file to for your `openapi`, `info` and `servers` attributes and a `shared.yaml` file for entities shared among multiple spec sections.
 
 ## `pre-commit` Hooks
 
 You can make sure that all contributors create syntactically valid specification
-that also follow all rules from `config.json` by creating a `pre-commit` check.
+that also follow all rules from `config.yaml` by creating a `pre-commit` check.
 Here is an example, to add in your `.pre-commit-config.yaml` file:
 
     ---
@@ -349,8 +346,3 @@ Here is an example, to add in your `.pre-commit-config.yaml` file:
       rev: v0.10.0
       hooks:
         - id: apigentools-validate
-    # alternatively you can use the containerized version
-    - repo: https://github.com/DataDog/apigentools.git
-      rev: v0.10.0
-      hooks:
-        - id: container-apigentools-validate

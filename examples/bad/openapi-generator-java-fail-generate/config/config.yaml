@@ -34,7 +34,7 @@ languages:
             - "object=interface{}"
             description: "Generate Java client using openapi-generator"
 spec_sections:
-  v1: [users.yaml]
+  v1: [header.yaml, shared.yaml, users.yaml]
 spec_versions:
 - v1
 validation_commands:

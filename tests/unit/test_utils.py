@@ -259,7 +259,7 @@ def test_write_full_spec(tmpdir):
     written = write_full_spec(
         str(specdir),
         "v1",
-        ["s1.yaml", "s2.yaml"],
+        ["header.yaml", "s1.yaml", "s2.yaml"],
         os.path.join(str(versiondir), "full.yaml"),
     )
 
