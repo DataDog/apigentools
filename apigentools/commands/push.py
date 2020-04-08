@@ -107,7 +107,7 @@ class PushCommand(Command):
                 continue
             log.info("Running push for language {}".format(lang_name))
 
-            gen_dir = self.get_generated_lang_dir(lang_name)
+            gen_dir = lang_config.generated_lang_dir
             # Assumes all generated changes are in the gen_dir directory
             # This is done by default in the `generate` command.
             with change_cwd(gen_dir):

@@ -47,6 +47,9 @@ languages:
             V1: y
           image: other:image
           inherit: false
+    github_repo_name: "my-gh-repo"
+    library_version: "1.0.0"
+    version_path_template: "{{spec_version}}/"
     spec_sections:
     - v1
     - v2

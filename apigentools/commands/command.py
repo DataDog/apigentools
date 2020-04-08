@@ -32,9 +32,15 @@ def run_command_with_config(command_class, click_ctx, **kwargs):
         try:
             cmd.config = Config.from_file(configfile)
         except OSError:
-            if os.path.exists(os.path.join(constants.SPEC_REPO_CONFIG_DIR, "config.json")):
-                log.error("It looks like your spec repo is using old configuration format no longer supported by this apigentools version")
-                log.error("Please upgrade your configuration: https://apigentools.readthedocs.io/en/latest/upgrading#from-0x-series-to-1x-series")
+            if os.path.exists(
+                os.path.join(constants.SPEC_REPO_CONFIG_DIR, "config.json")
+            ):
+                log.error(
+                    "It looks like your spec repo is using old configuration format no longer supported by this apigentools version"
+                )
+                log.error(
+                    "Please upgrade your configuration: https://apigentools.readthedocs.io/en/latest/upgrading#from-0x-series-to-1x-series"
+                )
             else:
                 log.error(
                     "Couldn't find {}. Are you running in spec repo?".format(configfile)
@@ -63,8 +69,7 @@ class Command(abc.ABC):
 
     def yield_lang_version_specfile(self, languages=None, versions=None):
         """Yield valid combinations of (language, version, specfile)."""
-        for language, version in self.yield_lang_version():
-            language_config = self.config.get_language_config(language)
+        for language, version in self.yield_lang_version(languages, versions):
             language_config = self.config.get_language_config(language)
             spec_version_dir = os.path.join(constants.SPEC_REPO_SPEC_DIR, version)
             suffix = (
@@ -77,36 +82,6 @@ class Command(abc.ABC):
                 spec_version_dir,
                 get_full_spec_file_name(self.args.get("full_spec_file"), suffix),
             )
-
-    def get_generated_lang_dir(self, lang):
-        """ Returns path to the directory with generated code for given language.
-
-        :param lang: language to get path for
-        :type lang: ``str``
-        :return: path to directory with generated language code
-        :rtype: ``str``
-        """
-        return os.path.join(
-            constants.SPEC_REPO_GENERATED_DIR,
-            self.config.get_language_config(lang).github_repo,
-        )
-
-    def get_generated_lang_version_dir(self, lang, version):
-        """ Returns path to the directory with generated code for given combination of language
-        and spec version.
-
-        :param lang: language to get path for
-        :type lang: ``str``
-        :param version: spec version to get path for
-        :type version: ``str``
-        :return: path to directory with generated language code
-        :rtype: ``str``
-        """
-        lc = self.config.get_language_config(lang)
-        return os.path.join(
-            self.get_generated_lang_dir(lang),
-            chevron.render(lc.version_path_template, {"spec_version": version}),
-        )
 
     def setup_git_config(self, cwd=None):
         """Update git config for this repository to use the provided author's email/name.
@@ -150,9 +125,11 @@ class Command(abc.ABC):
         cwd=".",
         chevron_vars=None,
         additional_functions=None,
+        env_override=None,
     ):
         log.info("Running command '%s'", command.description)
 
+        env_override = env_override or {}
         if chevron_vars is None:
             chevron_vars = {}
         chevron_vars["cwd"] = cwd
@@ -187,26 +164,62 @@ class Command(abc.ABC):
             else:
                 to_run.append(str(part))
 
-        additional_env = {}
-        if command.container_opts.get(constants.COMMAND_SYSTEM_KEY):
-            additional_env = command.container_opts.get(
-                constants.COMMAND_ENVIRONMENT_KEY, {}
+        additional_env = command.container_opts.get(
+            constants.COMMAND_ENVIRONMENT_KEY, {}
+        )
+        additional_env.update(env_override)
+        is_system = command.container_opts.get(constants.COMMAND_SYSTEM_KEY)
+        run_command_args = {}
+        if is_system:
+            run_command_args.update(
+                {"additional_env": additional_env, "cwd": cwd,}
             )
         else:
+            image = command.container_opts[constants.COMMAND_IMAGE_KEY]
+            if isinstance(image, dict):
+                image_name = "apigentools-test-{}-{}".format(
+                    command.language_config.language, command.version
+                )
+                dockerfile = self._render_command_args(
+                    image[constants.COMMAND_IMAGE_DOCKERFILE_KEY], chevron_vars
+                )
+                context = self._render_command_args(
+                    image.get(constants.COMMAND_IMAGE_CONTEXT_KEY, "."), chevron_vars
+                )
+                with change_cwd(cwd):
+                    run_command(
+                        ["docker", "build", context, "-t", image_name, "-f", dockerfile]
+                    )
+                image = image_name
             # dockerize
-            to_run = [
+            workdir = os.path.join(
+                "/tmp/spec-repo",
+                cwd,
+                self._render_command_args(
+                    command.container_opts.get(constants.COMMAND_WORKDIR_KEY, "."),
+                    chevron_vars,
+                ),
+            )
+            dockerized = [
                 "docker",
                 "run",
                 "--rm",
                 "-v",
                 "{}:{}".format(os.getcwd(), "/tmp/spec-repo"),
-                "--entrypoint",
-                to_run[0],
                 "--workdir",
-                os.path.join("/tmp/spec-repo", cwd),
-                command.container_opts[constants.COMMAND_IMAGE_KEY],
-            ] + to_run[1:]
-        run_command(to_run, additional_env=additional_env)
+                workdir,
+            ]
+            if to_run:
+                dockerized.extend(
+                    ["--entrypoint", to_run[0],]
+                )
+            for k, v in additional_env.items():
+                dockerized.extend(["-e", "{}={}".format(k, v)])
+
+            dockerized.extend([image] + to_run[1:])
+            to_run = dockerized
+
+        run_command(to_run, *run_command_args)
 
     @abc.abstractmethod
     def run(self):

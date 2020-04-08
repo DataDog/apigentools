@@ -4,8 +4,11 @@
 # Copyright 2019-Present Datadog, Inc.
 COMMAND_ENVIRONMENT_KEY = "environment"
 COMMAND_IMAGE_KEY = "image"
+COMMAND_IMAGE_DOCKERFILE_KEY = "dockerfile"
+COMMAND_IMAGE_CONTEXT_KEY = "context"
 COMMAND_INHERIT_KEY = "inherit"
 COMMAND_SYSTEM_KEY = "system"
+COMMAND_WORKDIR_KEY = "workdir"
 CONFIG_CONTAINER_IMAGE_KEY = "container_apigentools_image"
 DEFAULT_CONFIG_FILE = "config.yaml"
 DEFAULT_CONTAINER_IMAGE = "datadog/apigentools:latest"

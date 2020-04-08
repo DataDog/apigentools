@@ -110,6 +110,11 @@ languages:
             - -rf
             - docs
             description: Remove unwanted docs folder
+        tests:
+        - commandline:
+          - mvn
+          - test
+          description: "Run tests using maven"
     downstream_templates:
       downstream-templates/java/README.md: README.md
     github_org_name: my-github-org
@@ -141,8 +146,9 @@ The structure of the general config file is as follows, starting with top level 
         * `generation` - Setting for code generation.
             * `default` - Default settings for code generations. When any of the keys defined in the `default` mapping are not found in the spec-version-settings, it's taken from here.
                 * `container_opts` - See [container_opts section](#container_opts) below.
-                * `commands` - Commands to execute to generate code. See [commands](#commands)`.
+                * `commands` - Commands to execute to generate code. See [commands](#commands).
                 * `templates` - Instructions on how to [preprocess templates](#preprocess-templates) to pass to code generator.
+                * `tests` - Commands to execute to test code using `apigentools test`. See [commands](#commands).
             * spec-version-settings - Exactly the same as `default` above, but used for overriding operations specifically for the given major API version.
         * `downstream_templates` - [Downstream templates](#downstream-templates).
         * `github_org_name` - Name of the Github organization of the client for this language.
@@ -228,7 +234,9 @@ temlates:
 
 ### Commands
 
-Commands provided inside `generated.default` and `generated.<spec_version>` are executed one by one inside the directory with code for currenlty generated spec version.
+Commands provided inside `generated.default.commands` and `generated.<spec_version>.commands` are executed one by one inside the directory with code for currently generated spec version.
+
+Commands provided inside `generated.default.tests` and `generated.<spec_version>.tests` are executed one by one inside the directory with code for currently tested spec version.
 
 Each command has following attributes:
 
@@ -311,6 +319,7 @@ The `commandline` arguments of commands can also use following templating values
 * `{{templates_dir}}` - Directory with templates for this language/API version combination
 * `{{user_agent_client_name}}` - Value from config
 * `{{version_output_dir}}` - Directory to which the output for this spec version will be put
+* `{{top_level_dir}}` - Relative path (to `{{version_output_dir}}`) to the top level directory of the generated language repo
 
 ### Downstream Templates
 
