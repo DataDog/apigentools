@@ -251,7 +251,7 @@ class GenerateCommand(Command):
                 self.config.get_language_config(language).spec_sections_for(version),
                 fs_file,
             )
-            log.info(f"Generated {fs_file} for {language} and {version}")
+            log.info(f"Generated {fs_file} for {language}/{version}")
 
         pull_repo = self.args.get("clone_repo")
 
@@ -282,7 +282,7 @@ class GenerateCommand(Command):
                     retval = template_cmd.run()
                     if retval != 0:
                         return retval
-                log.info("Generation in %s, spec version %s", language, version)
+                log.info("Generation in %s/%s", language, version)
                 version_output_dir = language_config.generated_lang_version_dir_for(
                     version
                 )

@@ -6,6 +6,7 @@ import abc
 import glob
 import logging
 import os
+import subprocess
 
 import chevron
 
@@ -13,6 +14,7 @@ from apigentools.config import Config
 from apigentools import constants
 from apigentools.utils import (
     change_cwd,
+    fmt_cmd_out_for_log,
     get_full_spec_file_name,
     glob_re,
     run_command,
@@ -46,7 +48,12 @@ def run_command_with_config(command_class, click_ctx, **kwargs):
                     "Couldn't find {}. Are you running in spec repo?".format(configfile)
                 )
             click_ctx.exit(1)
-        click_ctx.exit(cmd.run())
+        try:
+            click_ctx.exit(cmd.run())
+        except subprocess.CalledProcessError as e:
+            log.error("Failed running subprocess: %s", e.cmd)
+            log.error(fmt_cmd_out_for_log(e, False))
+            click_ctx.exit(1)
 
 
 class Command(abc.ABC):

@@ -134,7 +134,7 @@ def logging_enabled(enabled):
 
 def run_command(
     cmd,
-    log_level=logging.INFO,
+    log_level=logging.DEBUG,
     additional_env=None,
     combine_out_err=False,
     dry_run=False,
@@ -244,11 +244,11 @@ def fmt_cmd_out_for_log(result_or_error, combine_out_err):
     :rtype: ``str``
     """
     if combine_out_err:
-        return "RETCODE: {rc}\nOUTPUT:\n{o}".format(
+        return "\nRETCODE: {rc}\nOUTPUT:\n{o}".format(
             rc=result_or_error.returncode, o=result_or_error.stdout
         )
     else:
-        return "RETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
+        return "\nRETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
             rc=result_or_error.returncode,
             o=result_or_error.stdout,
             e=result_or_error.stderr,

@@ -158,13 +158,13 @@ def test_fmt_cmd_out_for_log():
         returncode=1, stdout="stdout", stderr="stderr"
     )
     result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=True)
-    assert result == "RETCODE: 1\nOUTPUT:\nstdout"
+    assert result == "\nRETCODE: 1\nOUTPUT:\nstdout"
 
     result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=False)
-    assert result == "RETCODE: 1\nSTDOUT:\nstdoutSTDERR:\nstderr"
+    assert result == "\nRETCODE: 1\nSTDOUT:\nstdoutSTDERR:\nstderr"
 
     result = fmt_cmd_out_for_log(fake_CalledProcessError, combine_out_err=True)
-    assert result == "RETCODE: 1\nOUTPUT:\nstdout"
+    assert result == "\nRETCODE: 1\nOUTPUT:\nstdout"
 
 
 def test_logging_enabled(caplog):
