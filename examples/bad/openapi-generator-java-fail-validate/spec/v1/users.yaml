@@ -1,0 +1,41 @@
+paths:
+  /api/v1/users:
+    get:
+      description: Get all registered users
+      summary: Get all users
+      operationId: GetAllUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error400'
+components:
+  THIS_SHOULD_BE_schemas:
+    Users:
+      type: object
+      properties:
+        users:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+    Error400:
+      type: object
+      properties:
+        error:
+          type: string

@@ -1,0 +1,45 @@
+container_opts:
+  image: openapitools/openapi-generator:cli-v4.3.0
+languages:
+  java:
+    github_repo_name: "my-java-client"
+    library_version: "1.0.0"
+    generation:
+      default:
+        templates:
+          source:
+            type: openapi-jar
+            jar_path: /BAD_PATH/opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar
+            templates_dir: Java
+        commands:
+          - commandline:
+            - docker-entrypoint.sh
+            - generate
+            - --http-user-agent
+            - '{{user_agent_client_name}}/{{library_version}}/{{language_name}}'
+            - -g
+            - '{{language_name}}'
+            - -c
+            - '{{language_config}}'
+            - -i
+            - '{{full_spec_path}}'
+            - -o
+            - '{{version_output_dir}}'
+            - --additional-properties
+            - apigentoolsStamp='{{stamp}}'
+            - -t
+            - "{{templates_dir}}"
+            - --type-mappings
+            - "object=interface{}"
+            description: "Generate Java client using openapi-generator"
+spec_sections:
+  v1: [header.yaml, shared.yaml, users.yaml]
+spec_versions:
+- v1
+validation_commands:
+  - commandline:
+    - docker-entrypoint.sh
+    - validate
+    - -i
+    - '{{full_spec_path}}'
+    description: "Validate the full spec using openapi-generator"

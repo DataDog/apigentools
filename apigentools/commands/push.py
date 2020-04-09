@@ -9,9 +9,7 @@ import time
 
 import click
 
-from apigentools import constants
-from apigentools.commands.command import Command
-from apigentools.config import Config
+from apigentools.commands.command import Command, run_command_with_config
 from apigentools.utils import change_cwd, get_current_commit, run_command, env_or_val
 
 log = logging.getLogger(__name__)
@@ -55,14 +53,7 @@ log = logging.getLogger(__name__)
 @click.pass_context
 def push(ctx, **kwargs):
     """Push the generated source code into each git repository specified in the config"""
-    ctx.obj.update(kwargs)
-    cmd = PushCommand({}, ctx.obj)
-
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(PushCommand, ctx, **kwargs)
 
 
 class PushCommand(Command):
@@ -106,7 +97,7 @@ class PushCommand(Command):
 
         languages = self.args.get("languages") or self.config.languages
         commit_msg = "Regenerate client from commit {} of spec repo".format(
-            get_current_commit(self.args.get("spec_repo_dir"))
+            get_current_commit()
         )
         commit_msg = self.args.get("push_commit_msg") or commit_msg
 
@@ -116,7 +107,7 @@ class PushCommand(Command):
                 continue
             log.info("Running push for language {}".format(lang_name))
 
-            gen_dir = self.get_generated_lang_dir(lang_name)
+            gen_dir = lang_config.generated_lang_dir
             # Assumes all generated changes are in the gen_dir directory
             # This is done by default in the `generate` command.
             with change_cwd(gen_dir):

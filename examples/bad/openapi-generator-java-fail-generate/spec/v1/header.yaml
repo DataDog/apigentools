@@ -1,0 +1,8 @@
+info:
+  contact: {}
+  description: Collection of all public API endpoints.
+  title: My API endpoints
+  version: '1.0'
+openapi: 3.0.0
+servers:
+- url: https://api.example.com/v1

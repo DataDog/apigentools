@@ -2,12 +2,10 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
-import contextlib
 import copy
 import logging
 import os
 import subprocess
-import sys
 
 import flexmock
 import pytest
@@ -27,7 +25,6 @@ from apigentools.utils import (
     set_log,
     set_log_level,
     validate_duplicates,
-    volumes_from,
     write_full_spec,
 )
 
@@ -200,44 +197,6 @@ def test_set_log_default(caplog):
         assert "INFO" in record
 
 
-def test_volumes_from(monkeypatch):
-    def readlines_non_gh_action():
-        return [
-            "some useless line",
-            "2:cpu:/docker/3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
-        ]
-
-    def readlines_non_gh_action_multi_slashes():
-        return [
-            "some useless line",
-            "3:cpu:/docker/4193df6bcf5fce75f3fc77f303b2ac06fb664adeb269b959b7ae17b3f8dcf329/3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
-        ]
-
-    def readlines_gh_action():
-        return [
-            "some useless line",
-            "12:freezer:/actions_job/3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
-        ]
-
-    readlines_mocks = [
-        readlines_non_gh_action,
-        readlines_non_gh_action_multi_slashes,
-        readlines_gh_action,
-    ]
-    flexmock(sys.modules["os.path"]).should_receive("exists").and_return(True)
-    mock = flexmock(sys.modules["builtins"])
-    m = mock.should_receive("open").with_args("/proc/self/cgroup")
-    for rm in readlines_mocks:
-        m = m.and_return(flexmock(readlines=rm))
-    monkeypatch.setenv("APIGENTOOLS_IMAGE", "someid")
-
-    for i in range(0, len(readlines_mocks)):
-        assert volumes_from([]) == [
-            "--volumes-from",
-            "3dd988081e7149463c043b5d9c57d7309e079c5e9290f91feba1cc45a04d6a5b",
-        ]
-
-
 def test_write_full_spec(tmpdir):
     s1 = {
         "components": {"schemas": {"MySchema": {"type": "object",},},},
@@ -252,6 +211,9 @@ def test_write_full_spec(tmpdir):
                 "post": {"operationId": "postFoo", "summary": "post",},
             },
         },
+    }
+    header = {
+        "servers": [{"url": "http://base.url"}],
     }
 
     expected = {
@@ -283,6 +245,7 @@ def test_write_full_spec(tmpdir):
     versiondir = specdir.mkdir("v1")
     p1 = os.path.join(str(versiondir), "s1.yaml")
     p2 = os.path.join(str(versiondir), "s2.yaml")
+    header_file = os.path.join(str(versiondir), "header.yaml")
 
     with open(p1, "w") as f:
         yaml.dump(s1, f)
@@ -290,11 +253,13 @@ def test_write_full_spec(tmpdir):
     with open(p2, "w") as f:
         yaml.dump(s2, f)
 
+    with open(header_file, "w") as f:
+        yaml.dump(header, f)
+
     written = write_full_spec(
-        Config.from_dict({"server_base_urls": {"v1": "http://base.url"}}),
         str(specdir),
         "v1",
-        {"v1": ["s1.yaml", "s2.yaml"]},
+        ["header.yaml", "s1.yaml", "s2.yaml"],
         os.path.join(str(versiondir), "full.yaml"),
     )
 

@@ -2,140 +2,131 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+import contextlib
 import glob
 import logging
 import os
 import shutil
 import subprocess
 import tempfile
+import time
 
 import click
 
 from apigentools import constants
-from apigentools.commands.command import Command
-from apigentools.config import Config
-from apigentools.constants import OPENAPI_GENERATOR_GIT
-from apigentools.utils import run_command, change_cwd, env_or_val
+from apigentools.commands.command import Command, run_command_with_config
+from apigentools.constants import OPENAPI_GENERATOR_GIT, SPEC_REPO_TEMPLATES_DIR
+from apigentools.utils import run_command
 
 log = logging.getLogger(__name__)
 
 
-@click.group()
-@click.option(
-    "-T",
-    "--templates-output-dir",
-    default=env_or_val("APIGENTOOLS_TEMPLATES_DIR", constants.DEFAULT_TEMPLATES_DIR),
-    help="Path to directory where to put processed upstream templates (default: {})".format(
-        constants.DEFAULT_TEMPLATES_DIR
-    ),
-)
-@click.option(
-    "-p",
-    "--template-patches-dir",
-    default=env_or_val(
-        "APIGENTOOLS_TEMPLATE_PATCHES_DIR", constants.DEFAULT_TEMPLATE_PATCHES_DIR
-    ),
-    help="Directory with patches for upstream templates (default: '{}')".format(
-        constants.DEFAULT_TEMPLATE_PATCHES_DIR
-    ),
-)
+@click.command()
 @click.pass_context
 def templates(ctx, **kwargs):
     """Get upstream templates and apply downstream patches"""
-    ctx.obj.update(kwargs)
-
-
-@templates.command()
-@click.option("-u", "--repo-url", default=constants.OPENAPI_GENERATOR_GIT)
-@click.option("--git-committish", default="master", nargs=1)
-@click.pass_context
-def openapi_git(ctx, **kwargs):
-    """Pull templates from the git reposotiry specified by --repo-url and --git-committish"""
-    ctx.obj.update(kwargs)
-    ctx.obj["templates_source"] = "openapi-git"
-    cmd = TemplatesCommand({}, ctx.obj)
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
-
-
-@templates.command()
-@click.argument("local-path")
-@click.pass_context
-def local_dir(ctx, **kwargs):
-    """Pull templates from the specified local-path"""
-    ctx.obj.update(kwargs)
-    ctx.obj["templates_source"] = "local-dir"
-    cmd = TemplatesCommand({}, ctx.obj)
-
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
-
-
-@templates.command()
-@click.argument(
-    "jar-path", default=env_or_val("APIGENTOOLS_OPENAPI_JAR", constants.OPENAPI_JAR)
-)
-@click.pass_context
-def openapi_jar(ctx, **kwargs):
-    """Pull templates from the openapi-jar specified by jar-path"""
-    ctx.obj.update(kwargs)
-    ctx.obj["templates_source"] = "openapi-jar"
-    cmd = TemplatesCommand({}, ctx.obj)
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(TemplatesCommand, ctx, **kwargs)
 
 
 class TemplatesCommand(Command):
-    def run(self):
+    @contextlib.contextmanager
+    def create_container(self, lc, spec_version):
+        image = lc.container_opts_for(spec_version)[constants.COMMAND_IMAGE_KEY]
+        cn = "apigentools-created-container-{}".format(time.time())
+        run_command(["docker", "create", "--name", cn, image])
+        yield cn
+        run_command(["docker", "rm", cn])
+
+    def templates_for_language_spec_version(self, lc, spec_version):
+        # TODO: select directory specified by "templates_dir" in "templates.source"
+        # *before* applying patches
+        templates_cfg = lc.templates_config_for(spec_version)
+        if not templates_cfg:
+            log.info(
+                "No templates configured for %s/%s, skipping", lc.language, spec_version
+            )
+            return 0
+
+        from_container = not templates_cfg["source"].get(
+            constants.COMMAND_SYSTEM_KEY, False
+        )
+        source_type = templates_cfg["source"]["type"]
         with tempfile.TemporaryDirectory() as td:
             log.info("Obtaining upstream templates ...")
             patch_in = copy_from = td
-            if self.args.get("templates_source") == "openapi-jar":
-                run_command(["unzip", "-q", self.args.get("jar_path"), "-d", td])
-            elif self.args.get("templates_source") == "local-dir":
-                for lang in self.config.languages:
-                    lang_upstream_templates_dir = self.config.get_language_config(
-                        lang
-                    ).upstream_templates_dir
-                    local_lang_dir = os.path.join(
-                        self.args.get("local_path"), lang_upstream_templates_dir
-                    )
-                    if not os.path.exists(local_lang_dir):
+            image = lc.container_opts_for(spec_version)[constants.COMMAND_IMAGE_KEY]
+            if source_type == "openapi-jar":
+                jar_path = templates_cfg["source"]["jar_path"]
+                if from_container:
+                    log.info("Extracting openapi-generator jar from image %s", image)
+                    new_jar_path = os.path.join(td, "openapi-generator.jar")
+                    with self.create_container(lc, spec_version) as container:
+                        run_command(
+                            [
+                                "docker",
+                                "cp",
+                                "{}:{}".format(container, jar_path),
+                                new_jar_path,
+                            ]
+                        )
+                    jar_path = new_jar_path
+                run_command(["unzip", "-q", jar_path, "-d", td])
+            elif source_type == "directory":
+                lang_dir = os.path.join(
+                    templates_cfg["source"]["directory_path"],
+                    templates_cfg["source"]["templates_dir"],
+                )
+                output_dir = os.path.join(td, templates_cfg["source"]["templates_dir"],)
+                if from_container:
+                    log.info("Extracting templates directory from image %s", image)
+                    with self.create_container(lc, spec_version) as container:
+                        run_command(
+                            [
+                                "docker",
+                                "cp",
+                                "{}:{}".format(container, lang_dir),
+                                output_dir,
+                            ]
+                        )
+                else:
+                    if not os.path.exists(lang_dir):
                         log.error(
-                            "Directory %s doesn't contain '%s' directory with templates. "
-                            + "Make sure %s contains directories with templates for all languages",
-                            self.args.get("templates_source"),
-                            lang_upstream_templates_dir,
-                            self.args.get("local_path"),
+                            "Directory %s doesn't contain '%s' subdirectory with templates",
+                            templates_cfg["source"]["directory_path"],
+                            templates_cfg["source"]["templates_dir"],
                         )
                         return 1
                     shutil.copytree(
-                        local_lang_dir, os.path.join(td, lang_upstream_templates_dir)
+                        lang_dir,
+                        os.path.join(td, templates_cfg["source"]["templates_dir"]),
                     )
-            else:
+            elif source_type == "openapi-git":
+                if from_container:
+                    log.error(
+                        "Templates with source 'openapi-git' must be used with '%s: true'",
+                        constants.COMMAND_SYSTEM_KEY,
+                    )
                 patch_in = copy_from = os.path.join(
                     td, "modules", "openapi-generator", "src", "main", "resources"
                 )
                 run_command(["git", "clone", OPENAPI_GENERATOR_GIT, td])
                 run_command(
-                    ["git", "-C", td, "checkout", self.args.get("git_committish")]
+                    [
+                        "git",
+                        "-C",
+                        td,
+                        "checkout",
+                        templates_cfg["source"]["git_committish"],
+                    ]
                 )
+            else:
+                log.error("Unknown templates source type {}".format(source_type))
+                return 1
 
-            if os.path.exists(self.args.get("template_patches_dir")):
+            patches = templates_cfg.get("patches")
+            if patches:
                 log.info("Applying patches to upstream templates ...")
-                patches = glob.glob(
-                    os.path.join(self.args.get("template_patches_dir"), "*.patch")
-                )
-                for p in sorted(patches):
+                for p in patches:
                     try:
                         run_command(
                             [
@@ -145,12 +136,7 @@ class TemplatesCommand(Command):
                                 "--no-backup-if-mismatch",
                                 "-p1",
                                 "-i",
-                                os.path.abspath(
-                                    os.path.join(
-                                        self.args.get("template_patches_dir"),
-                                        os.path.basename(p),
-                                    )
-                                ),
+                                os.path.abspath(p),
                                 "-d",
                                 patch_in,
                             ]
@@ -165,16 +151,20 @@ class TemplatesCommand(Command):
                         return 1
 
             # copy the processed templates from the temporary dir to templates dir
-            languages = self.args.get("languages") or self.config.languages
-            for lang in languages:
-                upstream_templatedir = self.config.get_language_config(
-                    lang
-                ).upstream_templates_dir
-                outlang_dir = os.path.join(self.args.get("templates_output_dir"), lang)
-
-                if os.path.exists(outlang_dir):
-                    shutil.rmtree(outlang_dir)
-                shutil.copytree(
-                    os.path.join(copy_from, upstream_templatedir), outlang_dir
-                )
+            outdir = os.path.join(SPEC_REPO_TEMPLATES_DIR, lc.language, spec_version)
+            if os.path.exists(outdir):
+                shutil.rmtree(outdir)
+            shutil.copytree(
+                os.path.join(
+                    copy_from, templates_cfg["source"].get("templates_dir", "")
+                ),
+                outdir,
+            )
         return 0
+
+    def run(self):
+        result = 0
+        for language, version in self.yield_lang_version():
+            lc = self.config.get_language_config(language)
+            result += self.templates_for_language_spec_version(lc, version)
+        return result

@@ -1,30 +1,9 @@
 # apigentools CLI Reference
 
-## Containerized Version
+!!! note
+    This is documentation for apigentools major version 1, which has significant differences from the 0.X series. Refer to [upgrading docs](upgrading.md) for further details.
 
-The apigentools PyPI package ships with two scripts: `apigentools` and `container-apigentools`. The containerized version executes all commands in a container created from given image. Additionally, all `APIGENTOOLS_*` environment variables from current environment are passed inside the container. Basic usage:
-
-`container-apigentools [--spec-repo-volume SPEC_REPO_VOLUME] [APIGENTOOLS_ARG ...]`
-
-Argument | Description | Environment Variable | Default
----------|-------------|----------------------|--------
-`--spec-repo-volume SPEC_REPO_VOLUME` | Path to directory with the spec repo. | | `.`
-
-Positional Argument | Description | Environment Variable | Default
---------------------|-------------|----------------------|--------
-`APIGENTOOLS_ARGS` | Arguments to pass to apigentools running inside container. Refer to the below [apigentools][#non-containerized-version] section for information about argument behavior.
-
-The container image to use is determined from these sources:
-
-* If `APIGENTOOLS_IMAGE` environment variable exists, its content is used.
-* Otherwise [config.json](spec_repo.md#configconfigjson) is parsed and value of `container_apigentools_image` key is used if present.
-* Otherwise `datadog/apigentools:latest` is used.
-
-Note that if `APIGENTOOLS_ARGS` is not provided, a [full automated workflow](workflow.md#run-all-automated-parts-of-the-workflow) is run.
-
-## Non-containerized Version
-
-Basic usage:
+## Basic Usage
 
 ```
 apigentools <APIGENTOOLS_ARGS> <SUBCOMMAND> <SUBCOMMAND_ARGS>
@@ -41,45 +20,27 @@ Throughout this document, arguments with this behavior have a value both in thei
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `-av API_VERSIONS, --api-versions API_VERSIONS` | The API version to run the specified action against. These must match what the config in the spec repo contains. Example: `apigentools -av v1 -av v2 test` | `APIGENTOOLS_API_VERSION` | `None` to run against all
-`-c CONFIG_DIR, --config-dir CONFIG_DIR` | Path to config directory. | `APIGENTOOLS_CONFIG_DIR` | `config`
-`-g GENERATED_CODE_DIR, --generated-code-dir GENERATED_CODE_DIR` | Path to directory where generated source code is saved. | `APIGENTOOLS_GENERATED_CODE_DIR` | `generated`
-`-h, --help` | Show help message and exit.
+`--help` | Show help message and exit.
 `-l LANGUAGES, --languages LANGUAGES` | Languages to run the specified action against. These must match what the config in the spec repo contains. Example: `apigentools -l go -l java test` | `APIGENTOOLS_LANG` | `None` to run against all
 `-r SPEC_REPO_DIR, --spec-repo-dir SPEC_REPO_DIR` | Switch to this directory before doing anything else. | `APIGENTOOLS_SPEC_REPO_DIR` | `.`
 `--git-via-https` | Whether to use HTTPS (or SSH) for git actions. | `APIGENTOOLS_GIT_VIA_HTTPS` | `false`
 `--git-via-https-installation-access-token` | Use installation access token (authenticating a Github app) for git actions. Mutually exclusive with `--git-via-https-oauth-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_INSTALLATION_ACCESS_TOKEN` |
 `--git-via-https-oauth-token` | Use OAuth over HTTPS, passing this token for git actions. Mutually exclusive with `--git-via-https-installation-access-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN` |
-`-v, --verbose` | Log generation in verbose mode.
+`--verbose` | Log generation in verbose mode.
 
 ## `apigentools generate`
 
-Generates client code. When specified with the `--clone-repo` flag, the `generated-code-dir` for that client must be empty.
+Generates client code. When specified with the `--clone-repo` flag, the directory with generated code for that language must be empty.
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `--additional-stamp [ADDITIONAL_STAMP [ADDITIONAL_STAMP ...]]` | Additional components to add to the `apigentoolsStamp` variable passed to templates. | `APIGENTOOLS_ADDITIONAL_STAMP` | `[]`
-`--builtin-templates` | Use unpatched upstream templates. | | `false`
-`-d DOWNSTREAM_TEMPLATES_DIR, --downstream-templates-dir DOWNSTREAM_TEMPLATES_DIR` | Path to directory with downstream templates. | `APIGENTOOLS_DOWNSTREAM_TEMPLATES_DIR` | `downstream-templates`
 `--branch` | When specified, changes the client repository branch before running code generation. | `APIGENTOOLS_PULL_REPO_BRANCH` | `None`
-`--is-ancestor` | Checks that the --branch is ancestor of specified branch. Useful to enforce in CI that the feature branch is on top of master branch: '-branch feature --is-ancestor master'. | `APIGENTOOLS_IS_ANCESTOR` | `None`
-`-f FULL_SPEC_FILE, --full-spec-file FULL_SPEC_FILE` | Name of the OpenAPI full spec file to write. Note that if some languages override config's spec_sections, additional files will be generated with name pattern `full_spec.<lang>.yaml`. | `APIGENTOOLS_FULL_SPEC_FILE` | `full_spec.yaml`
-`-h, --help` | Show help message and exit.
-`-i GENERATED_WITH_IMAGE, --generated-with-image GENERATED_WITH_IMAGE` | Override the tag of the image with which the client code was generated. | `APIGENTOOLS_IMAGE` | `None`
-`-s SPEC_DIR, --spec-dir SPEC_DIR` | Path to directory with OpenAPI specs. | `APIGENTOOLS_SPEC_DIR` | `spec`
-`-t TEMPLATE_DIR, --template-dir TEMPLATE_DIR` | Path to directory with processed upstream templates. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
 `--clone-repo` | Whether to clone the client Github repositories before running code generation. | `APIGENTOOLS_PULL_REPO` | `False`
-
-Since version 0.10.0, apigentools also supports processing templates (equivalent to the `apigentools templates` subcommand) as part of generation. The arguments related to this functionality are:
-
-Argument | Description | Environment Variable | Default
----------|-------------|----------------------|--------
-`--templates-source {local-dir,openapi-git,openapi-jar,skip}` | Source to use for obtaining templates to be processed (`skip` to not process templates) | `APIGENTOOLS_TEMPLATES_SOURCE`| `skip`
-`-T TEMPLATES_OUTPUT_DIR, --templates-output-dir TEMPLATES_OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
-`-p TEMPLATE_PATCHES_DIR, --template-patches-dir TEMPLATE_PATCHES_DIR` | Directory with patches for upstream templates. | `APIGENTOOLS_TEMPLATE_PATCHES_DIR` | `template-patches`
-`--jar-path` | Path to `openapi-generator` JAR file (use if `--templates-source=openapi-jar`). | `APIGENTOOLS_OPENAPI_JAR` | `openapi-generator.jar`
-`--local-path LOCAL_PATH` | Path to directory with `openapi-generator` upstream templates (use if `--templates-source=local-dir`)
-`-u REPO_URL, --repo_url REPO_URL` | URL of the `openapi-generator` repo (use if `--templates-source=openapi-git`). | | `https://github.com/OpenAPITools/openapi-generator`
-`--git-committish [GIT_COMMITTISH]` | Git 'committish' to check out before obtaining templates (use if `--templates-source=openapi-git`). | | `master`
+`-f FULL_SPEC_FILE, --full-spec-file FULL_SPEC_FILE` | Name of the OpenAPI full spec file to write. Note that if some languages override config's spec_sections, additional files will be generated with name pattern `full_spec.<lang>.yaml`. | `APIGENTOOLS_FULL_SPEC_FILE` | `full_spec.yaml`
+`--is-ancestor` | Checks that the --branch is ancestor of specified branch. Useful to enforce in CI that the feature branch is on top of master branch: '-branch feature --is-ancestor master'. | `APIGENTOOLS_IS_ANCESTOR` | `None`
+`--help` | Show help message and exit.
+`--skip-templates` | Skip template preparation step. | `APIGENTOOLS_SKIP_TEMPLATES` | `False`
 
 ## `apigentools init`
 
@@ -88,7 +49,7 @@ Initializes a new [spec repo](spec_repo.md).
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `-g, --no-git-repo` | Don't initialize a git repository in the project directory.
-`-h, --help` | Show help message and exit.
+`--help` | Show help message and exit.
 
 ## `apigentools push`
 
@@ -96,13 +57,13 @@ Pushes the content of the generated directory to its target git repository. The 
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
-`-h, --help` | Show help message and exit.
 `--default-branch` | Default branch of client repo. If this branch does not exist, it is created and pushed to instead of a new feature branch | `APIGENTOOLS_DEFAULT_PUSH_BRANCH` | `master`
 `--dry-run` | Do a dry run (do not actualy create branches/commits or push). | | `False`
-`--push-commit-msg` | Commit message to use when pushing the generated clients. | `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <COMMIT_ID> of spec repo`
-`--skip-if-no-changes` | Skip committing/pushing for all repositories where only `.apigentools-info` has changed. | `APIGENTOOLS_SKIP_IF_NO_CHANGES` | `False`
 `--git-email` | Email of the git commit author. | `APIGENTOOLS_GIT_AUTHOR_EMAIL` | `None`
 `--git-name` | Name of the git commit author. | `APIGENTOOLSGIT_AUTHOR_NAME` | `None`
+`--help` | Show help message and exit.
+`--push-commit-msg` | Commit message to use when pushing the generated clients. | `APIGENTOOLS_COMMIT_MSG` | `Regenerate client from commit <COMMIT_ID> of spec repo`
+`--skip-if-no-changes` | Skip committing/pushing for all repositories where only `.apigentools-info` has changed. | `APIGENTOOLS_SKIP_IF_NO_CHANGES` | `False`
 
 **Note** Specifying the `--git-*` flags modifies the `.git/config` settings of each local repository that you push to to via apigentools. This does not modify the global `.git/config`.
 
@@ -112,9 +73,8 @@ Splits an existing one-file OpenAPI spec into multiple sections suitable for usa
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
-`-h, --help` | Show help message and exit.
+`--help` | Show help message and exit.
 `-i INPUT_FILE, --input-file INPUT_FILE` | Path to the OpenAPI full spec file to split.
-`-s SPEC_DIR, --spec-dir SPEC_DIR` | Path to directory with OpenAPI specs. | `APIGENTOOLS_SPEC_DIR` | `spec`
 `-v API_VERSION, --api-version API_VERSION` | Version of API that the input spec describes. | `APIGENTOOLS_SPLIT_SPEC_VERSION` | `v1`
 
 ## `apigentools templates`
@@ -123,46 +83,7 @@ Obtains upstream `openapi-generator` templates, applies template patches, and sa
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
-`-h, --help` | Show help message and exit.
-`-T TEMPLATES_OUTPUT_DIR, --templates-output-dir TEMPLATES_OUTPUT_DIR` | Path to directory where processed upstream templates are saved. | `APIGENTOOLS_TEMPLATES_DIR` | `templates`
-`-p TEMPLATE_PATCHES_DIR, --template-patches-dir TEMPLATE_PATCHES_DIR` | Directory with patches for upstream templates. | `APIGENTOOLS_TEMPLATE_PATCHES_DIR` | `template-patches`
-
-### `apigentools templates local-dir`
-
-Obtains upstream templates from a given local directory.
-
-Argument | Description | Environment Variable | Default
----------|-------------|----------------------|--------
-`-h, --help` | Show help message and exit.
-
-Positional Argument | Description | Environment Variable | Default
---------------------|-------------|----------------------|--------
-`local_path` | Path to directory with `openapi-generator` upstream templates.
-
-### `apigentools templates openapi-git`
-
-Obtains upstream templates from `openapi-generator` git repository.
-
-Argument | Description | Environment Variable | Default
----------|-------------|----------------------|--------
-`-h, --help` | Show help message and exit.
-`-u REPO_URL, --repo_url REPO_URL` | URL of the `openapi-generator` repo. | | `https://github.com/OpenAPITools/openapi-generator`
-
-Positional Argument | Description | Environment Variable | Default
---------------------|-------------|----------------------|--------
-`git_committish` | Git 'committish' to check out before obtaining templates. | | `master`
-
-### `apigentools templates openapi-jar`
-
-Obtains upstream templates from an `openapi-generator` JAR file.
-
-Argument | Description | Environment Variable | Default
----------|-------------|----------------------|--------
-`-h, --help` | Show help message and exit.
-
-Positional Argument | Description | Environment Variable | Default
---------------------|-------------|----------------------|--------
-`jar_path` | Path to `openapi-generator` JAR file. | `APIGENTOOLS_OPENAPI_JAR` | `openapi-generator.jar`
+`--help` | Show help message and exit.
 
 ## `apigentools test`
 
@@ -171,9 +92,8 @@ Runs tests of generated clients.
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
 `--container-env [CONTAINER_ENV [CONTAINER_ENV ...]]` | Additional environment variables to pass to containers running the tests, for example `--container-env API_KEY=123 OTHER_KEY=234`. Note that apigentools contains additional logic to treat these values as sensitive and avoid logging them during runtime. (**NOTE**: if the testing container itself prints this value, it *will* be logged as part of the test output by apigentools).
-`-g GENERATED_CODE_DIR, --generated-code-dir GENERATED_CODE_DIR` | Path to directory where the generated source code is. | `APIGENTOOLS_GENERATED_CODE_DIR` | `generated`
-`-h, --help` | Show help message and exit.
-`--no-cache` | Build test image with `--no-cache` option. | `APIGENTOOLS_TEST_BUILD_NO_CACHE` | `False`
+`--help` | Show help message and exit.
+`--no-sensitive-output` | By default, it is considered that the environment values provided through `--container-env` may contain sensitive values and the whole command and its output is therefore hidden. You can override this behaviour by using this flag. | `APIGENTOOLS_NO_SENSITIVE_OUTPUT` | `False`
 
 ## `apigentools config`
 
@@ -182,6 +102,16 @@ These languages and api versions can be directly passed to the `--languages` and
 
 Argument | Description | Environment Variable | Default
 ---------|-------------|----------------------|--------
+`-f FULL_SPEC_FILE, --full-spec-file FULL_SPEC_FILE` | Name of the OpenAPI full spec file to write. Note that if some languages override config's spec_sections, additional files will be generated with name pattern `full_spec.<lang>.yaml`. | `APIGENTOOLS_FULL_SPEC_FILE` | `full_spec.yaml`
 `-L, --list-languages` | Whether to only list the languages supported by this spec. Example: `apigentools -l` | `NA` | `None` to list both languages and versions
 `-V, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
-`-h, --help` | Show help message and exit.
+`--help` | Show help message and exit.
+
+## `apigentools validate`
+
+Runs validation steps defined in `config/config.yaml`.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`-f FULL_SPEC_FILE, --full-spec-file FULL_SPEC_FILE` | Name of the OpenAPI full spec file to write. Note that if some languages override config's spec_sections, additional files will be generated with name pattern `full_spec.<lang>.yaml`. | `APIGENTOOLS_FULL_SPEC_FILE` | `full_spec.yaml`
+`--help` | Show help message and exit.
