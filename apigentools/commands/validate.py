@@ -34,34 +34,19 @@ class ValidateCommand(Command):
         log_string = (
             "of general spec"
             if language is None
-            else "of spec for language {}".format(language)
+            else "of spec for {}/{}".format(language, version)
         )
         log_string += " ({})".format(fs_path)
-        try:
-            self.run_validation_commands(fs_path)
-            log.info("Validation %s for API version %s successful", log_string, version)
-            return True
-        except Exception as e:
-            log_method = log.error
-            if self.args.get("verbose"):
-                log_method = log.exception
-            log_method(
-                "Validation %s for API version %s failed, see the output above for errors",
-                log_string,
-                version,
-            )
-            return False
-
-    def run_validation_commands(self, spec_path):
         vcs = self.config.get_validation_commands()
         if vcs:
-            log.info("Running custom validation commands")
+            log.info("Running validation commands for %s/%s", language, version)
 
         for cmd in vcs:
             # TODO: deduplicate chevron_vars with generate command
             self.run_config_command(
-                cmd, "validation", chevron_vars={"full_spec_path": spec_path}
+                cmd, "validation", chevron_vars={"full_spec_path": fs_path}
             )
+        log.info("Validation %s for API version %s successful", log_string, version)
 
     def run(self):
         cmd_result = 0
@@ -80,7 +65,6 @@ class ValidateCommand(Command):
             )
 
             # Validate a spec file only once
-            if not self.validate_spec(fs_path, language, version):
-                cmd_result = 1
+            self.validate_spec(fs_path, language, version)
 
         return cmd_result

@@ -41,7 +41,11 @@ class TemplatesCommand(Command):
         # TODO: select directory specified by "templates_dir" in "templates.source"
         # *before* applying patches
         templates_cfg = lc.templates_config_for(spec_version)
-        if not templates_cfg:
+        if templates_cfg:
+            log.info(
+                "Obtaining upstream templates for %s/%s ...", lc.language, spec_version
+            )
+        else:
             log.info(
                 "No templates configured for %s/%s, skipping", lc.language, spec_version
             )
@@ -52,7 +56,6 @@ class TemplatesCommand(Command):
         )
         source_type = templates_cfg["source"]["type"]
         with tempfile.TemporaryDirectory() as td:
-            log.info("Obtaining upstream templates ...")
             patch_in = copy_from = td
             image = lc.container_opts_for(spec_version)[constants.COMMAND_IMAGE_KEY]
             if source_type == "openapi-jar":
