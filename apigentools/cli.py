@@ -62,6 +62,7 @@ log = logging.getLogger(__name__)
     "Ex: 'apigentools -av v1 -av v2 test' (Default: None to run all)",
 )
 @click.pass_context
+@click.version_option()
 def cli(ctx, **kwargs):
     """
     Manipulate OpenAPI specs and generate code using openapi-generator
