@@ -3,12 +3,23 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
 import logging
+import os
+import re
 
 import click
+import semver
 
+import apigentools
 from apigentools import constants
 from apigentools.commands import ALL_COMMANDS
-from apigentools.utils import env_or_val, set_log, set_log_level
+from apigentools.config import Config
+from apigentools.utils import (
+    env_or_val,
+    set_log,
+    set_log_level,
+    change_cwd,
+    check_for_legacy_config,
+)
 
 log = logging.getLogger(__name__)
 
@@ -72,8 +83,34 @@ def cli(ctx, **kwargs):
     ctx.obj = dict(kwargs)
     toplog = logging.getLogger(__name__.split(".")[0])
     set_log(toplog)
+    check_min_version(ctx)
     if ctx.obj.get("verbose"):
         set_log_level(toplog, logging.DEBUG)
+
+
+def check_min_version(click_ctx):
+    with change_cwd(click_ctx.obj.get("spec_repo_dir")):
+        configfile = os.path.join(
+            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
+        )
+        try:
+            config = Config.from_file(configfile)
+        except OSError:
+            check_for_legacy_config(click_ctx, configfile)
+
+        min_version = config.raw_dict.get("apigentools_min_version", "0.0.0")
+        actual_version = apigentools.__version__
+        # Version like - "apigentools, version 0.10.1.dev27+dirty"
+        # The .dev isn't semver, should be -dev
+        actual_version = re.sub(r".* version ", "", actual_version)
+        actual_version = re.sub(r".dev", "-dev", actual_version)
+
+        if semver.parse_version_info(actual_version) < semver.parse_version_info(
+            min_version
+        ):
+            raise Exception(
+                f"Apigentools is below {min_version}. Please upgrade to run generation and tests against latest code."
+            )
 
 
 # Register all click sub-commands
