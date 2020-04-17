@@ -4,10 +4,9 @@
 # Copyright 2019-Present Datadog, Inc.
 import logging
 import os
-import re
 
 import click
-import semver
+from packaging import version
 
 import apigentools
 from apigentools import constants
@@ -98,19 +97,13 @@ def check_min_version(click_ctx):
         except OSError:
             check_for_legacy_config(click_ctx, configfile)
 
+        # Version like - "apigentools, version 0.10.1.dev27+dirty"
         min_version = config.raw_dict.get("apigentools_min_version", "0.0.0")
         actual_version = apigentools.__version__
-        # Version like - "apigentools, version 0.10.1.dev27+dirty"
-        # The .dev isn't semver, should be -dev
-        actual_version = re.sub(r".* version ", "", actual_version)
-        actual_version = re.sub(r".dev", "-dev", actual_version)
 
-        if semver.parse_version_info(actual_version) < semver.parse_version_info(
-            min_version
-        ):
-            raise Exception(
-                f"Apigentools is below {min_version}. Please upgrade to run generation and tests against latest code."
-            )
+        if version.parse(actual_version) < version.parse(min_version):
+            click.echo(f"Apigentools is below {min_version}. Please upgrade to run generation and tests against latest code.", err=True)
+            click_ctx.exit(1)
 
 
 # Register all click sub-commands
