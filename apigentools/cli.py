@@ -103,7 +103,7 @@ def check_min_version(click_ctx):
 
         if version.parse(actual_version) < version.parse(min_version):
             click.echo(
-                f"Apigentools is below {min_version}. Please upgrade to run generation and tests against latest code.",
+                f"Apigentools is below the minimum version: {min_version} for this spec repo. Please upgrade to continue to run generation and tests.",
                 err=True,
             )
             click_ctx.exit(1)
