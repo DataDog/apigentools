@@ -27,6 +27,7 @@ Argument | Description | Environment Variable | Default
 `--git-via-https-installation-access-token` | Use installation access token (authenticating a Github app) for git actions. Mutually exclusive with `--git-via-https-oauth-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_INSTALLATION_ACCESS_TOKEN` |
 `--git-via-https-oauth-token` | Use OAuth over HTTPS, passing this token for git actions. Mutually exclusive with `--git-via-https-installation-access-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN` |
 `--verbose` | Log generation in verbose mode.
+`--skip-version-check` | Skip the check that the apigentools version is in range of whats supported in the spec config file. | `APIGENTOOLS_SKIP_VERSION_CHECK` | `False`
 
 ## `apigentools generate`
 

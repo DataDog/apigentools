@@ -71,6 +71,12 @@ log = logging.getLogger(__name__)
     "These must match what the config in the spec repo contains."
     "Ex: 'apigentools -av v1 -av v2 test' (Default: None to run all)",
 )
+@click.option(
+    "--skip-version-check",
+    is_flag=True,
+    default=env_or_val("APIGENTOOLS_SKIP_VERSION_CHECK", False, __type=bool),
+    help="Skip the check that the apigentools version is in range of whats supported in the spec config file",
+)
 @click.pass_context
 @click.version_option()
 def cli(ctx, **kwargs):
@@ -88,6 +94,10 @@ def cli(ctx, **kwargs):
 
 
 def check_min_version(click_ctx):
+    should_not_check_version = click_ctx.obj.get("skip_version_check")
+    if should_not_check_version:
+        return
+
     with change_cwd(click_ctx.obj.get("spec_repo_dir")):
         configfile = os.path.join(
             os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
