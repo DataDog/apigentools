@@ -44,16 +44,6 @@ log = logging.getLogger(__name__)
     help="Switch to this directory before doing anything else",
 )
 @click.option(
-    "-c",
-    "--config-dir",
-    default=env_or_val(
-        constants.ENV_APIGENTOOLS_CONFIG_DIR, constants.DEFAULT_CONFIG_DIR
-    ),
-    help="Path to config directory (default: '{}')".format(
-        constants.DEFAULT_CONFIG_DIR
-    ),
-)
-@click.option(
     "-l",
     "--languages",
     multiple=True,
@@ -71,17 +61,8 @@ log = logging.getLogger(__name__)
     "These must match what the config in the spec repo contains."
     "Ex: 'apigentools -av v1 -av v2 test' (Default: None to run all)",
 )
-@click.option(
-    "-g",
-    "--generated-code-dir",
-    default=env_or_val(
-        "APIGENTOOLS_GENERATED_CODE_DIR", constants.DEFAULT_GENERATED_CODE_DIR
-    ),
-    help="Path to directory where to save the generated source code (default: '{}')".format(
-        constants.DEFAULT_GENERATED_CODE_DIR
-    ),
-)
 @click.pass_context
+@click.version_option()
 def cli(ctx, **kwargs):
     """
     Manipulate OpenAPI specs and generate code using openapi-generator

@@ -13,11 +13,7 @@ import sys
 
 import yaml
 
-from apigentools.constants import (
-    HEADER_FILE_NAME,
-    REDACTED_OUT_SECRET,
-    SHARED_SECTION_NAME,
-)
+from apigentools import constants
 
 log = logging.getLogger(__name__)
 
@@ -97,7 +93,7 @@ def env_or_val(env, val, *args, __type=str, **kwargs):
         raise ValueError("__type must be one of: str, int, float, bool, list")
 
 
-def get_current_commit(repo_path):
+def get_current_commit(repo_path="."):
     """ Get short name of the current commit
 
     :param repo_path: Path of the repository to get current commit for
@@ -138,7 +134,7 @@ def logging_enabled(enabled):
 
 def run_command(
     cmd,
-    log_level=logging.INFO,
+    log_level=logging.DEBUG,
     additional_env=None,
     combine_out_err=False,
     dry_run=False,
@@ -178,7 +174,7 @@ def run_command(
         if isinstance(member, dict):
             cmd_strlist.append(member["item"])
             if member.get("secret", False):
-                cmd_logstr.append(REDACTED_OUT_SECRET)
+                cmd_logstr.append(constants.REDACTED_OUT_SECRET)
             else:
                 cmd_logstr.append(member["item"])
         else:
@@ -248,11 +244,11 @@ def fmt_cmd_out_for_log(result_or_error, combine_out_err):
     :rtype: ``str``
     """
     if combine_out_err:
-        return "RETCODE: {rc}\nOUTPUT:\n{o}".format(
+        return "\nRETCODE: {rc}\nOUTPUT:\n{o}".format(
             rc=result_or_error.returncode, o=result_or_error.stdout
         )
     else:
-        return "RETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
+        return "\nRETCODE: {rc}\nSTDOUT:\n{o}STDERR:\n{e}".format(
             rc=result_or_error.returncode,
             o=result_or_error.stdout,
             e=result_or_error.stderr,
@@ -286,11 +282,9 @@ def get_full_spec_file_name(default_fsf, l):
     return "{}.{}".format(default_fsf, l)
 
 
-def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
+def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     """ Write a full OpenAPI spec file
 
-    :param config: apigentools config
-    :type config: ``apigentools.config.Config``
     :param spec_dir: Directory containing per-major-version subdirectories
         with parts of OpenAPI spec to combine
     :type spec_dir: ``str``
@@ -304,11 +298,6 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
     :rtype: ``str``
     """
     spec_version_dir = os.path.join(spec_dir, spec_version)
-
-    filenames = spec_sections[spec_version] + [
-        SHARED_SECTION_NAME + ".yaml",
-        HEADER_FILE_NAME,
-    ]
     full_spec = {
         "paths": {},
         "tags": [],
@@ -325,46 +314,47 @@ def write_full_spec(config, spec_dir, spec_version, spec_sections, fs_path):
         },
         "security": [],
     }
-    if spec_version in config.server_base_urls:
-        # Servers should be defined in header.yaml or endpoints
-        full_spec["servers"] = [{"url": config.server_base_urls[spec_version]}]
-
-    for filename in filenames:
+    for filename in spec_sections:
         fpath = os.path.join(spec_version_dir, filename)
         if not os.path.exists(fpath):
             continue
         with open(fpath) as infile:
             loaded = yaml.safe_load(infile.read())
-            if filename == HEADER_FILE_NAME:
-                full_spec.update(loaded)
-            else:
-                for k, v in loaded.get("paths", {}).items():
-                    full_spec["paths"].setdefault(k, {})
-                    validate_duplicates(v, full_spec["paths"][k])
-                    full_spec["paths"][k].update(v)
+            for k, v in loaded.get("paths", {}).items():
+                full_spec["paths"].setdefault(k, {})
+                validate_duplicates(v, full_spec["paths"][k])
+                full_spec["paths"][k].update(v)
 
-                validate_duplicates(loaded.get("tags", []), full_spec.get("tags", []))
-                full_spec["tags"].extend(loaded.get("tags", []))
+            validate_duplicates(loaded.get("tags", []), full_spec.get("tags", []))
+            full_spec["tags"].extend(loaded.get("tags", []))
 
+            validate_duplicates(
+                loaded.get("security", []), full_spec.get("security", [])
+            )
+            full_spec["security"].extend(loaded.get("security", []))
+
+            for field in COMPONENT_FIELDS:
+                # Validate there aren't duplicate fields across files
+                # Note: This won't raise an error if there is a duplicate component in a single file
+                # That would alredy be deduped by the safe_load above.
                 validate_duplicates(
-                    loaded.get("security", []), full_spec.get("security", [])
+                    loaded.get("components", {}).get(field, {}).keys(),
+                    full_spec.get("components", {}).get(field).keys(),
                 )
-                full_spec["security"].extend(loaded.get("security", []))
-
-                for field in COMPONENT_FIELDS:
-                    # Validate there aren't duplicate fields across files
-                    # Note: This won't raise an error if there is a duplicate component in a single file
-                    # That would alredy be deduped by the safe_load above.
-                    validate_duplicates(
-                        loaded.get("components", {}).get(field, {}).keys(),
-                        full_spec.get("components", {}).get(field).keys(),
-                    )
-                    full_spec["components"][field].update(
-                        loaded.get("components", {}).get(field, {})
-                    )
+                full_spec["components"][field].update(
+                    loaded.get("components", {}).get(field, {})
+                )
 
             # https://speccy.io/rules/1-rulesets#openapi-tags-alphabetical
             full_spec["tags"].sort(key=lambda x: x["name"])
+
+            # handle the rest of top level attributes
+            loaded_keys = set(loaded.keys()) - set(
+                ["components", "paths", "security", "tags"]
+            )
+            validate_duplicates(loaded_keys, full_spec.keys())
+            for k in loaded_keys:
+                full_spec[k] = loaded[k]
 
     with open(fs_path, "w", encoding="utf-8") as f:
         f.write(yaml.dump(full_spec))
@@ -378,34 +368,43 @@ def validate_duplicates(loaded_keys, full_spec_keys):
             raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
 
 
-def volumes_from(alt_volumes):
-    retval = []
-    is_image_run = env_or_val("APIGENTOOLS_IMAGE", None)
-    if is_image_run:
-        if os.path.exists("/proc/self/cgroup"):
-            with open("/proc/self/cgroup") as f:
-                for line in f.readlines():
-                    # github actions use "/actions_job/" in cgroups lines to identify docker container id
-                    if "/docker/" in line or "/actions_job/" in line:
-                        container_id = line.rsplit("/")
-                        retval.append("--volumes-from")
-                        retval.append(container_id[-1].strip())
-                        break
-        if not retval:
-            log.warning(
-                "APIGENTOOLS_IMAGE is set, but docker container ID not found in /proc/self/cgroup"
-            )
-    if not retval:
-        for av in alt_volumes:
-            retval.append("-v")
-            retval.append(av)
-    return retval
-
-
 def glob_re(glob_pattern, re_filter):
     glob_result = glob.glob(glob_pattern)
     re_compiled = re.compile(re_filter)
 
     result = [r for r in glob_result if re_compiled.match(r)]
     log.debug('"glob_re" result: %s', result)
+    return result
+
+
+def inherit_container_opts(local, parent):
+    """ Implements handling of inheritance of container_opts
+
+    :param local: Container opts that are inheriting
+    :type local: ``dict``
+    :param parent: Container opts that need to be inherited from
+    :type parent: ``dict``
+    :return: New container opts after doing inheritance
+    :rtype: ``dict``
+    """
+    result = copy.deepcopy(local)
+    result.setdefault(constants.COMMAND_ENVIRONMENT_KEY, {})
+    # we always inherit parent image if not set locally
+    result.setdefault(constants.COMMAND_IMAGE_KEY, parent[constants.COMMAND_IMAGE_KEY])
+    result.setdefault(constants.COMMAND_INHERIT_KEY, True)
+    result.setdefault(constants.COMMAND_SYSTEM_KEY, False)
+    if result["inherit"]:
+        # each attribute we add in future might need special handling
+        # to properly implement its inheritance
+        if constants.COMMAND_ENVIRONMENT_KEY in parent:
+            # get copy of parent environment and update it with local environment
+            updated_env = copy.deepcopy(parent[constants.COMMAND_ENVIRONMENT_KEY])
+            updated_env.update(result.get(constants.COMMAND_ENVIRONMENT_KEY, {}))
+            result[constants.COMMAND_ENVIRONMENT_KEY] = updated_env
+        result[constants.COMMAND_INHERIT_KEY] = parent.get(
+            constants.COMMAND_INHERIT_KEY, True
+        )
+        result[constants.COMMAND_SYSTEM_KEY] = parent.get(
+            constants.COMMAND_SYSTEM_KEY, False
+        )
     return result

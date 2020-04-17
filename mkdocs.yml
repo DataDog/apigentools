@@ -10,3 +10,4 @@ nav:
 markdown_extensions:
   - toc:
       permalink: 
+  - admonition # used for `!!! note`

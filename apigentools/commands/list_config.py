@@ -8,7 +8,7 @@ import os
 import click
 
 from apigentools import constants
-from apigentools.commands.command import Command
+from apigentools.commands.command import Command, run_command_with_config
 from apigentools.config import Config
 from apigentools.utils import change_cwd, env_or_val
 
@@ -16,14 +16,6 @@ log = logging.getLogger(__name__)
 
 
 @click.command()
-@click.option(
-    "-s",
-    "--spec-dir",
-    default=env_or_val("APIGENTOOLS_SPEC_DIR", constants.DEFAULT_SPEC_DIR),
-    help="Path to directory with OpenAPI specs (default: '{}')".format(
-        constants.DEFAULT_SPEC_DIR
-    ),
-)
 @click.option(
     "-f",
     "--full-spec-file",
@@ -46,13 +38,7 @@ def config(ctx, **kwargs):
     """Displays information about the configuration for the spec being worked on, including supported languages,
     api versions, and the paths to the generated api yaml. These languages and api versions can be directly
     passed to the `--languages` and `--api-versions` flags of the supported commands."""
-    ctx.obj.update(kwargs)
-    cmd = ConfigCommand({}, ctx.obj)
-    with change_cwd(ctx.obj.get("spec_repo_dir")):
-        cmd.config = Config.from_file(
-            os.path.join(ctx.obj.get("config_dir"), constants.DEFAULT_CONFIG_FILE)
-        )
-        ctx.exit(cmd.run())
+    run_command_with_config(ConfigCommand, ctx, **kwargs)
 
 
 class ConfigCommand(Command):
@@ -69,4 +55,4 @@ class ConfigCommand(Command):
             out = [lang_info for lang_info in language_info]
 
         click.echo(out)
-        return out
+        return 0

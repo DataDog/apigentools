@@ -1,0 +1,8 @@
+!generated
+generated/*
+!generated/.gitkeep
+spec/*/full_spec.yaml
+!templates
+templates/*
+templates/
+.gitkeep/n
