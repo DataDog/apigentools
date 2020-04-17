@@ -102,7 +102,10 @@ def check_min_version(click_ctx):
         actual_version = apigentools.__version__
 
         if version.parse(actual_version) < version.parse(min_version):
-            click.echo(f"Apigentools is below {min_version}. Please upgrade to run generation and tests against latest code.", err=True)
+            click.echo(
+                f"Apigentools is below {min_version}. Please upgrade to run generation and tests against latest code.",
+                err=True,
+            )
             click_ctx.exit(1)
 
 
