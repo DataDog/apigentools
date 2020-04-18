@@ -28,6 +28,7 @@ Argument | Description | Environment Variable | Default
 `--git-via-https-oauth-token` | Use OAuth over HTTPS, passing this token for git actions. Mutually exclusive with `--git-via-https-installation-access-token`. | `APIGENTOOLS_GIT_VIA_HTTPS_OAUTH_TOKEN` |
 `--verbose` | Log generation in verbose mode.
 `--delete-generated-files` | Delete generated files in output_dir before generation | NA | `False`
+`--skip-version-check` | Skip the check that the apigentools version is in range of whats supported in the spec config file. | `APIGENTOOLS_SKIP_VERSION_CHECK` | `False`
 
 ## `apigentools generate`
 

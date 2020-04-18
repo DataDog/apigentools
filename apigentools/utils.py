@@ -408,3 +408,16 @@ def inherit_container_opts(local, parent):
             constants.COMMAND_SYSTEM_KEY, False
         )
     return result
+
+
+def check_for_legacy_config(click_ctx, configfile):
+    if os.path.exists(os.path.join(constants.SPEC_REPO_CONFIG_DIR, "config.json")):
+        log.error(
+            "It looks like your spec repo is using old configuration format no longer supported by this apigentools version"
+        )
+        log.error(
+            "Please upgrade your configuration: https://apigentools.readthedocs.io/en/latest/upgrading#from-0x-series-to-1x-series"
+        )
+    else:
+        log.error("Couldn't find {}. Are you running in spec repo?".format(configfile))
+    click_ctx.exit(1)

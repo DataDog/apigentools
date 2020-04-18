@@ -3,12 +3,22 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
 import logging
+import os
 
 import click
+from packaging import version
 
+import apigentools
 from apigentools import constants
 from apigentools.commands import ALL_COMMANDS
-from apigentools.utils import env_or_val, set_log, set_log_level
+from apigentools.config import Config
+from apigentools.utils import (
+    env_or_val,
+    set_log,
+    set_log_level,
+    change_cwd,
+    check_for_legacy_config,
+)
 
 log = logging.getLogger(__name__)
 
@@ -61,6 +71,12 @@ log = logging.getLogger(__name__)
     "These must match what the config in the spec repo contains."
     "Ex: 'apigentools -av v1 -av v2 test' (Default: None to run all)",
 )
+@click.option(
+    "--skip-version-check",
+    is_flag=True,
+    default=env_or_val("APIGENTOOLS_SKIP_VERSION_CHECK", False, __type=bool),
+    help="Skip the check that the apigentools version is in range of whats supported in the spec config file",
+)
 @click.pass_context
 @click.version_option()
 def cli(ctx, **kwargs):
@@ -72,8 +88,35 @@ def cli(ctx, **kwargs):
     ctx.obj = dict(kwargs)
     toplog = logging.getLogger(__name__.split(".")[0])
     set_log(toplog)
+    check_min_version(ctx)
     if ctx.obj.get("verbose"):
         set_log_level(toplog, logging.DEBUG)
+
+
+def check_min_version(click_ctx):
+    should_not_check_version = click_ctx.obj.get("skip_version_check")
+    if should_not_check_version:
+        return
+
+    with change_cwd(click_ctx.obj.get("spec_repo_dir")):
+        configfile = os.path.join(
+            os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
+        )
+        try:
+            config = Config.from_file(configfile)
+        except OSError:
+            check_for_legacy_config(click_ctx, configfile)
+
+        # Version like - "apigentools, version 0.10.1.dev27+dirty"
+        min_version = config.raw_dict.get("apigentools_min_version", "0.0.0")
+        actual_version = apigentools.__version__
+
+        if version.parse(actual_version) < version.parse(min_version):
+            click.echo(
+                f"Apigentools is below the minimum version: {min_version} for this spec repo. Please upgrade to continue to run generation and tests.",
+                err=True,
+            )
+            click_ctx.exit(1)
 
 
 # Register all click sub-commands
