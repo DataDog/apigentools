@@ -18,6 +18,7 @@ from apigentools.utils import (
     get_full_spec_file_name,
     glob_re,
     run_command,
+    check_for_legacy_config,
 )
 
 log = logging.getLogger(__name__)
@@ -34,20 +35,7 @@ def run_command_with_config(command_class, click_ctx, **kwargs):
         try:
             cmd.config = Config.from_file(configfile)
         except OSError:
-            if os.path.exists(
-                os.path.join(constants.SPEC_REPO_CONFIG_DIR, "config.json")
-            ):
-                log.error(
-                    "It looks like your spec repo is using old configuration format no longer supported by this apigentools version"
-                )
-                log.error(
-                    "Please upgrade your configuration: https://apigentools.readthedocs.io/en/latest/upgrading#from-0x-series-to-1x-series"
-                )
-            else:
-                log.error(
-                    "Couldn't find {}. Are you running in spec repo?".format(configfile)
-                )
-            click_ctx.exit(1)
+            check_for_legacy_config(click_ctx, configfile)
         try:
             click_ctx.exit(cmd.run())
         except subprocess.CalledProcessError as e:
@@ -144,10 +132,7 @@ class Command(abc.ABC):
         to_run = []
         for part in self._render_command_args(command.commandline, chevron_vars):
             if isinstance(part, dict):
-                allowed_functions = {
-                    "glob": glob.glob,
-                    "glob_re": glob_re,
-                }
+                allowed_functions = {"glob": glob.glob, "glob_re": glob_re}
                 allowed_functions.update(additional_functions or {})
                 function_name = part.get("function")
                 function = allowed_functions.get(function_name)
@@ -178,9 +163,7 @@ class Command(abc.ABC):
         is_system = command.container_opts.get(constants.COMMAND_SYSTEM_KEY)
         run_command_args = {}
         if is_system:
-            run_command_args.update(
-                {"additional_env": additional_env, "cwd": cwd,}
-            )
+            run_command_args.update({"additional_env": additional_env, "cwd": cwd})
         else:
             image = command.container_opts[constants.COMMAND_IMAGE_KEY]
             if isinstance(image, dict):
@@ -217,9 +200,7 @@ class Command(abc.ABC):
                 workdir,
             ]
             if to_run:
-                dockerized.extend(
-                    ["--entrypoint", to_run[0],]
-                )
+                dockerized.extend(["--entrypoint", to_run[0]])
             for k, v in additional_env.items():
                 dockerized.extend(["-e", "{}={}".format(k, v)])
 
