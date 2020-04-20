@@ -6,8 +6,6 @@
 import os
 
 from setuptools import setup
-from setuptools_scm.git import parse, fetch_on_shallow
-
 
 version_template = """\
 # Unless explicitly stated otherwise all files in this repository are licensed
@@ -20,6 +18,7 @@ __version__ = "{version}"
 
 
 def parse_fetch_on_shallow(root):
+    from setuptools_scm.git import parse, fetch_on_shallow
     return parse(root, pre_parse=fetch_on_shallow)
 
 
