@@ -6,6 +6,8 @@
 import os
 
 from setuptools import setup
+from setuptools_scm.git import parse, fetch_on_shallow
+
 
 version_template = """\
 # Unless explicitly stated otherwise all files in this repository are licensed
@@ -16,11 +18,14 @@ version_template = """\
 __version__ = "{version}"
 """
 
+def parse_fetch_on_shallow(root):
+  return parse(root, pre_parse=fetch_on_shallow)
+
 setup(
     use_scm_version={
         "local_scheme": "dirty-tag",
         "write_to": os.path.join("apigentools", "version.py"),
         "write_to_template": version_template,
-        "fetch_on_shallow": True,
+        "parse": parse_fetch_on_shallow,
     }
 )
