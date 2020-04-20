@@ -19,6 +19,7 @@ __version__ = "{version}"
 
 def parse_fetch_on_shallow(root):
     from setuptools_scm.git import parse, fetch_on_shallow
+
     return parse(root, pre_parse=fetch_on_shallow)
 
 
