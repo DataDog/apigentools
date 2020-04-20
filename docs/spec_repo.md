@@ -83,6 +83,7 @@ Example:
 ```yaml
 container_opts:
   image: datadog/apigentools:latest
+minimum_apigentools_version: 1.0.0
 languages:
   java:
     generation:
@@ -139,6 +140,7 @@ validation_commands:
 The structure of the general config file is as follows, starting with top level keys:
 
 * `container_opts` - Options for containerized command execution. See [container_opts section](#container_opts) below.
+* `minimum_apigentools_version` - Minimum required version of the apigentools package required for this spec repository.
 * `languages` - Settings for individual languages; contains a mapping of language names to their settings.
     * `container_opts` - See [container_opts section](#container_opts) below.
     * individual-language-settings:
