@@ -21,5 +21,6 @@ setup(
         "local_scheme": "dirty-tag",
         "write_to": os.path.join("apigentools", "version.py"),
         "write_to_template": version_template,
+        "fetch_on_shallow": True,
     }
 )
