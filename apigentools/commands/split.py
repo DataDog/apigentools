@@ -9,7 +9,7 @@ import re
 import sys
 
 import click
-import yaml
+from ruamel import yaml
 
 from apigentools import constants
 from apigentools.commands.command import Command, run_command_with_config

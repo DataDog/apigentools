@@ -12,7 +12,7 @@ languages:
           source:
             type: openapi-jar
             jar_path: /opt/openapi-generator/modules/openapi-generator-cli/target/openapi-generator-cli.jar
-            templates_dir: Java
+            templates_dir: &java-templates-dir Java
         commands:
           - commandline:
             - docker-entrypoint.sh
@@ -30,7 +30,7 @@ languages:
             - --additional-properties
             - apigentoolsStamp='{{stamp}}'
             - -t
-            - "{{templates_dir}}"
+            - *java-templates-dir
             - --type-mappings
             - "object=interface{}"
             description: "Generate Java client using openapi-generator"

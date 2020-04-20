@@ -5,7 +5,7 @@
 import os
 
 import chevron
-import yaml
+from ruamel import yaml
 
 from apigentools import constants
 from apigentools.utils import inherit_container_opts

@@ -7,7 +7,7 @@ import logging
 import os
 
 import click
-import yaml
+from ruamel import yaml
 
 from apigentools import constants
 from apigentools.commands.command import Command

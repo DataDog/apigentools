@@ -4,7 +4,7 @@
 # Copyright 2019-Present Datadog, Inc.
 import os
 
-import yaml
+from ruamel import yaml
 
 from apigentools import constants
 from apigentools.commands.init import InitCommand

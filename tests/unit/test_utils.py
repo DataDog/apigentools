@@ -9,7 +9,7 @@ import subprocess
 
 import flexmock
 import pytest
-import yaml
+from ruamel import yaml
 
 from apigentools.config import Config
 from apigentools.constants import REDACTED_OUT_SECRET
