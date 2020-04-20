@@ -11,7 +11,7 @@ import re
 import subprocess
 import sys
 
-import yaml
+from ruamel import yaml
 
 from apigentools import constants
 

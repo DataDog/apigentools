@@ -1,3 +1,9 @@
+-   id: apigentools
+    name: Run apigentools
+    language: python
+    entry: apigentools
+    description: Run apigentools inside this repository.
+    pass_filenames: false
 -   id: apigentools-validate
     name: Validate OpenAPI specification files
     language: python
