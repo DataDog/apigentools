@@ -18,8 +18,10 @@ version_template = """\
 __version__ = "{version}"
 """
 
+
 def parse_fetch_on_shallow(root):
-  return parse(root, pre_parse=fetch_on_shallow)
+    return parse(root, pre_parse=fetch_on_shallow)
+
 
 setup(
     use_scm_version={
