@@ -108,7 +108,7 @@ def check_min_version(click_ctx):
             check_for_legacy_config(click_ctx, configfile)
 
         # Version like - "apigentools, version 0.10.1.dev27+dirty"
-        min_version = config.raw_dict.get("apigentools_min_version", "0.0.0")
+        min_version = config.raw_dict.get("minumum_apigentools_version", "0.0.0")
         actual_version = apigentools.__version__
 
         if version.parse(actual_version) < version.parse(min_version):
