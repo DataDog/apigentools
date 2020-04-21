@@ -101,7 +101,7 @@ class PushCommand(Command):
         )
         commit_msg = self.args.get("push_commit_msg") or commit_msg
 
-        for lang_name, lang_config in self.config.language_configs.items():
+        for lang_name, lang_config in self.config.languages.items():
             # Skip any languages not specified by the user
             if lang_name not in languages:
                 continue
