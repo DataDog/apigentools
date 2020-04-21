@@ -2,146 +2,242 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+import copy
 import os
+from typing import Dict, List, MutableSequence, Optional, Union
 
 import chevron
+import pydantic
 import yaml
 
 from apigentools import constants
 from apigentools.utils import inherit_container_opts
 
 
-class Config:
-    def __init__(self, raw_dict):
-        # TODO: verify the schema of the raw config dict, possibly use jsonschema for that
-        self.raw_dict = raw_dict
-        self.defaults = {
-            "container_opts": {
-                constants.COMMAND_IMAGE_KEY: constants.DEFAULT_CONTAINER_IMAGE,
-            },
-            "languages": {},
-            "spec_sections": {},
-            "spec_versions": [],
-            "user_agent_client_name": "OpenAPI",
-            "validation_commands": [],
+class ContainerImageBuild(pydantic.BaseModel):
+    dockerfile: str
+    context: str = "."
+
+
+class ContainerOpts(pydantic.BaseModel):
+    environment: Optional[Dict[str, str]] = {}
+    image: Union[Optional[str], ContainerImageBuild]
+    inherit: Optional[bool] = True
+    # we don't set a default for these values, because we want to know whether we should inherit their value from parent
+    # (if value is not set) or not (if value is set)
+    system: Optional[bool]
+    workdir: Optional[str]
+
+
+class StringArgument(str):
+    def __call__(self, chevron_vars: Optional[Dict] = None):
+        yield chevron.render(self, chevron_vars)
+
+
+class ListArgument(list, MutableSequence[StringArgument]):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for index, arg in enumerate(self):
+            self[index] = StringArgument(arg)
+
+    def __call__(self, chevron_vars: Optional[Dict] = None):
+        yield [value for arg in self for value in arg(chevron_vars)]
+
+
+class FunctionArgument(pydantic.BaseModel):
+    """Expand command argument using build-in functions."""
+
+    function: str  # TODO: validate it's the correct one
+    args: List[StringArgument] = []
+    kwargs: Dict[str, Union[StringArgument, ListArgument]] = {}
+
+    @pydantic.validator("args")
+    def validate_args(cls, v):
+        return [StringArgument(arg) for arg in v]
+
+
+class ConfigCommand(pydantic.BaseModel):
+    """Command line configuration."""
+
+    commandline: List[Union[StringArgument, FunctionArgument]]
+    container_opts: Optional[ContainerOpts]
+    description: str = "Generic command"
+
+    @pydantic.validator("commandline")
+    def validate_commandline(cls, v, field):
+        return [StringArgument(arg) if isinstance(arg, str) else arg for arg in v]
+
+    def __call__(self, chevron_vars: Optional[Dict] = None):
+        for arg in self.commandline:
+            yield from arg(chevron_vars)
+
+    def postprocess(self, parent):
+        self.container_opts = inherit_container_opts(
+            self.container_opts, parent.container_opts
+        )
+
+
+class TemplatesSourceConfig(pydantic.BaseModel):
+    type: str
+    system: Optional[bool] = False
+    templates_dir: str
+
+
+class OpenapiJarTemplatesConfig(TemplatesSourceConfig):
+    jar_path: str
+
+
+class OpenapiGitTemplatesConfig(TemplatesSourceConfig):
+    git_committish: str
+
+
+class DirectoryTemplatesConfig(TemplatesSourceConfig):
+    directory_path: str
+
+
+class TemplatesConfig(pydantic.BaseModel):
+    patches: Optional[List] = []
+    source: Union[
+        OpenapiJarTemplatesConfig, OpenapiGitTemplatesConfig, DirectoryTemplatesConfig
+    ]
+
+    @pydantic.validator("source", pre=True)
+    def source_validator(cls, v):
+        # NOTE: in Python 3.8, we can just do `type: Literal["openapi-jar"]` and similar on the
+        # individual classes and omit this function
+        tp = v.get("type")
+        if tp == "openapi-jar":
+            return OpenapiJarTemplatesConfig(**v)
+        elif tp == "openapi-git":
+            return OpenapiGitTemplatesConfig(**v)
+        elif tp == "directory":
+            return DirectoryTemplatesConfig(**v)
+        else:
+            raise ValueError("{} is not a recognized template source type".format(tp))
+
+
+class VersionGeneration(pydantic.BaseModel):
+    container_opts: Optional[ContainerOpts]
+    commands: Optional[List[ConfigCommand]]
+    templates: Optional[TemplatesConfig]
+    tests: Optional[List[ConfigCommand]]
+
+    def postprocess(self, parent, vname, default_generation=None):
+        if self.commands is None:
+            self.commands = (
+                copy.deepcopy(default_generation.commands) if default_generation else []
+            )
+        if self.tests is None:
+            self.tests = (
+                copy.deepcopy(default_generation.tests) if default_generation else []
+            )
+        if self.templates is None:
+            self.templates = (
+                copy.deepcopy(default_generation.templates)
+                if default_generation
+                else []
+            )
+
+        if default_generation is not None:
+            if self.container_opts is None:
+                self.container_opts = copy.deepcopy(default_generation.container_opts)
+        self.container_opts = inherit_container_opts(
+            self.container_opts, parent.container_opts
+        )
+
+        for c in self.commands:
+            c.postprocess(self)
+        for t in self.tests:
+            t.postprocess(self)
+        # TODO: templates
+
+
+class LanguageConfig(pydantic.BaseModel):
+    __slots__ = ("language", "user_agent_client_name")
+
+    class Config:
+        fields = {
+            "github_repo": "github_repo_name",
+            "github_org": "github_org_name",
         }
-        self.language_configs = {}
-        for lang, conf in raw_dict.get("languages", {}).items():
-            self.language_configs[lang] = LanguageConfig(lang, conf, self)
 
-    def __getattr__(self, attr):
-        if attr not in self.raw_dict:
-            if attr not in self.defaults:
-                raise KeyError("{} is not a recognized configuration key".format(attr))
-            else:
-                return self.defaults[attr]
-        return self.raw_dict[attr]
+    container_opts: Optional[ContainerOpts]
+    downstream_templates: Dict[str, str] = {}
+    generation: Dict[str, VersionGeneration] = {}
+    github_repo: Optional[str] = None
+    github_org: Optional[str] = None
+    library_version: str
+    spec_sections: Optional[Dict]
+    spec_versions: Optional[List]
+    version_path_template: Optional[str] = ""
 
-    def get_language_config(self, lang):
-        return self.language_configs[lang]
+    def postprocess(self, parent, lname):
+        # https://github.com/samuelcolvin/pydantic/issues/655#issuecomment-570312649
+        object.__setattr__(self, "language", lname)
+        object.__setattr__(
+            self, "user_agent_client_name", parent.user_agent_client_name
+        )
 
-    def get_validation_commands(self):
-        cmd_objects = []
-        fake_language = LanguageConfig(None, {}, self)
-        for cmd in self.validation_commands:
-            cmd_objects.append(ConfigCommand(None, cmd, fake_language))
-        return cmd_objects
+        # This goes through all spec versions defined for the language; if spec sections
+        # for a spec version aren't defined in language's spec_sections, they're taken
+        # from the top-level spec_sections
+        if self.spec_versions is None:
+            self.spec_versions = copy.deepcopy(parent.spec_versions)
+        if self.spec_sections is None:
+            self.spec_sections = copy.deepcopy(parent.spec_sections)
 
-    @classmethod
-    def from_file(cls, fpath):
-        with open(fpath) as f:
-            config = yaml.safe_load(f)
+        for sv in self.spec_versions:
+            if sv not in parent.spec_versions:
+                raise AttributeError(
+                    "{} version not found in top-level versions".format(sv)
+                )
+            if sv not in self.spec_sections:
+                self.spec_sections[sv] = copy.deepcopy(parent.spec_sections.get(sv, []))
 
-        return cls(config)
+        self.container_opts = inherit_container_opts(
+            self.container_opts, parent.container_opts
+        )
 
-    @classmethod
-    def from_dict(cls, d):
-        return cls(d)
+        # postprocess default section first, because the other sections use it
+        if "default" in self.generation:
+            self.generation["default"].postprocess(self, "default", None)
 
-    def spec_sections_for(self, version):
-        return self.raw_dict.get("spec_sections", {}).get(version, [])
-
-
-class LanguageConfig:
-    def __init__(self, language, raw_dict, top_level_config):
-        self.language = language
-        self.raw_dict = raw_dict
-        self.generation = raw_dict.get("generation", {})
-        self.top_level_config = top_level_config
-
-    def get_commands(self, version, which="commands"):
-        raw = self.generation.get(version, {}).get(which, [])
-        if not raw:
-            raw = self.generation.get("default", {}).get(which, [])
-        ret = []
-        for r in raw:
-            ret.append(ConfigCommand(version, r, self))
-        return ret
+        for version in self.spec_versions:
+            version_generation = self.generation.get(version)
+            if version_generation is None:
+                version_generation = copy.deepcopy(self.generation.get("default"))
+                self.generation[version] = version_generation
+            if version_generation:
+                version_generation.postprocess(
+                    self, version, self.generation.get("default")
+                )
 
     def commands_for(self, version):
-        return self.get_commands(version, which="commands")
-
-    @property
-    def github_repo(self):
-        return self.raw_dict.get("github_repo_name")
-
-    @property
-    def github_org(self):
-        return self.raw_dict.get("github_org_name")
-
-    @property
-    def version_path_template(self):
-        return self.raw_dict.get("version_path_template", "")
-
-    @property
-    def library_version(self):
-        return self.raw_dict["library_version"]
-
-    @property
-    def spec_versions(self):
-        return self.raw_dict.get("spec_versions", self.top_level_config.spec_versions)
-
-    def spec_sections_for(self, version):
-        spec_sections = self.raw_dict.get("spec_sections", {})
-        if version in spec_sections:
-            return spec_sections[version]
-        return self.top_level_config.spec_sections_for(version)
-
-    def templates_config_for(self, version):
-        tpl_cfg = self.generation.get("default", {}).get("templates", {})
-        if version in self.generation and "templates" in self.generation[version]:
-            tpl_cfg = self.generation[version]["templates"]
-        return tpl_cfg
-
-    @property
-    def language_container_opts(self):
-        lco = self.raw_dict.get("container_opts", {})
-        return inherit_container_opts(lco, self.top_level_config.container_opts)
-
-    def container_opts_for(self, version):
-        version_co = self.generation.get(version, {}).get("container_opts", {})
-        if not version_co:
-            version_co = self.generation.get("default", {}).get("container_opts", {})
-        return inherit_container_opts(version_co, self.language_container_opts)
+        return self.generation[version].commands
 
     def test_commands_for(self, version):
-        return self.get_commands(version, which="tests")
+        return self.generation[version].tests
 
-    @property
-    def downstream_templates(self):
-        return self.raw_dict.get("downstream_templates", {})
+    def spec_sections_for(self, version):
+        return self.spec_sections[version]
+
+    def templates_config_for(self, version):
+        return self.generation[version].templates
+
+    def container_opts_for(self, version):
+        return self.generation[version].container_opts
 
     def chevron_vars_for(self, version=None, spec_path=None):
         chevron_vars = {
             "github_repo_name": self.github_repo,
             "github_repo_org": self.github_org,
-            "github_repo_url": chevron.render(
-                constants.GITHUB_REPO_URL_TEMPLATE, self.raw_dict
-            ),
             "language_name": self.language,
             "library_version": self.library_version,
-            "user_agent_client_name": self.top_level_config.user_agent_client_name,
+            "user_agent_client_name": self.user_agent_client_name,
         }
+        chevron_vars["github_repo_url"] = chevron.render(
+            constants.GITHUB_REPO_URL_TEMPLATE, chevron_vars
+        )
         if version:
             version_output_dir = self.generated_lang_version_dir_for(version)
             # where is the spec repo relative to version_output_dir
@@ -207,23 +303,42 @@ class LanguageConfig:
         )
 
 
-class ConfigCommand:
-    def __init__(self, version, config, language_config):
-        self.version = version
-        self.config = config
-        self.language_config = language_config
+class Config(pydantic.BaseSettings):
+    # TODO: make sure the image is added even if this default is not used
+    container_opts: Optional[ContainerOpts]
+    minimum_apigentools_version: Optional[str] = "0.0.0"
+    spec_sections: Optional[Dict] = {}
+    spec_versions: Optional[List] = []
+    user_agent_client_name: str = "OpenAPI"
+    # because we access a lot of the other attributes in the custom validator for languages,
+    # we define it as the last attribute, so that we make sure that all the other attributes
+    # are already validated (pydantic validates args in order they're defined)
+    languages: Optional[Dict[str, LanguageConfig]] = {}
+    validation_commands: Optional[List[ConfigCommand]] = []
 
-    @property
-    def description(self):
-        return self.config.get("description", "Generic command")
+    def get_language_config(self, lang):
+        return self.languages[lang]
 
-    @property
-    def commandline(self):
-        return self.config["commandline"]
+    def spec_sections_for(self, version):
+        return self.spec_sections.get(version, [])
 
-    @property
-    def container_opts(self):
-        return inherit_container_opts(
-            self.config.get("container_opts", {}),
-            self.language_config.container_opts_for(self.version),
+    @classmethod
+    def from_file(cls, fpath):
+        with open(fpath) as f:
+            config = yaml.safe_load(f)
+
+        return cls(**config).postprocess()
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**copy.deepcopy(d)).postprocess()
+
+    def postprocess(self):
+        self.container_opts = inherit_container_opts(
+            self.container_opts, ContainerOpts(image=constants.DEFAULT_CONTAINER_IMAGE)
         )
+        for lname, lconfig in self.languages.items():
+            lconfig.postprocess(self, lname)
+        for vc in self.validation_commands:
+            vc.postprocess(self)
+        return self

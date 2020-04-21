@@ -13,9 +13,17 @@ import time
 
 import click
 
-from apigentools import constants
 from apigentools.commands.command import Command, run_command_with_config
-from apigentools.constants import OPENAPI_GENERATOR_GIT, SPEC_REPO_TEMPLATES_DIR
+from apigentools.config import (
+    OpenapiGitTemplatesConfig,
+    OpenapiJarTemplatesConfig,
+    DirectoryTemplatesConfig,
+)
+from apigentools.constants import (
+    COMMAND_SYSTEM_KEY,
+    OPENAPI_GENERATOR_GIT,
+    SPEC_REPO_TEMPLATES_DIR,
+)
 from apigentools.utils import run_command
 
 log = logging.getLogger(__name__)
@@ -31,7 +39,7 @@ def templates(ctx, **kwargs):
 class TemplatesCommand(Command):
     @contextlib.contextmanager
     def create_container(self, lc, spec_version):
-        image = lc.container_opts_for(spec_version)[constants.COMMAND_IMAGE_KEY]
+        image = lc.container_opts_for(spec_version).image
         cn = "apigentools-created-container-{}".format(time.time())
         run_command(["docker", "create", "--name", cn, image])
         yield cn
@@ -51,15 +59,13 @@ class TemplatesCommand(Command):
             )
             return 0
 
-        from_container = not templates_cfg["source"].get(
-            constants.COMMAND_SYSTEM_KEY, False
-        )
-        source_type = templates_cfg["source"]["type"]
+        from_container = not templates_cfg.source.system
+        source_type = templates_cfg.source.type
         with tempfile.TemporaryDirectory() as td:
             patch_in = copy_from = td
-            image = lc.container_opts_for(spec_version)[constants.COMMAND_IMAGE_KEY]
-            if source_type == "openapi-jar":
-                jar_path = templates_cfg["source"]["jar_path"]
+            image = lc.container_opts_for(spec_version).image
+            if isinstance(templates_cfg.source, OpenapiJarTemplatesConfig):
+                jar_path = templates_cfg.source.jar_path
                 if from_container:
                     log.info("Extracting openapi-generator jar from image %s", image)
                     new_jar_path = os.path.join(td, "openapi-generator.jar")
@@ -74,12 +80,12 @@ class TemplatesCommand(Command):
                         )
                     jar_path = new_jar_path
                 run_command(["unzip", "-q", jar_path, "-d", td])
-            elif source_type == "directory":
+            elif isinstance(templates_cfg.source, DirectoryTemplatesConfig):
                 lang_dir = os.path.join(
-                    templates_cfg["source"]["directory_path"],
-                    templates_cfg["source"]["templates_dir"],
+                    templates_cfg.source.directory_path,
+                    templates_cfg.source.templates_dir,
                 )
-                output_dir = os.path.join(td, templates_cfg["source"]["templates_dir"],)
+                output_dir = os.path.join(td, templates_cfg.source.templates_dir,)
                 if from_container:
                     log.info("Extracting templates directory from image %s", image)
                     with self.create_container(lc, spec_version) as container:
@@ -95,38 +101,31 @@ class TemplatesCommand(Command):
                     if not os.path.exists(lang_dir):
                         log.error(
                             "Directory %s doesn't contain '%s' subdirectory with templates",
-                            templates_cfg["source"]["directory_path"],
-                            templates_cfg["source"]["templates_dir"],
+                            templates_cfg.source.directory_path,
+                            templates_cfg.source.templates_dir,
                         )
                         return 1
                     shutil.copytree(
-                        lang_dir,
-                        os.path.join(td, templates_cfg["source"]["templates_dir"]),
+                        lang_dir, os.path.join(td, templates_cfg.source.templates_dir),
                     )
-            elif source_type == "openapi-git":
+            elif isinstance(templates_cfg.source, OpenapiGitTemplatesConfig):
                 if from_container:
                     log.error(
                         "Templates with source 'openapi-git' must be used with '%s: true'",
-                        constants.COMMAND_SYSTEM_KEY,
+                        COMMAND_SYSTEM_KEY,
                     )
                 patch_in = copy_from = os.path.join(
                     td, "modules", "openapi-generator", "src", "main", "resources"
                 )
                 run_command(["git", "clone", OPENAPI_GENERATOR_GIT, td])
                 run_command(
-                    [
-                        "git",
-                        "-C",
-                        td,
-                        "checkout",
-                        templates_cfg["source"]["git_committish"],
-                    ]
+                    ["git", "-C", td, "checkout", templates_cfg.source.git_committish,]
                 )
             else:
                 log.error("Unknown templates source type {}".format(source_type))
                 return 1
 
-            patches = templates_cfg.get("patches")
+            patches = templates_cfg.patches
             if patches:
                 log.info("Applying patches to upstream templates ...")
                 for p in patches:
@@ -158,10 +157,7 @@ class TemplatesCommand(Command):
             if os.path.exists(outdir):
                 shutil.rmtree(outdir)
             shutil.copytree(
-                os.path.join(
-                    copy_from, templates_cfg["source"].get("templates_dir", "")
-                ),
-                outdir,
+                os.path.join(copy_from, templates_cfg.source.templates_dir), outdir,
             )
         return 0
 

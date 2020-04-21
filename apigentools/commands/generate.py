@@ -139,7 +139,7 @@ class GenerateCommand(Command):
         :type chevron_vars: ``dict``
         """
         lc = self.config.get_language_config(language)
-        commands = lc.get_commands(version)
+        commands = lc.commands_for(version)
         log.info("Running commands for %s/%s", language, version)
 
         use_builtin_templates = not bool(lc.templates_config_for(version))
@@ -150,7 +150,7 @@ class GenerateCommand(Command):
         for command in commands:
             self.run_config_command(
                 command,
-                "language '{l}'".format(l=language),
+                "{l}/{v}".format(l=language, v=version),
                 cwd,
                 chevron_vars,
                 additional_functions={

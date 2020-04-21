@@ -381,33 +381,36 @@ def inherit_container_opts(local, parent):
     """ Implements handling of inheritance of container_opts
 
     :param local: Container opts that are inheriting
-    :type local: ``dict``
+    :type local: ``ContainerOpts``
     :param parent: Container opts that need to be inherited from
-    :type parent: ``dict``
-    :return: New container opts after doing inheritance
-    :rtype: ``dict``
+    :type parent: ``ContainerOpts``
     """
-    result = copy.deepcopy(local)
-    result.setdefault(constants.COMMAND_ENVIRONMENT_KEY, {})
+    if local is None:
+        return copy.deepcopy(parent)
+
+    local = copy.deepcopy(local)
     # we always inherit parent image if not set locally
-    result.setdefault(constants.COMMAND_IMAGE_KEY, parent[constants.COMMAND_IMAGE_KEY])
-    result.setdefault(constants.COMMAND_INHERIT_KEY, True)
-    result.setdefault(constants.COMMAND_SYSTEM_KEY, False)
-    if result["inherit"]:
+    if not local.image:
+        local.image = parent.image or constants.DEFAULT_CONTAINER_IMAGE
+    if local.inherit:
         # each attribute we add in future might need special handling
         # to properly implement its inheritance
-        if constants.COMMAND_ENVIRONMENT_KEY in parent:
-            # get copy of parent environment and update it with local environment
-            updated_env = copy.deepcopy(parent[constants.COMMAND_ENVIRONMENT_KEY])
-            updated_env.update(result.get(constants.COMMAND_ENVIRONMENT_KEY, {}))
-            result[constants.COMMAND_ENVIRONMENT_KEY] = updated_env
-        result[constants.COMMAND_INHERIT_KEY] = parent.get(
-            constants.COMMAND_INHERIT_KEY, True
-        )
-        result[constants.COMMAND_SYSTEM_KEY] = parent.get(
-            constants.COMMAND_SYSTEM_KEY, False
-        )
-    return result
+
+        # get copy of parent environment and update it with local environment
+        updated_env = copy.deepcopy(parent.environment)
+        updated_env.update(local.environment)
+        local.environment = updated_env
+        if local.system is None:
+            local.system = parent.system
+        if local.workdir is None:
+            local.workdir = parent.workdir
+
+    if local.system is None:
+        local.system = False
+    if local.workdir is None:
+        local.workdir = "."
+
+    return local
 
 
 def check_for_legacy_config(click_ctx, configfile):

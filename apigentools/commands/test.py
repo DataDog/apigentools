@@ -72,7 +72,7 @@ class TestCommand(Command):
             for command in commands:
                 self.run_config_command(
                     command,
-                    "language '{l}'".format(l=lang_name),
+                    "{l}/{v}".format(l=lang_name, v=version),
                     language_config.generated_lang_version_dir_for(version),
                     language_config.chevron_vars_for(version),
                     env_override=env_override,

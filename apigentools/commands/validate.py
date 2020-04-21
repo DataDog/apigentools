@@ -36,7 +36,7 @@ class ValidateCommand(Command):
             else "of spec for {}/{}".format(language, version)
         )
         log_string += " ({})".format(fs_path)
-        vcs = self.config.get_validation_commands()
+        vcs = self.config.validation_commands
         if vcs:
             log.info("Running validation commands for %s/%s", language, version)
 

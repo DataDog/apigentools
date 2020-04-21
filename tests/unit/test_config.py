@@ -6,8 +6,12 @@ import os
 
 import pytest
 
-from apigentools.config import Config, ConfigCommand, LanguageConfig
-from apigentools import constants
+from apigentools.config import (
+    Config,
+    ConfigCommand,
+    LanguageConfig,
+    OpenapiJarTemplatesConfig,
+)
 
 FIXTURE_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "fixtures")
 
@@ -60,10 +64,12 @@ config_sample = {
             },
             "github_repo_name": "my-gh-repo",
             "library_version": "1.0.0",
-            "spec_sections": ["v1", "v2"],
+            "spec_versions": ["v1", "v2"],
             "version_path_template": "{{spec_version}}/",
         }
     },
+    "spec_versions": ["v1", "v2"],
+    "spec_sections": {},
     "user_agent_client_name": "MyClient",
 }
 
@@ -73,16 +79,17 @@ def check_config(c):
     assert c.user_agent_client_name == "MyClient"
     # check a value that should have a default
 
-    with pytest.raises(KeyError):
+    with pytest.raises(AttributeError):
         c.unknown
 
     java = c.get_language_config("java")
     assert type(java) == LanguageConfig
-    assert java.language_container_opts == {
+    assert java.container_opts == {
         "environment": {"LEVEL": "1", "JAVA": "y",},
         "image": "java:image",
         "inherit": True,
         "system": False,
+        "workdir": ".",
     }
 
     cmd = java.commands_for("v1")[0]
@@ -97,6 +104,7 @@ def check_config(c):
         "image": "other:image",
         "inherit": False,
         "system": False,
+        "workdir": ".",
     }
     # make sure that environment was inherited properly for V2
     assert java.container_opts_for("v2") == {
@@ -104,6 +112,7 @@ def check_config(c):
         "image": "java:image",
         "inherit": True,
         "system": False,
+        "workdir": ".",
     }
 
     # when we have one command taken from "default" for V1 vs V2, it should inherit proper container_opts
@@ -112,12 +121,14 @@ def check_config(c):
         "image": "other:image",
         "inherit": False,
         "system": False,
+        "workdir": ".",
     }
     assert java.commands_for("v2")[1].container_opts == {
         "environment": {"LEVEL": "2", "JAVA": "y", "DEFAULT": "y"},
         "image": "java:image",
         "inherit": True,
         "system": False,
+        "workdir": ".",
     }
 
     # test inherited values on cmd itself
@@ -126,17 +137,16 @@ def check_config(c):
         "image": "java:image",
         "inherit": True,
         "system": False,
+        "workdir": ".",
     }
 
     # test templates config
-    assert java.templates_config_for("v1") == {
-        "patches": ["patch1", "patch2"],
-        "source": {
-            "type": "openapi-jar",
-            "jar_path": "/some/path.jar",
-            "templates_dir": "Java",
-        },
-    }
+    tplcfg = java.templates_config_for("v1")
+    assert tplcfg.patches == ["patch1", "patch2"]
+    assert tplcfg.source.type == "openapi-jar"
+    assert isinstance(tplcfg.source, OpenapiJarTemplatesConfig)
+    assert tplcfg.source.jar_path == "/some/path.jar"
+    assert tplcfg.source.templates_dir == "Java"
     assert java.templates_config_for("v1") == java.templates_config_for("v2")
 
     assert java.generated_lang_dir.strip("/") == "generated/my-gh-repo"
