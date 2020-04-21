@@ -149,7 +149,6 @@ class VersionGeneration(pydantic.BaseModel):
             c.postprocess(self)
         for t in self.tests:
             t.postprocess(self)
-        # TODO: templates
 
 
 class LanguageConfig(pydantic.BaseModel):
@@ -304,7 +303,6 @@ class LanguageConfig(pydantic.BaseModel):
 
 
 class Config(pydantic.BaseSettings):
-    # TODO: make sure the image is added even if this default is not used
     container_opts: Optional[ContainerOpts]
     minimum_apigentools_version: Optional[str] = "0.0.0"
     spec_sections: Optional[Dict] = {}
