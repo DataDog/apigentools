@@ -16,10 +16,19 @@ version_template = """\
 __version__ = "{version}"
 """
 
+# Allows the fetching of tags even from shallow clones
+# https://github.com/pypa/setuptools_scm/pull/118#issuecomment-255381535
+def parse_fetch_on_shallow(root):
+    from setuptools_scm.git import parse, fetch_on_shallow
+
+    return parse(root, pre_parse=fetch_on_shallow)
+
+
 setup(
     use_scm_version={
         "local_scheme": "dirty-tag",
         "write_to": os.path.join("apigentools", "version.py"),
         "write_to_template": version_template,
+        "parse": parse_fetch_on_shallow,
     }
 )

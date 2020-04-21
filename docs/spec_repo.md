@@ -356,4 +356,4 @@ Here is an example, to add in your `.pre-commit-config.yaml` file:
     - repo: https://github.com/DataDog/apigentools.git
       rev: v0.10.0
       hooks:
-        - id: apigentools-validate
+        - id: validate
