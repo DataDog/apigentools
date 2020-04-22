@@ -60,8 +60,7 @@ def test_examples(tmpdir, script_runner, example, should_pass, should_fail):
         env = copy.deepcopy(os.environ)
         # for some reason, Git tends to ignore gpgSign = false in the overriden GIT_CONFIG if
         # user's GIT_CONFIG sets it to true; therefore we also set HOME to the tempdir
-        # so that user's gitconfig is not found at all
-        env["GIT_CONFIG"] = str(tmpdir.join("testgitconfig"))
+        # so that user's .gitconfig is not found at all and the one we have provided is used
         env["GIT_CONFIG_NOSYSTEM"] = "1"
         env["HOME"] = str(tmpdir)
 
