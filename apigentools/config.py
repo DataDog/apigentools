@@ -7,19 +7,19 @@ import os
 from typing import Dict, List, MutableSequence, Optional, Union
 
 import chevron
-import pydantic
+from pydantic import BaseModel, BaseSettings, validator
 import yaml
 
 from apigentools import constants
 from apigentools.utils import inherit_container_opts
 
 
-class ContainerImageBuild(pydantic.BaseModel):
+class ContainerImageBuild(BaseModel):
     dockerfile: str
     context: str = "."
 
 
-class ContainerOpts(pydantic.BaseModel):
+class ContainerOpts(BaseModel):
     environment: Optional[Dict[str, str]] = {}
     image: Union[Optional[str], ContainerImageBuild]
     inherit: Optional[bool] = True
@@ -44,26 +44,26 @@ class ListArgument(list, MutableSequence[StringArgument]):
         yield [value for arg in self for value in arg(chevron_vars)]
 
 
-class FunctionArgument(pydantic.BaseModel):
+class FunctionArgument(BaseModel):
     """Expand command argument using build-in functions."""
 
     function: str
     args: List[StringArgument] = []
     kwargs: Dict[str, Union[StringArgument, ListArgument]] = {}
 
-    @pydantic.validator("args")
+    @validator("args")
     def validate_args(cls, v):
         return [StringArgument(arg) for arg in v]
 
 
-class ConfigCommand(pydantic.BaseModel):
+class ConfigCommand(BaseModel):
     """Command line configuration."""
 
     commandline: List[Union[StringArgument, FunctionArgument]]
     container_opts: Optional[ContainerOpts]
     description: str = "Generic command"
 
-    @pydantic.validator("commandline")
+    @validator("commandline")
     def validate_commandline(cls, v, field):
         return [StringArgument(arg) if isinstance(arg, str) else arg for arg in v]
 
@@ -77,7 +77,7 @@ class ConfigCommand(pydantic.BaseModel):
         )
 
 
-class TemplatesSourceConfig(pydantic.BaseModel):
+class TemplatesSourceConfig(BaseModel):
     type: str
     system: Optional[bool] = False
     templates_dir: str
@@ -95,13 +95,13 @@ class DirectoryTemplatesConfig(TemplatesSourceConfig):
     directory_path: str
 
 
-class TemplatesConfig(pydantic.BaseModel):
+class TemplatesConfig(BaseModel):
     patches: Optional[List] = []
     source: Union[
         OpenapiJarTemplatesConfig, OpenapiGitTemplatesConfig, DirectoryTemplatesConfig
     ]
 
-    @pydantic.validator("source", pre=True)
+    @validator("source", pre=True)
     def source_validator(cls, v):
         # NOTE: in Python 3.8, we can just do `type: Literal["openapi-jar"]` and similar on the
         # individual classes and omit this function
@@ -116,7 +116,7 @@ class TemplatesConfig(pydantic.BaseModel):
             raise ValueError("{} is not a recognized template source type".format(tp))
 
 
-class VersionGeneration(pydantic.BaseModel):
+class VersionGeneration(BaseModel):
     container_opts: Optional[ContainerOpts]
     commands: Optional[List[ConfigCommand]]
     templates: Optional[TemplatesConfig]
@@ -151,7 +151,7 @@ class VersionGeneration(pydantic.BaseModel):
             t.postprocess(self)
 
 
-class LanguageConfig(pydantic.BaseModel):
+class LanguageConfig(BaseModel):
     __slots__ = ("language", "user_agent_client_name")
 
     class Config:
@@ -302,7 +302,7 @@ class LanguageConfig(pydantic.BaseModel):
         )
 
 
-class Config(pydantic.BaseSettings):
+class Config(BaseSettings):
     container_opts: Optional[ContainerOpts]
     minimum_apigentools_version: Optional[str] = "0.0.0"
     spec_sections: Optional[Dict] = {}
