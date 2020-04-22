@@ -66,7 +66,7 @@ def test_examples(tmpdir, script_runner, example, should_pass, should_fail):
         env["HOME"] = str(tmpdir)
 
         for p in should_pass:
-            ret = script_runner.run("apigentools", p, env=env)
+            ret = script_runner.run("apigentools", "--verbose", p, env=env)
             assert ret.success
             if p == "push":
                 log = subprocess.run(
@@ -74,5 +74,5 @@ def test_examples(tmpdir, script_runner, example, should_pass, should_fail):
                 )
                 assert "Regenerate client from commit" in log.stdout
         for f in should_fail:
-            ret = script_runner.run("apigentools", f)
+            ret = script_runner.run("apigentools", "--verbose", f)
             assert not ret.success
