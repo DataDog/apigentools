@@ -14,8 +14,12 @@ from apigentools.config import Config
 SPEC_CONFIG = {
     "spec_versions": ["v1", "v2"],
     "languages": {
-        "test-lang1": {"spec_versions": [], "spec_sections": {"v1": [], "v2": []}},
-        "test-lang2": {"spec_versions": ["v1"]},
+        "test-lang1": {
+            "spec_versions": [],
+            "spec_sections": {"v1": [], "v2": []},
+            "library_version": "1.0.0",
+        },
+        "test-lang2": {"spec_versions": ["v1"], "library_version": "1.0.0"},
     },
     "spec_sections": {"v1": ["x.yaml"], "v2": ["y.yaml"]},
 }

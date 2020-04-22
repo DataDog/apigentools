@@ -50,7 +50,10 @@ languages:
     github_repo_name: "my-gh-repo"
     library_version: "1.0.0"
     version_path_template: "{{spec_version}}/"
-    spec_sections:
+    spec_versions:
     - v1
     - v2
+spec_versions:
+  - v1
+  - v2
 user_agent_client_name: MyClient
