@@ -10,7 +10,7 @@ import subprocess
 
 import chevron
 
-from apigentools.config import Config
+from apigentools.config import Config, ContainerImageBuild, FunctionArgument
 from apigentools import constants
 from apigentools.utils import (
     change_cwd,
@@ -110,6 +110,9 @@ class Command(abc.ABC):
             retval = {}
             for k, v in args.items():
                 retval[k] = self._render_command_args(v, chevron_vars)
+        elif isinstance(args, FunctionArgument):
+            args.args = self._render_command_args(args.args, chevron_vars)
+            args.kwargs = self._render_command_args(args.kwargs, chevron_vars)
 
         return retval
 
@@ -131,16 +134,14 @@ class Command(abc.ABC):
 
         to_run = []
         for part in self._render_command_args(command.commandline, chevron_vars):
-            if isinstance(part, dict):
+            if isinstance(part, FunctionArgument):
                 allowed_functions = {"glob": glob.glob, "glob_re": glob_re}
                 allowed_functions.update(additional_functions or {})
-                function_name = part.get("function")
+                function_name = part.function
                 function = allowed_functions.get(function_name)
                 if function:
                     with change_cwd(cwd):
-                        result = function(
-                            *part.get("args", []), **part.get("kwargs", {})
-                        )
+                        result = function(*part.args, **part.kwargs)
                     # NOTE: we may need to improve this logic if/when we add more functions
                     result = self._render_command_args(result, chevron_vars)
                     if isinstance(result, list):
@@ -156,26 +157,20 @@ class Command(abc.ABC):
             else:
                 to_run.append(str(part))
 
-        additional_env = command.container_opts.get(
-            constants.COMMAND_ENVIRONMENT_KEY, {}
-        )
+        additional_env = command.container_opts.environment
         additional_env.update(env_override)
-        is_system = command.container_opts.get(constants.COMMAND_SYSTEM_KEY)
+        is_system = command.container_opts.system
         run_command_args = {}
         if is_system:
             run_command_args.update({"additional_env": additional_env, "cwd": cwd})
         else:
-            image = command.container_opts[constants.COMMAND_IMAGE_KEY]
-            if isinstance(image, dict):
-                image_name = "apigentools-test-{}-{}".format(
-                    command.language_config.language, command.version
+            image = command.container_opts.image
+            if isinstance(image, ContainerImageBuild):
+                image_name = "apigentools-test-{}".format(
+                    what_command.replace("/", "-")
                 )
-                dockerfile = self._render_command_args(
-                    image[constants.COMMAND_IMAGE_DOCKERFILE_KEY], chevron_vars
-                )
-                context = self._render_command_args(
-                    image.get(constants.COMMAND_IMAGE_CONTEXT_KEY, "."), chevron_vars
-                )
+                dockerfile = self._render_command_args(image.dockerfile, chevron_vars)
+                context = self._render_command_args(image.context, chevron_vars)
                 with change_cwd(cwd):
                     run_command(
                         ["docker", "build", context, "-t", image_name, "-f", dockerfile]
@@ -186,8 +181,7 @@ class Command(abc.ABC):
                 "/tmp/spec-repo",
                 cwd,
                 self._render_command_args(
-                    command.container_opts.get(constants.COMMAND_WORKDIR_KEY, "."),
-                    chevron_vars,
+                    command.container_opts.workdir, chevron_vars,
                 ),
             )
             dockerized = [

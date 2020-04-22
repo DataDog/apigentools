@@ -7,6 +7,7 @@ import os
 
 import click
 from packaging import version
+import pydantic
 
 import apigentools
 from apigentools import constants
@@ -106,9 +107,12 @@ def check_min_version(click_ctx):
             config = Config.from_file(configfile)
         except OSError:
             check_for_legacy_config(click_ctx, configfile)
+        except pydantic.error_wrappers.ValidationError as e:
+            log.error("Configuration error: %s", e)
+            click_ctx.exit(1)
 
         # Version like - "apigentools, version 0.10.1.dev27+dirty"
-        min_version = config.raw_dict.get("minimum_apigentools_version", "0.0.0")
+        min_version = config.minimum_apigentools_version
         actual_version = apigentools.__version__
 
         if version.parse(actual_version) < version.parse(min_version):

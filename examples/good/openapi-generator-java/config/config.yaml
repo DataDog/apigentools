@@ -34,6 +34,12 @@ languages:
             - --type-mappings
             - "object=interface{}"
             description: "Generate Java client using openapi-generator"
+          - commandline:
+            - ls
+            - function: glob
+              args:
+                - "*"
+            description: "Test function expansion"
         tests:
           - commandline: []
             description: "Run tests"

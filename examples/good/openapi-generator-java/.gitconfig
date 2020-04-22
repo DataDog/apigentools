@@ -1,0 +1,7 @@
+[user]
+    name = me
+    email = me@me.me
+[commit]
+    gpgSign = false
+[push]
+    gpgSign = false
