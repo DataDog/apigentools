@@ -10,7 +10,7 @@ import subprocess
 
 import chevron
 
-from apigentools.config import Config, ContainerImageBuild
+from apigentools.config import Config, ContainerImageBuild, FunctionArgument
 from apigentools import constants
 from apigentools.utils import (
     change_cwd,
@@ -110,6 +110,9 @@ class Command(abc.ABC):
             retval = {}
             for k, v in args.items():
                 retval[k] = self._render_command_args(v, chevron_vars)
+        elif isinstance(args, FunctionArgument):
+            args.args = self._render_command_args(args.args, chevron_vars)
+            args.kwargs = self._render_command_args(args.kwargs, chevron_vars)
 
         return retval
 
@@ -131,16 +134,14 @@ class Command(abc.ABC):
 
         to_run = []
         for part in self._render_command_args(command.commandline, chevron_vars):
-            if isinstance(part, dict):
+            if isinstance(part, FunctionArgument):
                 allowed_functions = {"glob": glob.glob, "glob_re": glob_re}
                 allowed_functions.update(additional_functions or {})
-                function_name = part.get("function")
+                function_name = part.function
                 function = allowed_functions.get(function_name)
                 if function:
                     with change_cwd(cwd):
-                        result = function(
-                            *part.get("args", []), **part.get("kwargs", {})
-                        )
+                        result = function(*part.args, **part.kwargs)
                     # NOTE: we may need to improve this logic if/when we add more functions
                     result = self._render_command_args(result, chevron_vars)
                     if isinstance(result, list):

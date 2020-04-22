@@ -47,7 +47,7 @@ class ListArgument(list, MutableSequence[StringArgument]):
 class FunctionArgument(pydantic.BaseModel):
     """Expand command argument using build-in functions."""
 
-    function: str  # TODO: validate it's the correct one
+    function: str
     args: List[StringArgument] = []
     kwargs: Dict[str, Union[StringArgument, ListArgument]] = {}
 
@@ -324,7 +324,6 @@ class Config(pydantic.BaseSettings):
     def from_file(cls, fpath):
         with open(fpath) as f:
             config = yaml.safe_load(f)
-
         return cls(**config).postprocess()
 
     @classmethod
