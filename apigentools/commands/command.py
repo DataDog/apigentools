@@ -201,7 +201,7 @@ class Command(abc.ABC):
             dockerized.extend([image] + to_run[1:])
             to_run = dockerized
 
-        run_command(to_run, *run_command_args)
+        run_command(to_run, **run_command_args)
 
     @abc.abstractmethod
     def run(self):
