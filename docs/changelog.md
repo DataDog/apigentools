@@ -10,7 +10,6 @@
 * [Added] Add a `glob_re` function to use in config. See [#149](https://github.com/DataDog/apigentools/pull/149).
 * [Added] Upgrade openapi-generator to 4.3.0. See [#148](https://github.com/DataDog/apigentools/pull/148).
 * [Added] Make it possible to provide different operations for the same path in different spec sections. See [#144](https://github.com/DataDog/apigentools/pull/144).
-* [Fixed] Fix args retrieveing `is_ancestor`. See [#140](https://github.com/DataDog/apigentools/pull/140).
 * [Added] Add pre-commit hook definition. See [#139](https://github.com/DataDog/apigentools/pull/139).
 * [Added] Include node 12 (LTS) in the base image. See [#137](https://github.com/DataDog/apigentools/pull/137).
 * [Added] Add new `config` command. See [#132](https://github.com/DataDog/apigentools/pull/132).
@@ -19,6 +18,7 @@
 * [Changed] Don't log all the command outputs by default. See [#161](https://github.com/DataDog/apigentools/pull/161).
 * [Changed] Docker image was moved from apigentools/apigentools to datadog/apigentools. See [#130](https://github.com/DataDog/apigentools/pull/130).
 * [Fixed] Fail code generation when preparing templates fails. See [#145](https://github.com/DataDog/apigentools/pull/145).
+* [Fixed] Fix args retrieveing `is_ancestor`. See [#140](https://github.com/DataDog/apigentools/pull/140).
 
 ## 0.10.0 / 2020-01-31
 
