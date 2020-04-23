@@ -1,5 +1,25 @@
 # Changelog
 
+## 1.0.0b1 / 2020-04-23
+
+* *NOTE* This is the first beta release for the new major version. Major changes are documented at [upgrading](upgrading.md#from-0x-series-to-1x-series). List of new features not related to the 1.0.0 release follows:
+* [Added] Introduce config validation using pydantic. See [#169](https://github.com/DataDog/apigentools/pull/169).
+* [Added] Check apigentools version compatibility using config. See [#163](https://github.com/DataDog/apigentools/pull/163).
+* [Added] Add a `--version` flag to the root command. See [#162](https://github.com/DataDog/apigentools/pull/162).
+* [Added] Enable removing generated files between generations. See [#153](https://github.com/DataDog/apigentools/pull/153).
+* [Added] Add a `glob_re` function to use in config. See [#149](https://github.com/DataDog/apigentools/pull/149).
+* [Added] Upgrade openapi-generator to 4.3.0. See [#148](https://github.com/DataDog/apigentools/pull/148).
+* [Added] Make it possible to provide different operations for the same path in different spec sections. See [#144](https://github.com/DataDog/apigentools/pull/144).
+* [Added] Add pre-commit hook definition. See [#139](https://github.com/DataDog/apigentools/pull/139).
+* [Added] Include node 12 (LTS) in the base image. See [#137](https://github.com/DataDog/apigentools/pull/137).
+* [Added] Add new `config` command. See [#132](https://github.com/DataDog/apigentools/pull/132).
+* [Added] Choose only necessary combinations of lang and versions. See [#131](https://github.com/DataDog/apigentools/pull/131).
+* [Added] Support `{{spec_version}}` in all commands. See [#127](https://github.com/DataDog/apigentools/pull/127).
+* [Changed] Don't log all the command outputs by default. See [#161](https://github.com/DataDog/apigentools/pull/161).
+* [Changed] Docker image was moved from apigentools/apigentools to datadog/apigentools. See [#130](https://github.com/DataDog/apigentools/pull/130).
+* [Fixed] Fail code generation when preparing templates fails. See [#145](https://github.com/DataDog/apigentools/pull/145).
+* [Fixed] Fix args retrieveing `is_ancestor`. See [#140](https://github.com/DataDog/apigentools/pull/140).
+
 ## 0.10.0 / 2020-01-31
 
 * [Added] Make it possible to add custom validation commands. See [#124](https://github.com/DataDog/apigentools/pull/124).
