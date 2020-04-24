@@ -386,25 +386,25 @@ def inherit_container_opts(local, parent):
     :type parent: ``ContainerOpts``
     """
     if local is None:
-        return copy.deepcopy(parent)
+        local = copy.deepcopy(parent)
+    else:
+        local = copy.deepcopy(local)
+        if local.inherit:
+            # each attribute we add in future might need special handling
+            # to properly implement its inheritance
 
-    local = copy.deepcopy(local)
+            # get copy of parent environment and update it with local environment
+            updated_env = copy.deepcopy(parent.environment)
+            updated_env.update(local.environment)
+            local.environment = updated_env
+            if local.system is None:
+                local.system = parent.system
+            if local.workdir is None:
+                local.workdir = parent.workdir
+
     # we always inherit parent image if not set locally
     if not local.image:
         local.image = parent.image or constants.DEFAULT_CONTAINER_IMAGE
-    if local.inherit:
-        # each attribute we add in future might need special handling
-        # to properly implement its inheritance
-
-        # get copy of parent environment and update it with local environment
-        updated_env = copy.deepcopy(parent.environment)
-        updated_env.update(local.environment)
-        local.environment = updated_env
-        if local.system is None:
-            local.system = parent.system
-        if local.workdir is None:
-            local.workdir = parent.workdir
-
     if local.system is None:
         local.system = False
     if local.workdir is None:

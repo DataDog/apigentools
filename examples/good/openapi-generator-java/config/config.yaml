@@ -40,6 +40,11 @@ languages:
               args:
                 - "*"
             description: "Test function expansion"
+          - commandline:
+              - ls
+            description: "Test system command"
+            container_opts:
+              system: true
         tests:
           - commandline: []
             description: "Run tests"
