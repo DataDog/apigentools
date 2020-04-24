@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0b2 / 2020-04-24
+
+* [Fixed] Fix parameter expansion for `system: True` commands. See [#172](https://github.com/DataDog/apigentools/pull/172).
+
 ## 1.0.0b1 / 2020-04-23
 
 * *NOTE* This is the first beta release for the new major version. Major changes are documented at [upgrading](upgrading.md#from-0x-series-to-1x-series). List of new features not related to the 1.0.0 release follows:
