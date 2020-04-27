@@ -202,7 +202,7 @@ class GenerateCommand(Command):
         stamp = (stamp,)
         if spec_repo_commit:
             stamp + ("spec repo commit {commit}".format(commit=spec_repo_commit),)
-        return "; ".join(stamp + (self.args.get("additional_stamp")))
+        return "; ".join(stamp + (self.args.get("additional_stamp", ())))
 
     def write_dot_apigentools_info(self, language_config, version):
         """ Write a record for language/version in .apigentools-info file in the top-level directory of the language
