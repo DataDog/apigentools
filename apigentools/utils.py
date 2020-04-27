@@ -14,6 +14,7 @@ import sys
 import yaml
 
 from apigentools import constants
+from apigentools import errors
 
 log = logging.getLogger(__name__)
 
@@ -317,7 +318,7 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     for filename in spec_sections:
         fpath = os.path.join(spec_version_dir, filename)
         if not os.path.exists(fpath):
-            continue
+            raise errors.SpecSectionNotFoundError(spec_version, filename, fpath)
         with open(fpath) as infile:
             loaded = yaml.safe_load(infile.read())
             for k, v in loaded.get("paths", {}).items():

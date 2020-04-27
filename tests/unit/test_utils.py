@@ -11,8 +11,8 @@ import flexmock
 import pytest
 import yaml
 
-from apigentools.config import Config
 from apigentools.constants import REDACTED_OUT_SECRET
+from apigentools.errors import SpecSectionNotFoundError
 from apigentools.utils import (
     change_cwd,
     env_or_val,
@@ -265,6 +265,28 @@ def test_write_full_spec(tmpdir):
 
     with open(written, "r") as f:
         assert yaml.load(f) == expected
+
+
+def test_write_full_spec_section_not_found(tmpdir):
+    specdir = tmpdir.mkdir("spec")
+    v1dir = specdir.mkdir("v1")
+    header = str(v1dir.join("header.yaml"))
+    nope = str(v1dir.join("nope.yaml"))
+
+    with open(header, "w") as f:
+        f.write("{}")
+
+    with pytest.raises(SpecSectionNotFoundError) as e:
+        write_full_spec(
+            str(specdir),
+            "v1",
+            ["header.yaml", "nope.yaml"],
+            str(v1dir.join("full.yaml")),
+        )
+    assert (
+        str(e.value)
+        == f"Spec section 'nope.yaml' not found for api version 'v1' ({nope})"
+    )
 
 
 @pytest.mark.parametrize(

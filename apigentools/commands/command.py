@@ -12,6 +12,7 @@ import chevron
 
 from apigentools.config import Config, ContainerImageBuild, FunctionArgument
 from apigentools import constants
+from apigentools import errors
 from apigentools.utils import (
     change_cwd,
     fmt_cmd_out_for_log,
@@ -38,6 +39,8 @@ def run_command_with_config(command_class, click_ctx, **kwargs):
             check_for_legacy_config(click_ctx, configfile)
         try:
             click_ctx.exit(cmd.run())
+        except errors.ApigentoolsError as e:
+            log.error("Apigentools error: %s", e)
         except subprocess.CalledProcessError as e:
             log.error("Failed running subprocess: %s", e.cmd)
             log.error(fmt_cmd_out_for_log(e, False))
