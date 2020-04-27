@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0b3 / 2020-04-27
+
+* [Fixed] Fail when a spec section file is not found. See [#175](https://github.com/DataDog/apigentools/pull/175).
+
 ## 1.0.0b2 / 2020-04-24
 
 * [Fixed] Fix parameter expansion for `system: True` commands. See [#172](https://github.com/DataDog/apigentools/pull/172).
