@@ -109,6 +109,15 @@ Argument | Description | Environment Variable | Default
 `-V, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
 `--help` | Show help message and exit.
 
+### `apigentools config jsonpath JSONPATH`
+
+Extracts value from expanded config according to given JSONPath. Uses [jsonpath-ng](https://github.com/h2non/jsonpath-ng) implementation of JSONPath.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`--help` | Show help message and exit.
+`--single-value` | Assuming the JSONPath result is a single value, print it without brackets/braces/parentheses. | `NA` | `False`
+
 ## `apigentools validate`
 
 Runs validation steps defined in `config/config.yaml`.
