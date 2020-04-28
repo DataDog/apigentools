@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.0.0 / 2020-04-28
+
+* This is the first official release of apigentools major version 1. See documentation of [major changes and upgrading](upgrading.md#from-0x-series-to-1x-series) as well as changelogs of the individual beta versions:
+  * [1.0.0b1](#100b1-2020-04-23)
+  * [1.0.0b2](#100b2-2020-04-24)
+  * [1.0.0b3](#100b3-2020-04-27)
+
 ## 1.0.0b3 / 2020-04-27
 
 * [Fixed] Fail when a spec section file is not found. See [#175](https://github.com/DataDog/apigentools/pull/175).
