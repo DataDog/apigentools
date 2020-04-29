@@ -1,6 +1,7 @@
 Component,Origin,License
 chevron,https://pypi.org/project/chevron/,MIT
 click,https://pypi.org/project/click/,BSD-3-Clause
+jsonpath-ng,https://pypi.org/project/jsonpath-nq/,Apache-2.0
 PyYAML,https://pypi.org/project/PyYAML/,MIT
 packaging,https://pypi.org/project/packaging/,Apache-2.0
 pydantic,https://pypi.org/project/pydantic/,MIT

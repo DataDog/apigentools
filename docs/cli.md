@@ -109,6 +109,24 @@ Argument | Description | Environment Variable | Default
 `-V, --list-versions` | Whether to only list the API versions supported by this spec. Example: `apigentools -av` | `NA` | `None` to list both languages and versions
 `--help` | Show help message and exit.
 
+### `apigentools config get JSONPATH`
+
+Extracts a single value from expanded config according to given JSONPath. Uses [jsonpath-ng](https://github.com/h2non/jsonpath-ng) implementation of JSONPath. Fails if the returned result is not a single value.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`--help` | Show help message and exit.
+`--raw`  | If the result is a simple value (string, number or boolean), it will be written directly without quotes | `NA` | `False`
+
+### `apigentools config list JSONPATH`
+
+
+Extracts values from expanded config according to given JSONPath. Uses [jsonpath-ng](https://github.com/h2non/jsonpath-ng) implementation of JSONPath.
+
+Argument | Description | Environment Variable | Default
+---------|-------------|----------------------|--------
+`--help` | Show help message and exit.
+
 ## `apigentools validate`
 
 Runs validation steps defined in `config/config.yaml`.

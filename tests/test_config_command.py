@@ -76,3 +76,36 @@ def test_config_only_versions(setup_spec, capsys):
     ConfigCommand(SPEC_CONFIG_OBJ, args).run()
     captured = capsys.readouterr()
     assert captured.out.strip() in ["{'v1', 'v2'}", "{'v2', 'v1'}"]
+
+
+def test_config_jsonpath_list(setup_spec, capsys):
+    args = {
+        "full_spec_file": "full_spec.yaml",
+        "jsonpath": "$.spec_versions",
+    }
+
+    ConfigCommand(SPEC_CONFIG_OBJ, args).run()
+    captured = capsys.readouterr()
+    assert captured.out.strip() == '[["v1", "v2"]]'
+
+
+def test_config_jsonpath_get(setup_spec, capsys):
+    args = {
+        "full_spec_file": "full_spec.yaml",
+        "jsonpath": "$.languages.test-lang1.library_version",
+        "_get_value": True,
+    }
+
+    ConfigCommand(SPEC_CONFIG_OBJ, args).run()
+    captured = capsys.readouterr()
+    assert captured.out.strip() == '"1.0.0"'
+
+    args = {
+        "full_spec_file": "full_spec.yaml",
+        "jsonpath": "$.spec_versions",
+        "_get_value": True,
+    }
+
+    ConfigCommand(SPEC_CONFIG_OBJ, args).run()
+    captured = capsys.readouterr()
+    assert captured.out.strip() == '["v1", "v2"]'
