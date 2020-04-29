@@ -41,17 +41,27 @@ def config(ctx, **kwargs):
         run_command_with_config(ConfigCommand, ctx, **kwargs)
 
 
-@config.command()
+@config.command("get")
 @click.option(
-    "--single-value",
+    "-r",
+    "--raw",
     is_flag=True,
     default=False,
-    help="Assuming the JSONPath result is a single value, print it without brackets/braces/parentheses.",
+    help="If the result is a simple value (string, number or boolean), it will be written directly without quotes",
 )
 @click.argument("jsonpath",)
 @click.pass_context
 def jsonpath(ctx, **kwargs):
-    """ Search expanded config for given JSONPATH. """
+    """ Search expanded config for a single value by given JSONPATH. """
+    kwargs["_get_value"] = True
+    run_command_with_config(ConfigCommand, ctx, **kwargs)
+
+
+@config.command("list")
+@click.argument("jsonpath",)
+@click.pass_context
+def jsonpath(ctx, **kwargs):
+    """ Search expanded config for values by given JSONPATH. """
     run_command_with_config(ConfigCommand, ctx, **kwargs)
 
 
@@ -60,30 +70,22 @@ class ConfigCommand(Command):
         if "jsonpath" in self.args is not None:
             try:
                 jsonpath_expr = jsonpath_ng.parse(self.args["jsonpath"])
-                result = jsonpath_expr.find(self.config.dict())
-                if self.args["single_value"]:
-                    if len(result) == 1 and isinstance(
-                        result[0].value, (str, int, float, bool)
-                    ):
-                        print(result[0].value)
+                result_values = [
+                    match.value for match in jsonpath_expr.find(self.config.dict())
+                ]
+                if self.args.get("_get_value", False):
+                    if len(result_values) == 1:
+                        to_print = json.dumps(result_values[0])
+                        if isinstance(to_print, str) and self.args.get("raw", False):
+                            to_print = to_print.strip('"')
+                        print(to_print)
                     else:
                         log.error(
-                            "--single-value provided, but result doesn't have 1 value: %s",
-                            [
-                                match.value
-                                for match in jsonpath_expr.find(self.config.dict())
-                            ],
+                            "Result doesn't have exactly 1 value: %s", result_values
                         )
                         return 1
                 else:
-                    print(
-                        json.dumps(
-                            [
-                                match.value
-                                for match in jsonpath_expr.find(self.config.dict())
-                            ]
-                        )
-                    )
+                    print(json.dumps(result_values))
             except Exception as e:  # jsonpath_ng parser really does `raise Exception`, not a more specific exception class
                 log.error("Failed parsing JSONPath expression: %s", e)
                 return 1
