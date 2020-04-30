@@ -359,7 +359,6 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
 
     with open(fs_path, "w", encoding="utf-8") as f:
         f.write(yaml.dump(full_spec))
-        log.debug("Writing the full spec: {}".format(yaml.dump(full_spec)))
     return fs_path
 
 
