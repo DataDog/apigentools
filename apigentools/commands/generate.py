@@ -275,7 +275,7 @@ class GenerateCommand(Command):
                 self.pull_repository(language_config, branch=self.args.get("branch"))
 
             if self.args.get("delete_generated_files"):
-                self.remove_generated_files(language)
+                self.remove_generated_files(language_config)
 
             for version, input_spec in versions.items():
                 if self.args.get("skip_templates"):
@@ -400,14 +400,14 @@ class GenerateCommand(Command):
                     )
                     raise
 
-    def remove_generated_files(self, language):
+    def remove_generated_files(self, language_config):
         """
         Remove all generated files from the generate output directory
         Files are deemed as "generated" if they match any regex in the .generated_files file
         at the root of the output repository.
         """
         blacklist_regexes = set()
-        output_dir = os.path.abspath(self.get_generated_lang_dir(language))
+        output_dir = os.path.abspath(language_config.generated_lang_dir)
         blacklist_file = os.path.join(output_dir, GENERATION_BLACKLIST_FILENAME)
 
         log.info(f"Removing generated files from the output directory: {output_dir}")
