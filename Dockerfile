@@ -1,11 +1,11 @@
-# Upstream release 4.3.0
-FROM openapitools/openapi-generator@sha256:310ea18da9e9abba6d16092d2ab420807c5c21a6813f829a4d5d2c304f768e7f AS jar
+# Upstream release 4.3.1
+FROM openapitools/openapi-generator@sha256:e254641d06eb09d8e742fa3ce31830f0e3db45cd58e3d65cee21c018edd1262d AS jar
 # Ensure the jar file is build
 RUN /usr/local/bin/docker-entrypoint.sh version
 
 FROM fedora:30
 
-ENV OPENAPI_GENERATOR_VERSION=4.2.3-SNAPSHOT \
+ENV OPENAPI_GENERATOR_VERSION=4.3.1-SNAPSHOT \
     PACKAGES="docker findutils git golang-googlecode-tools-goimports java jq maven nodejs patch python3 python3-pip unzip"
 
 RUN dnf install -y gcc-c++ make && \
