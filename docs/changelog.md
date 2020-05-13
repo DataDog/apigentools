@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.1 / 2020-05-13
+## 1.1.0 / 2020-05-13
 
 * [Added] Allow using JSONPath to extract values from expanded config. See [#179](https://github.com/DataDog/apigentools/pull/179).
 * [Added] Bump openapi-generator to 4.3.1. See [#182](https://github.com/DataDog/apigentools/pull/182).
