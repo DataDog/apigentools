@@ -11,7 +11,7 @@ import pydantic
 
 import apigentools
 from apigentools import constants
-from apigentools.commands import ALL_COMMANDS
+from apigentools.commands import ALL_COMMANDS, init
 from apigentools.config import Config
 from apigentools.utils import (
     env_or_val,
@@ -89,7 +89,10 @@ def cli(ctx, **kwargs):
     ctx.obj = dict(kwargs)
     toplog = logging.getLogger(__name__.split(".")[0])
     set_log(toplog)
-    check_min_version(ctx)
+    # we don't check apigentools version for init command, as that doesn't have
+    # any config/config.yaml available
+    if ctx.invoked_subcommand != init.name:
+        check_min_version(ctx)
     if ctx.obj.get("verbose"):
         set_log_level(toplog, logging.DEBUG)
 
