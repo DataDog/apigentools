@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.0.1 / 2020-05-13
+
+* [Added] Allow using JSONPath to extract values from expanded config. See [#179](https://github.com/DataDog/apigentools/pull/179).
+* [Added] Bump openapi-generator to 4.3.1. See [#182](https://github.com/DataDog/apigentools/pull/182).
+* [Fixed] Fix init command by not checking for existence of config file. See [#186](https://github.com/DataDog/apigentools/pull/186).
+* [Fixed] Use new method for getting dir. See [#181](https://github.com/DataDog/apigentools/pull/181).
+* [Fixed] Don't log full spec even with --verbose. See [#180](https://github.com/DataDog/apigentools/pull/180).
+
 ## 1.0.0 / 2020-04-28
 
 * This is the first official release of apigentools major version 1. See documentation of [major changes and upgrading](upgrading.md#from-0x-series-to-1x-series) as well as changelogs of the individual beta versions:
