@@ -1,5 +1,5 @@
-# Upstream release 4.3.1
-FROM openapitools/openapi-generator@sha256:e254641d06eb09d8e742fa3ce31830f0e3db45cd58e3d65cee21c018edd1262d AS jar
+# https://github.com/OpenAPITools/openapi-generator/commit/9c4b37299af9dc73877b2163e84b40e7435771b3
+FROM openapitools/openapi-generator@sha256:46e7a331e8ab5b056bacd9c697640b82dd8227e519260bc8a220985904c2836f AS jar
 # Ensure the jar file is build
 RUN /usr/local/bin/docker-entrypoint.sh version
 
