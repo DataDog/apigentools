@@ -47,6 +47,16 @@ config_sample = {
                             "description": "Some post command",
                         },
                     ],
+                    # NOTE: the scenario here is that the tests must not be defined in v1,
+                    # but must be defined in default; then we check that container_opts
+                    # were properly inherited from v1 and not from default
+                    "tests": [
+                        {"commandline": ["echo", "1"]},
+                        {
+                            "container_opts": {"environment": {"LEVEL": "3"}},
+                            "commandline": ["echo", "1"],
+                        },
+                    ],
                 },
                 "v1": {
                     "container_opts": {
@@ -135,6 +145,23 @@ def check_config(c):
     assert java.commands_for("v2")[0].container_opts == {
         "environment": {"JAVA": "y", "DEFAULT": "y", "CMD": "y", "LEVEL": "3"},
         "image": "java:image",
+        "inherit": True,
+        "system": False,
+        "workdir": ".",
+    }
+
+    # make sure that container_opts are inherited properly when commands are defined
+    # on "default" generation, but container_opts are overriden on a specific version
+    assert java.test_commands_for("v1")[0].container_opts == {
+        "environment": {"LEVEL": "2", "V1": "y"},
+        "image": "other:image",
+        "inherit": False,
+        "system": False,
+        "workdir": ".",
+    }
+    assert java.test_commands_for("v1")[1].container_opts == {
+        "environment": {"LEVEL": "3", "V1": "y"},
+        "image": "other:image",
         "inherit": True,
         "system": False,
         "workdir": ".",

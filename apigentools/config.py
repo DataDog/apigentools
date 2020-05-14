@@ -125,16 +125,20 @@ class VersionGeneration(BaseModel):
     def postprocess(self, parent, vname, default_generation=None):
         if self.commands is None:
             self.commands = (
-                copy.deepcopy(default_generation.commands) if default_generation else []
+                copy.deepcopy(default_generation.commands)
+                if default_generation and default_generation.commands
+                else []
             )
         if self.tests is None:
             self.tests = (
-                copy.deepcopy(default_generation.tests) if default_generation else []
+                copy.deepcopy(default_generation.tests)
+                if default_generation and default_generation.tests
+                else []
             )
         if self.templates is None:
             self.templates = (
                 copy.deepcopy(default_generation.templates)
-                if default_generation
+                if default_generation and default_generation.templates
                 else []
             )
 
@@ -197,10 +201,6 @@ class LanguageConfig(BaseModel):
             self.container_opts, parent.container_opts
         )
 
-        # postprocess default section first, because the other sections use it
-        if "default" in self.generation:
-            self.generation["default"].postprocess(self, "default", None)
-
         for version in self.spec_versions:
             version_generation = self.generation.get(version)
             if version_generation is None:
@@ -210,6 +210,14 @@ class LanguageConfig(BaseModel):
                 version_generation.postprocess(
                     self, version, self.generation.get("default")
                 )
+
+        # postprocess default section last, because the other sections use it
+        # and we don't want the container_opts to be expanded in commands
+        # for example, for command defined in "default" generation, we want it to inherit:
+        # * container_opts from "v1" when running for "v1" and "v1" has container_opts defined
+        # * container_opts from "default" when running for "v2" and "v2" doesn't have container_opts defined
+        if "default" in self.generation:
+            self.generation["default"].postprocess(self, "default", None)
 
     def commands_for(self, version):
         return self.generation[version].commands

@@ -34,6 +34,16 @@ languages:
             jar_path: /some/path.jar
             templates_dir: Java
             type: openapi-jar
+        tests:
+          - commandline:
+            - echo
+            - "1"
+          - commandline:
+            - echo
+            - "1"
+            container_opts:
+              environment:
+                LEVEL: "3"
       v1:
         commands:
           - commandline:
