@@ -36,9 +36,12 @@ class ValidateCommand(Command):
             else "of spec for {}/{}".format(language, version)
         )
         log_string += " ({})".format(fs_path)
-        vcs = self.config.validation_commands
+        lc = self.config.get_language_config(language)
+        vcs = lc.validation_commands_for(version)
         if vcs:
             log.info("Running validation commands for %s/%s", language, version)
+        else:
+            log.info("No validation commands specified for %s/%s", language, version)
 
         for cmd in vcs:
             # TODO: deduplicate chevron_vars with generate command

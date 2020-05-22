@@ -70,6 +70,7 @@ config_sample = {
                             "description": "Some pre command",
                         }
                     ],
+                    "validation_commands": [],  # no validation for v1
                 },
             },
             "github_repo_name": "my-gh-repo",
@@ -81,6 +82,7 @@ config_sample = {
     "spec_versions": ["v1", "v2"],
     "spec_sections": {},
     "user_agent_client_name": "MyClient",
+    "validation_commands": [{"commandline": ["echo", "1"]}],
 }
 
 
@@ -205,6 +207,18 @@ def check_config(c):
     assert (
         java.chevron_vars_for("v1", "spec/v1/full_spec.yaml") == expected_chevron_vars
     )
+
+    assert java.validation_commands_for("v1") == []
+    v2vcs = java.validation_commands_for("v2")
+    assert len(v2vcs) == 1
+    assert v2vcs[0].container_opts == {
+        "environment": {"JAVA": "y", "DEFAULT": "y", "LEVEL": "2"},
+        "image": "java:image",
+        "inherit": True,
+        "system": False,
+        "workdir": ".",
+    }
+    assert v2vcs[0].commandline == ["echo", "1"]
 
 
 def test_config_from_dict():

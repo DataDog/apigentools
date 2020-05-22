@@ -57,6 +57,7 @@ languages:
             V1: y
           image: other:image
           inherit: false
+        validation_commands: []
     github_repo_name: "my-gh-repo"
     library_version: "1.0.0"
     version_path_template: "{{spec_version}}/"
@@ -67,3 +68,7 @@ spec_versions:
   - v1
   - v2
 user_agent_client_name: MyClient
+validation_commands:
+  - commandline:
+    - echo
+    - "1"
