@@ -143,6 +143,7 @@ The structure of the general config file is as follows, starting with top level 
 * `minimum_apigentools_version` - Minimum required version of the apigentools package required for this spec repository.
 * `languages` - Settings for individual languages; contains a mapping of language names to their settings.
     * `container_opts` - See [container_opts section](#container_opts) below.
+    * `validation_commands` - Same as top-level `validation_commands`, allows overriding the top-level value on per-language basis.
     * individual-language-settings:
         * `container_opts` - See [container_opts section](#container_opts) below.
         * `generation` - Setting for code generation.
@@ -158,6 +159,7 @@ The structure of the general config file is as follows, starting with top level 
         * `library_version` - Version of the generated library, for now this only serves as a variable useful in [command templating](#templating-commands) 
         * `spec_sections` - Same as top-level `spec_sections`. Use to override the subset of spec sections to generate for each spec version of this language. For every spec version not specified as a key, the top-level list of sections for this spec version is used.
         * `spec_versions` - Same as top-level `spec_versions`. Use to override the subset of major versions to generate for this language. If not specified, the top-level `spec_versions` value is used.
+        * `validation_commands` - Same as top-level and per-language `validation_commands`, allows overriding both of these.
         * `version_path_template` - Mustache template for the name of the subdirectory in the Github repo where code for individual major versions of the API will end up, e.g. with `myapi_{{spec_version}}` as value and a `github_repo_name` of value `my-java-client`, the code for `v1` of the API will end up in `myapi-java-client/myapi_v1`
 * `spec_sections` - Mapping of major spec versions (these must be in `spec_versions`) to lists of files with paths/tags/components definitions to merge when creating full spec. Files not explicitly listed here are ignored.
 * `spec_versions` - List of major versions currently known and operated on. These must be subdirectories of the `spec` directory.
@@ -256,8 +258,15 @@ Each command has following attributes:
 
 Validation commands have exactly the same structure as the above commands. They're run for every created full OpenAPI spec (since there might be more of these based on how different languages define their `spec_sections`).
 
-The only templating variable these commands can use is `{{full_spec_path}}`, which is a path to the spec currently being validated.
+New in 1.2.0: `validation_commands` can be specified on multiple levels, with inheritance working like this: For a specific language version, `validation_commands` are taken from:
 
+* `validation_commands` definition for the specific version (if present there); else
+* `validation_commands` definition in the `default` section (if present there); else
+* `validation_commands` definition for the specific language (if present there); else
+* `validation_commands` definition from the top level (if present there); else
+* empty command list is used
+
+The only templating variable these commands can use is `{{full_spec_path}}`, which is a path to the spec currently being validated.
 
 
 #### Functions in Commands

@@ -121,6 +121,7 @@ class VersionGeneration(BaseModel):
     commands: Optional[List[ConfigCommand]]
     templates: Optional[TemplatesConfig]
     tests: Optional[List[ConfigCommand]]
+    validation_commands: Optional[List[ConfigCommand]]
 
     def postprocess(self, parent, vname, default_generation=None):
         if self.commands is None:
@@ -141,6 +142,15 @@ class VersionGeneration(BaseModel):
                 if default_generation and default_generation.templates
                 else []
             )
+        if self.validation_commands is None:
+            self.validation_commands = (
+                copy.deepcopy(default_generation.validation_commands)
+                if default_generation and default_generation.validation_commands
+                else None  # ensure that the condition below works correctly
+            )
+            # it's also allowed to specify validation_commands on language level
+            if self.validation_commands is None:
+                self.validation_commands = copy.deepcopy(parent.validation_commands)
 
         if default_generation is not None:
             if self.container_opts is None:
@@ -153,6 +163,8 @@ class VersionGeneration(BaseModel):
             c.postprocess(self)
         for t in self.tests:
             t.postprocess(self)
+        for v in self.validation_commands:
+            v.postprocess(self)
 
 
 class LanguageConfig(BaseModel):
@@ -172,6 +184,7 @@ class LanguageConfig(BaseModel):
     library_version: str
     spec_sections: Optional[Dict]
     spec_versions: Optional[List]
+    validation_commands: Optional[List[ConfigCommand]]
     version_path_template: Optional[str] = ""
 
     def postprocess(self, parent, lname):
@@ -188,6 +201,8 @@ class LanguageConfig(BaseModel):
             self.spec_versions = copy.deepcopy(parent.spec_versions)
         if self.spec_sections is None:
             self.spec_sections = copy.deepcopy(parent.spec_sections)
+        if self.validation_commands is None:
+            self.validation_commands = copy.deepcopy(parent.validation_commands)
 
         for sv in self.spec_versions:
             if sv not in parent.spec_versions:
@@ -224,6 +239,9 @@ class LanguageConfig(BaseModel):
 
     def test_commands_for(self, version):
         return self.generation[version].tests
+
+    def validation_commands_for(self, version):
+        return self.generation[version].validation_commands
 
     def spec_sections_for(self, version):
         return self.spec_sections[version]
@@ -344,6 +362,4 @@ class Config(BaseSettings):
         )
         for lname, lconfig in self.languages.items():
             lconfig.postprocess(self, lname)
-        for vc in self.validation_commands:
-            vc.postprocess(self)
         return self
