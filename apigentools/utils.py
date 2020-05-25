@@ -11,9 +11,10 @@ import re
 import subprocess
 import sys
 
+from packaging import version
 import yaml
 
-from apigentools import constants
+from apigentools import constants, __version__
 from apigentools import errors
 
 log = logging.getLogger(__name__)
@@ -424,3 +425,9 @@ def check_for_legacy_config(click_ctx, configfile):
     else:
         log.error("Couldn't find {}. Are you running in spec repo?".format(configfile))
     click_ctx.exit(1)
+
+
+def maximum_supported_config_version():
+    v = version.parse(__version__)
+    maxv = "{}.{}".format(*v.release[:2])
+    return version.parse(maxv)
