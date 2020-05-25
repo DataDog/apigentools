@@ -11,7 +11,7 @@ import yaml
 
 from apigentools import constants
 from apigentools.commands.command import Command
-from apigentools.utils import change_cwd, run_command
+from apigentools.utils import change_cwd, run_command, maximum_supported_config_version
 
 log = logging.getLogger(__name__)
 
@@ -35,10 +35,11 @@ def init(ctx, **kwargs):
 
 class InitCommand(Command):
     CONFIG_FILE_JSON = {
-        "languages": {},
+        "config_version": str(maximum_supported_config_version()),
         "container_opts": {
             constants.COMMAND_IMAGE_KEY: constants.DEFAULT_CONTAINER_IMAGE,
         },
+        "languages": {},
         "spec_sections": {
             "v1": [constants.HEADER_FILE_NAME, constants.SHARED_FILE_NAME]
         },

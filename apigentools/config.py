@@ -7,7 +7,7 @@ import os
 from typing import Dict, List, MutableSequence, Optional, Union
 
 import chevron
-from pydantic import BaseModel, BaseSettings, validator
+from pydantic import BaseModel, BaseSettings, Extra, validator
 import yaml
 
 from apigentools import constants
@@ -171,10 +171,7 @@ class LanguageConfig(BaseModel):
     __slots__ = ("language", "user_agent_client_name")
 
     class Config:
-        fields = {
-            "github_repo": "github_repo_name",
-            "github_org": "github_org_name",
-        }
+        fields = {"github_repo": "github_repo_name", "github_org": "github_org_name"}
 
     container_opts: Optional[ContainerOpts]
     downstream_templates: Dict[str, str] = {}
@@ -312,7 +309,7 @@ class LanguageConfig(BaseModel):
         :return: path to directory with generated language code
         :rtype: ``str``
         """
-        return os.path.join(constants.SPEC_REPO_GENERATED_DIR, self.github_repo,)
+        return os.path.join(constants.SPEC_REPO_GENERATED_DIR, self.github_repo)
 
     def generated_lang_version_dir_for(self, version):
         """ Returns path to the directory with generated code for given spec version.
@@ -328,9 +325,39 @@ class LanguageConfig(BaseModel):
         )
 
 
-class Config(BaseSettings):
-    container_opts: Optional[ContainerOpts]
+class VersionCheckConfig(BaseSettings):
+    """ This is a minimalistic version of config that we use to validate that currently used
+    apigentools version satisfies both `minimum_apigentools_version` and `config_version`.
+    We use it to be able to read the config with `Extra.allow`, so that different versions
+    of config are correctly loaded regardless of added/removed fields. This is unlike the full
+    `Config`, which forbids unknown fields to improve validation.
+    """
+
+    class Config:
+        extra = Extra.allow
+
+    config_version: Optional[str] = "1.0.0"
     minimum_apigentools_version: Optional[str] = "0.0.0"
+
+    @classmethod
+    def from_file(cls, fpath):
+        with open(fpath) as f:
+            config = yaml.safe_load(f)
+        return cls(**config).postprocess()
+
+    @classmethod
+    def from_dict(cls, d):
+        return cls(**copy.deepcopy(d)).postprocess()
+
+    def postprocess(self):
+        return self
+
+
+class Config(VersionCheckConfig):
+    class Config:
+        extra = Extra.forbid
+
+    container_opts: Optional[ContainerOpts]
     spec_sections: Optional[Dict] = {}
     spec_versions: Optional[List] = []
     user_agent_client_name: str = "OpenAPI"
@@ -345,16 +372,6 @@ class Config(BaseSettings):
 
     def spec_sections_for(self, version):
         return self.spec_sections.get(version, [])
-
-    @classmethod
-    def from_file(cls, fpath):
-        with open(fpath) as f:
-            config = yaml.safe_load(f)
-        return cls(**config).postprocess()
-
-    @classmethod
-    def from_dict(cls, d):
-        return cls(**copy.deepcopy(d)).postprocess()
 
     def postprocess(self):
         self.container_opts = inherit_container_opts(

@@ -12,13 +12,14 @@ import pydantic
 import apigentools
 from apigentools import constants
 from apigentools.commands import ALL_COMMANDS, init
-from apigentools.config import Config
+from apigentools.config import VersionCheckConfig
 from apigentools.utils import (
     env_or_val,
     set_log,
     set_log_level,
     change_cwd,
     check_for_legacy_config,
+    maximum_supported_config_version,
 )
 
 log = logging.getLogger(__name__)
@@ -92,12 +93,15 @@ def cli(ctx, **kwargs):
     # we don't check apigentools version for init command, as that doesn't have
     # any config/config.yaml available
     if ctx.invoked_subcommand != init.name:
-        check_min_version(ctx)
+        check_version(ctx)
     if ctx.obj.get("verbose"):
         set_log_level(toplog, logging.DEBUG)
 
 
-def check_min_version(click_ctx):
+def check_version(click_ctx):
+    """ Check version of apigentools against `min_apigentools_version` and check that spec
+    is of supported version.
+    """
     should_not_check_version = click_ctx.obj.get("skip_version_check")
     if should_not_check_version:
         return
@@ -107,23 +111,47 @@ def check_min_version(click_ctx):
             os.path.join(constants.SPEC_REPO_CONFIG_DIR, constants.DEFAULT_CONFIG_FILE)
         )
         try:
-            config = Config.from_file(configfile)
+            config = VersionCheckConfig.from_file(configfile)
         except OSError:
             check_for_legacy_config(click_ctx, configfile)
         except pydantic.error_wrappers.ValidationError as e:
-            log.error("Configuration error: %s", e)
-            click_ctx.exit(1)
-
-        # Version like - "apigentools, version 0.10.1.dev27+dirty"
-        min_version = config.minimum_apigentools_version
-        actual_version = apigentools.__version__
-
-        if version.parse(actual_version) < version.parse(min_version):
-            click.echo(
-                f"Apigentools is below the minimum version: {min_version} for this spec repo. Please upgrade to continue to run generation and tests.",
-                err=True,
+            log.error(
+                "Failed reading config_version and min_apigentools_version: %s", e
             )
             click_ctx.exit(1)
+        check_config_version(click_ctx, config)
+        check_min_apigentools_version(click_ctx, config)
+
+
+def check_config_version(click_ctx, config):
+    config_version = version.parse(config.config_version)
+    minv = constants.MIN_CONFIG_VERSION
+    maxv = maximum_supported_config_version()
+    if config_version < minv:
+        click.echo(
+            f"This apigentools version supports config of version at least {minv}, but config has {config_version}. Please upgrade apigentools.",
+            err=True,
+        )
+        click_ctx.exit(1)
+    if config_version > maxv:
+        click.echo(
+            f"This apigentools version supports config of version at most {maxv}, but config has {config_version}. Please downgrade apigentools.",
+            err=True,
+        )
+        click_ctx.exit(1)
+
+
+def check_min_apigentools_version(click_ctx, config):
+    # Version like - "apigentools, version 0.10.1.dev27+dirty"
+    min_version = config.minimum_apigentools_version
+    actual_version = apigentools.__version__
+
+    if version.parse(actual_version) < version.parse(min_version):
+        click.echo(
+            f"Apigentools is below the minimum version: {min_version} for this spec repo. Please upgrade to continue to run generation and tests.",
+            err=True,
+        )
+        click_ctx.exit(1)
 
 
 # Register all click sub-commands

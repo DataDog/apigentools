@@ -139,11 +139,11 @@ validation_commands:
 
 The structure of the general config file is as follows, starting with top level keys:
 
+* `config_version` (Added in config version `1.2`). - [Version of the configuration file](#config_version).
 * `container_opts` - Options for containerized command execution. See [container_opts section](#container_opts) below.
 * `minimum_apigentools_version` - Minimum required version of the apigentools package required for this spec repository.
 * `languages` - Settings for individual languages; contains a mapping of language names to their settings.
     * `container_opts` - See [container_opts section](#container_opts) below.
-    * `validation_commands` - Same as top-level `validation_commands`, allows overriding the top-level value on per-language basis.
     * individual-language-settings:
         * `container_opts` - See [container_opts section](#container_opts) below.
         * `generation` - Setting for code generation.
@@ -152,6 +152,7 @@ The structure of the general config file is as follows, starting with top level 
                 * `commands` - Commands to execute to generate code. See [commands](#commands).
                 * `templates` - Instructions on how to [preprocess templates](#preprocess-templates) to pass to code generator.
                 * `tests` - Commands to execute to test code using `apigentools test`. See [commands](#commands).
+                * `validation_commands` (Added in config version `1.2`) - Same as top-level and per-language `validation_commands`, allows overriding both of these.
             * spec-version-settings - Exactly the same as `default` above, but used for overriding operations specifically for the given major API version.
         * `downstream_templates` - [Downstream templates](#downstream-templates).
         * `github_org_name` - Name of the Github organization of the client for this language.
@@ -159,12 +160,20 @@ The structure of the general config file is as follows, starting with top level 
         * `library_version` - Version of the generated library, for now this only serves as a variable useful in [command templating](#templating-commands) 
         * `spec_sections` - Same as top-level `spec_sections`. Use to override the subset of spec sections to generate for each spec version of this language. For every spec version not specified as a key, the top-level list of sections for this spec version is used.
         * `spec_versions` - Same as top-level `spec_versions`. Use to override the subset of major versions to generate for this language. If not specified, the top-level `spec_versions` value is used.
-        * `validation_commands` - Same as top-level and per-language `validation_commands`, allows overriding both of these.
+        * `validation_commands` (Added in config version `1.2`) - Same as top-level `validation_commands`, allows overriding the top-level value on per-language basis.
         * `version_path_template` - Mustache template for the name of the subdirectory in the Github repo where code for individual major versions of the API will end up, e.g. with `myapi_{{spec_version}}` as value and a `github_repo_name` of value `my-java-client`, the code for `v1` of the API will end up in `myapi-java-client/myapi_v1`
 * `spec_sections` - Mapping of major spec versions (these must be in `spec_versions`) to lists of files with paths/tags/components definitions to merge when creating full spec. Files not explicitly listed here are ignored.
 * `spec_versions` - List of major versions currently known and operated on. These must be subdirectories of the `spec` directory.
 * `user_agent_client_name` - The HTTP User Agent string will be set to `{user_agent_client_name}/{package_version}/{language}`.
 * `validation_commands` - List of [commands](#validation-commands) to run during validation phase. The commands have the same structure and mechanics like language commands (see above). Validation commands will be executed for each full spec that is created.
+
+### `config_version`
+
+In apigentools 1.2.0, the concept of `config_version` was introduced. Since this version, apigentools will verify that the config it's running against is of a supported version.
+
+`config_version` adopts a `MAJOR.MINOR` versioning scheme. Configuration will only change in minor apigentools releases, so an `X.Y.Z` version of apigentools always supports `config_version: "X.Y"` and perhaps some older versions as well.
+
+Configs created for apigentools between 1.0.0 and 1.2.0 (as well as these which don't have `config_version` specified) are considered to be of version `1.0`.
 
 ### `container_opts`
 

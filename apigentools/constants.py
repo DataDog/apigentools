@@ -2,6 +2,9 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+
+from packaging.version import Version
+
 COMMAND_ENVIRONMENT_KEY = "environment"
 COMMAND_IMAGE_KEY = "image"
 COMMAND_IMAGE_DOCKERFILE_KEY = "dockerfile"
@@ -13,6 +16,7 @@ CONFIG_CONTAINER_IMAGE_KEY = "container_apigentools_image"
 DEFAULT_CONFIG_FILE = "config.yaml"
 DEFAULT_CONTAINER_IMAGE = "datadog/apigentools:latest"
 LANGUAGE_OAPI_CONFIGS = "languages"
+MIN_CONFIG_VERSION = Version("1.0")
 OPENAPI_GENERATOR_GIT = "https://github.com/OpenAPITools/openapi-generator"
 GENERATION_BLACKLIST_FILENAME = ".generated_files"
 GITHUB_REPO_URL_TEMPLATE = "github.com/{{github_org_name}}/{{github_repo_name}}"
