@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.2.0 / 2020-05-25
+
+* [Added] Introduce config file versioning. See [#191](https://github.com/DataDog/apigentools/pull/191).
+* [Added] Allow overriding validation_commands on multiple levels. See [#190](https://github.com/DataDog/apigentools/pull/190).
+* [Added] Update openapi-generator to 5.0.0 snapshot. See [#189](https://github.com/DataDog/apigentools/pull/189).
+* [Fixed] Fix inheritance of container_opts for inherited commands. See [#188](https://github.com/DataDog/apigentools/pull/188).
+
 ## 1.1.0 / 2020-05-13
 
 * [Added] Allow using JSONPath to extract values from expanded config. See [#179](https://github.com/DataDog/apigentools/pull/179).
