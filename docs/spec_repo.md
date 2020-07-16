@@ -275,8 +275,6 @@ New in 1.2.0: `validation_commands` can be specified on multiple levels, with in
 * `validation_commands` definition from the top level (if present there); else
 * empty command list is used
 
-The only templating variable these commands can use is `{{full_spec_path}}`, which is a path to the spec currently being validated.
-
 
 #### Functions in Commands
 
@@ -325,8 +323,9 @@ This section lists recognized functions for language phase and validation comman
 
 #### Templating Commands
 
-The `commandline` arguments of commands can also use following templating values (Mustache templating is used):
+The `commandline` arguments of commands can also use following templating values (Mustache templating is used). Note that all template variables containing paths will be relative to the directory from which given command is executed: validation commands are executed from the Spec Repo directory while generation and test commands are executed from within directory with code for the given version of the given language.
 
+* `{{config_dir}}` - Path to the `config` directory in the Spec Repo
 * `{{cwd}}` - Current working directory
 * `{{full_spec_path}}` - Path to the input full OpenAPI spec
 * `{{github_repo_name}}` - Value from config
@@ -339,7 +338,7 @@ The `commandline` arguments of commands can also use following templating values
 * `{{templates_dir}}` - Directory with templates for this language/API version combination
 * `{{user_agent_client_name}}` - Value from config
 * `{{version_output_dir}}` - Directory to which the output for this spec version will be put
-* `{{top_level_dir}}` - Relative path (to `{{version_output_dir}}`) to the top level directory of the generated language repo
+* `{{top_level_dir}}` - Path to the top level directory of the generated language repo
 
 ### Downstream Templates
 

@@ -6,6 +6,7 @@ import logging
 
 import click
 
+from apigentools import config
 from apigentools import constants
 from apigentools.commands.command import Command, run_command_with_config
 from apigentools.utils import write_full_spec, env_or_val
@@ -44,9 +45,12 @@ class ValidateCommand(Command):
             log.info("No validation commands specified for %s/%s", language, version)
 
         for cmd in vcs:
-            # TODO: deduplicate chevron_vars with generate command
             self.run_config_command(
-                cmd, "validation", chevron_vars={"full_spec_path": fs_path}
+                cmd,
+                "validation",
+                chevron_vars=lc.chevron_vars_for(
+                    version, fs_path, config.PathRelativeTo.SPEC_REPO_DIR
+                ),
             )
         log.info("Validation %s for API version %s successful", log_string, version)
 

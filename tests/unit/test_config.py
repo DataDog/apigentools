@@ -196,6 +196,7 @@ def check_config(c):
     assert java.chevron_vars_for() == expected_chevron_vars
     expected_chevron_vars.update(
         {
+            "config_dir": "../../../config",
             "full_spec_path": "../../../spec/v1/full_spec.yaml",
             "language_config": "../../../config/languages/java_v1.json",
             "spec_version": "v1",

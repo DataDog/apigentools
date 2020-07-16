@@ -45,6 +45,10 @@ languages:
             description: "Test system command"
             container_opts:
               system: true
+          - commandline:
+              - ls
+              - "{{config_dir}}/config.yaml"
+            description: "Ensure config_dir expands correctly"
         tests:
           - commandline: []
             description: "Run tests"

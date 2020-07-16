@@ -3,6 +3,7 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
 import copy
+import enum
 import os
 from typing import Dict, List, MutableSequence, Optional, Union
 
@@ -12,6 +13,11 @@ import yaml
 
 from apigentools import constants
 from apigentools.utils import inherit_container_opts
+
+
+class PathRelativeTo(enum.Enum):
+    SPEC_REPO_DIR = enum.auto()
+    VERSION_OUTPUT_DIR = enum.auto()
 
 
 class ContainerImageBuild(BaseModel):
@@ -249,7 +255,12 @@ class LanguageConfig(BaseModel):
     def container_opts_for(self, version):
         return self.generation[version].container_opts
 
-    def chevron_vars_for(self, version=None, spec_path=None):
+    def chevron_vars_for(
+        self,
+        version=None,
+        spec_path=None,
+        paths_relative_to=PathRelativeTo.VERSION_OUTPUT_DIR,
+    ):
         chevron_vars = {
             "github_repo_name": self.github_repo,
             "github_repo_org": self.github_org,
@@ -261,17 +272,22 @@ class LanguageConfig(BaseModel):
             constants.GITHUB_REPO_URL_TEMPLATE, chevron_vars
         )
         if version:
-            version_output_dir = self.generated_lang_version_dir_for(version)
-            # where is the spec repo relative to version_output_dir
-            version_output_dir_nesting_level = len(
-                version_output_dir.strip("/").split("/")
+            spec_repo_relpath = "."
+            top_level_relpath = os.path.join(
+                constants.SPEC_REPO_GENERATED_DIR, self.github_repo
             )
-            spec_repo_from_version_output_dir = "../" * version_output_dir_nesting_level
-            top_level_from_version_output_dir = (
-                "../" * (version_output_dir_nesting_level - 2) or "."
-            )
+            if paths_relative_to == PathRelativeTo.VERSION_OUTPUT_DIR:
+                version_output_dir = self.generated_lang_version_dir_for(version)
+                # where is the spec repo relative to version_output_dir
+                version_output_dir_nesting_level = len(
+                    version_output_dir.strip("/").split("/")
+                )
+                spec_repo_relpath = "../" * version_output_dir_nesting_level
+                top_level_relpath = (
+                    "../" * (version_output_dir_nesting_level - 2) or "."
+                )
             templates_dir = os.path.join(
-                spec_repo_from_version_output_dir,
+                spec_repo_relpath,
                 constants.SPEC_REPO_TEMPLATES_DIR,
                 self.language,
                 version,
@@ -282,24 +298,23 @@ class LanguageConfig(BaseModel):
                 "{lang}_{v}.json".format(lang=self.language, v=version),
             )
             language_config_path = os.path.join(
-                spec_repo_from_version_output_dir, language_oapi_config_path
+                spec_repo_relpath, language_oapi_config_path
             )
+            config_dir = os.path.join(spec_repo_relpath, constants.SPEC_REPO_CONFIG_DIR)
 
             chevron_vars.update(
                 {
+                    "config_dir": config_dir,
                     "language_config": language_config_path,
                     "spec_version": version,
                     "templates_dir": templates_dir,
-                    "top_level_dir": top_level_from_version_output_dir,
+                    "top_level_dir": top_level_relpath,
                     "version_output_dir": ".",
                 }
             )
             if spec_path:
-                full_spec_path = os.path.join(
-                    spec_repo_from_version_output_dir, spec_path
-                )
+                full_spec_path = os.path.join(spec_repo_relpath, spec_path)
                 chevron_vars["full_spec_path"] = full_spec_path
-
         return chevron_vars
 
     @property
