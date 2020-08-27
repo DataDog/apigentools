@@ -58,7 +58,7 @@ def push(ctx, **kwargs):
 
 class PushCommand(Command):
     def get_push_branch(self, lang_name):
-        """ Get name of branch to create and push. If the default branch doesn't exist,
+        """Get name of branch to create and push. If the default branch doesn't exist,
         it will be returned, otherwise a new feature branch name will be returned.
 
         :param lang_name: Name of language to include in a new feature branch

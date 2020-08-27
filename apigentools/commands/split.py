@@ -39,7 +39,7 @@ class SplitCommand(Command):
         return os.path.splitext(SHARED_FILE_NAME)[0]
 
     def deduplicate_tags(self, all_sections, all_tags):
-        """ Find all tags that appear in more than one section and move them
+        """Find all tags that appear in more than one section and move them
         to the ``shared`` section.
 
         :param all_sections: dict of all existing sections
@@ -62,7 +62,7 @@ class SplitCommand(Command):
                 all_sections[self.get_shared_section_name()]["tags"].append(tag)
 
     def deduplicate_components(self, all_sections, all_components):
-        """ Find all component schemas that appear in more than one section and move them
+        """Find all component schemas that appear in more than one section and move them
         to the ``shared`` section.
 
         :param all_sections: dict of all existing sections
@@ -89,7 +89,7 @@ class SplitCommand(Command):
                 ] = schema
 
     def get_endpoints_for_sections(self, all_endpoints):
-        """ Get mapping of "top-level" endpoints to all endpoints under them.
+        """Get mapping of "top-level" endpoints to all endpoints under them.
 
         Example result:
         {"/api/v1/user": ["/api/v1/user", "/api/v1/user/{username}"],
@@ -116,7 +116,7 @@ class SplitCommand(Command):
         return endpoints_sections
 
     def get_section_output_path(self, outdir, section):
-        """ Get name of output file for given section of and OpenAPI spec.
+        """Get name of output file for given section of and OpenAPI spec.
 
         For example, for section name ``/api/v1/somepath``, the result would be
         ``{outdir}/somepath.yaml``.
@@ -137,7 +137,7 @@ class SplitCommand(Command):
         return os.path.join(outdir, section + ".yaml")
 
     def get_tag_object(self, all_tags, tag_name):
-        """ Return tag object (a dict with ``name`` and ``description`` keys) for given tag name.
+        """Return tag object (a dict with ``name`` and ``description`` keys) for given tag name.
 
         :param all_tags: list of tags to search
         :type all_tags: ``list``
@@ -152,7 +152,7 @@ class SplitCommand(Command):
         return None
 
     def update_section_components(self, section, components):
-        """ Searches for all referenced schemas throughout the whole section and adds
+        """Searches for all referenced schemas throughout the whole section and adds
         them to ``section["components"]["schemas"]``.
 
         :param section: section to process
@@ -167,7 +167,7 @@ class SplitCommand(Command):
                 )
 
     def update_components_recursive(self, section, components, struct, struct_path):
-        """ A recursive function to traverse arbitrary data structure, search for all
+        """A recursive function to traverse arbitrary data structure, search for all
         referenced schemas and add them to ``section["components"]["schemas"]``.
 
         :param section: section to process
@@ -213,7 +213,7 @@ class SplitCommand(Command):
             pass  # primitive type that we can't traverse any more => just pass
 
     def update_section_tags(self, section, tags):
-        """ Search for all tags referenced in all endpoints in given section and add them
+        """Search for all tags referenced in all endpoints in given section and add them
         to ``section["tags"]``.
 
         :param section: section to process
