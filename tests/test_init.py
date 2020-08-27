@@ -55,7 +55,10 @@ def test_init(tmpdir):
 
     with open(
         os.path.join(
-            temp_dir, constants.SPEC_REPO_SPEC_DIR, "v1", constants.SHARED_FILE_NAME,
+            temp_dir,
+            constants.SPEC_REPO_SPEC_DIR,
+            "v1",
+            constants.SHARED_FILE_NAME,
         )
     ) as f:
         assert yaml.dump(cmd_instance.V1_SHARED_JSON) == f.read()

@@ -85,7 +85,10 @@ class TemplatesCommand(Command):
                     templates_cfg.source.directory_path,
                     templates_cfg.source.templates_dir,
                 )
-                output_dir = os.path.join(td, templates_cfg.source.templates_dir,)
+                output_dir = os.path.join(
+                    td,
+                    templates_cfg.source.templates_dir,
+                )
                 if from_container:
                     log.info("Extracting templates directory from image %s", image)
                     with self.create_container(lc, spec_version) as container:
@@ -106,7 +109,8 @@ class TemplatesCommand(Command):
                         )
                         return 1
                     shutil.copytree(
-                        lang_dir, os.path.join(td, templates_cfg.source.templates_dir),
+                        lang_dir,
+                        os.path.join(td, templates_cfg.source.templates_dir),
                     )
             elif isinstance(templates_cfg.source, OpenapiGitTemplatesConfig):
                 if from_container:
@@ -119,7 +123,13 @@ class TemplatesCommand(Command):
                 )
                 run_command(["git", "clone", OPENAPI_GENERATOR_GIT, td])
                 run_command(
-                    ["git", "-C", td, "checkout", templates_cfg.source.git_committish,]
+                    [
+                        "git",
+                        "-C",
+                        td,
+                        "checkout",
+                        templates_cfg.source.git_committish,
+                    ]
                 )
             else:
                 log.error("Unknown templates source type {}".format(source_type))
@@ -157,7 +167,8 @@ class TemplatesCommand(Command):
             if os.path.exists(outdir):
                 shutil.rmtree(outdir)
             shutil.copytree(
-                os.path.join(copy_from, templates_cfg.source.templates_dir), outdir,
+                os.path.join(copy_from, templates_cfg.source.templates_dir),
+                outdir,
             )
         return 0
 

@@ -199,16 +199,36 @@ def test_set_log_default(caplog):
 
 def test_write_full_spec(tmpdir):
     s1 = {
-        "components": {"schemas": {"MySchema": {"type": "object",},},},
+        "components": {
+            "schemas": {
+                "MySchema": {
+                    "type": "object",
+                },
+            },
+        },
         "paths": {
-            "/api/v1/foo": {"get": {"operationId": "getFoo", "summary": "get",},},
+            "/api/v1/foo": {
+                "get": {
+                    "operationId": "getFoo",
+                    "summary": "get",
+                },
+            },
         },
     }
     s2 = {
-        "components": {"schemas": {"MyOtherSchema": {"type": "string",},},},
+        "components": {
+            "schemas": {
+                "MyOtherSchema": {
+                    "type": "string",
+                },
+            },
+        },
         "paths": {
             "/api/v1/foo": {  # add a new operation to the same path
-                "post": {"operationId": "postFoo", "summary": "post",},
+                "post": {
+                    "operationId": "postFoo",
+                    "summary": "post",
+                },
             },
         },
     }
@@ -226,15 +246,25 @@ def test_write_full_spec(tmpdir):
             "requestBodies": {},
             "responses": {},
             "schemas": {
-                "MySchema": {"type": "object",},
-                "MyOtherSchema": {"type": "string",},
+                "MySchema": {
+                    "type": "object",
+                },
+                "MyOtherSchema": {
+                    "type": "string",
+                },
             },
             "securitySchemes": {},
         },
         "paths": {
             "/api/v1/foo": {
-                "get": {"operationId": "getFoo", "summary": "get",},
-                "post": {"operationId": "postFoo", "summary": "post",},
+                "get": {
+                    "operationId": "getFoo",
+                    "summary": "get",
+                },
+                "post": {
+                    "operationId": "postFoo",
+                    "summary": "post",
+                },
             },
         },
         "security": [],

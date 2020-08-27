@@ -184,7 +184,8 @@ class Command(abc.ABC):
                 "/tmp/spec-repo",
                 cwd,
                 self._render_command_args(
-                    command.container_opts.workdir, chevron_vars,
+                    command.container_opts.workdir,
+                    chevron_vars,
                 ),
             )
             dockerized = [

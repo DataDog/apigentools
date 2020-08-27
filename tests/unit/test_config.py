@@ -21,11 +21,19 @@ config_sample = {
         "java": {
             "container_opts": {
                 "image": "java:image",
-                "environment": {"LEVEL": "1", "JAVA": "y",},
+                "environment": {
+                    "LEVEL": "1",
+                    "JAVA": "y",
+                },
             },
             "generation": {
                 "default": {
-                    "container_opts": {"environment": {"LEVEL": "2", "DEFAULT": "y",},},
+                    "container_opts": {
+                        "environment": {
+                            "LEVEL": "2",
+                            "DEFAULT": "y",
+                        },
+                    },
                     "templates": {
                         "patches": ["patch1", "patch2"],
                         "source": {
@@ -37,7 +45,10 @@ config_sample = {
                     "commands": [
                         {
                             "container_opts": {
-                                "environment": {"LEVEL": "3", "CMD": "y",},
+                                "environment": {
+                                    "LEVEL": "3",
+                                    "CMD": "y",
+                                },
                             },
                             "commandline": ["some", "pre", "cmd"],
                             "description": "Some pre command",
@@ -62,7 +73,10 @@ config_sample = {
                     "container_opts": {
                         "image": "other:image",
                         "inherit": False,
-                        "environment": {"LEVEL": "2", "V1": "y",},
+                        "environment": {
+                            "LEVEL": "2",
+                            "V1": "y",
+                        },
                     },
                     "commands": [
                         {
@@ -97,7 +111,10 @@ def check_config(c):
     java = c.get_language_config("java")
     assert type(java) == LanguageConfig
     assert java.container_opts == {
-        "environment": {"LEVEL": "1", "JAVA": "y",},
+        "environment": {
+            "LEVEL": "1",
+            "JAVA": "y",
+        },
         "image": "java:image",
         "inherit": True,
         "system": False,
