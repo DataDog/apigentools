@@ -47,7 +47,7 @@ def set_log_level(log, level):
 
 @contextlib.contextmanager
 def change_cwd(change_to):
-    """ A context manager to temporarily change current working directory
+    """A context manager to temporarily change current working directory
 
     :param change_to: Path to change current working directory to
     :type change_to: ``str``
@@ -61,7 +61,7 @@ def change_cwd(change_to):
 
 
 def env_or_val(env, val, *args, __type=str, **kwargs):
-    """ Return value of environment variable (if it's defined) or a given fallback value
+    """Return value of environment variable (if it's defined) or a given fallback value
 
     :param env: Environment variable to look for
     :type env: ``str``
@@ -96,7 +96,7 @@ def env_or_val(env, val, *args, __type=str, **kwargs):
 
 
 def get_current_commit(repo_path="."):
-    """ Get short name of the current commit
+    """Get short name of the current commit
 
     :param repo_path: Path of the repository to get current commit for
     :type repo_path: ``str``
@@ -121,7 +121,7 @@ def get_current_commit(repo_path="."):
 
 @contextlib.contextmanager
 def logging_enabled(enabled):
-    """ A context manager to turn of logging temporarily
+    """A context manager to turn of logging temporarily
 
     :param enabled: If ``True``, logging will be on, if ``False``, logging will be off
     :type enabled: ``bool``
@@ -143,7 +143,7 @@ def run_command(
     sensitive_output=False,
     **kwargs
 ):
-    """ Wrapper for running subprocesses with reasonable logging.
+    """Wrapper for running subprocesses with reasonable logging.
 
     :param cmd: Command to run as subprocess. Members are either strings (directly used
         to construct the command) or dicts. Dicts must have the form of
@@ -234,7 +234,7 @@ def run_command(
 
 
 def fmt_cmd_out_for_log(result_or_error, combine_out_err):
-    """ Formats result of (or error raised from) subprocess.run for logging.
+    """Formats result of (or error raised from) subprocess.run for logging.
 
     :param result_or_error: Result/error to format
     :type result_or_error: ``subprocess.CalledProcessError`` or ``subprocess.CompletedProcess``
@@ -258,7 +258,7 @@ def fmt_cmd_out_for_log(result_or_error, combine_out_err):
 
 
 def get_full_spec_file_name(default_fsf, l):
-    """ Get full-spec filename for given language
+    """Get full-spec filename for given language
 
     * General spec is always named exactly as ``default_fsf``
     * If there's at least one ``.`` in ``default_fsf``, then the right-most one
@@ -285,7 +285,7 @@ def get_full_spec_file_name(default_fsf, l):
 
 
 def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
-    """ Write a full OpenAPI spec file
+    """Write a full OpenAPI spec file
 
     :param spec_dir: Directory containing per-major-version subdirectories
         with parts of OpenAPI spec to combine
@@ -379,7 +379,7 @@ def glob_re(glob_pattern, re_filter):
 
 
 def inherit_container_opts(local, parent):
-    """ Implements handling of inheritance of container_opts
+    """Implements handling of inheritance of container_opts
 
     :param local: Container opts that are inheriting
     :type local: ``ContainerOpts``

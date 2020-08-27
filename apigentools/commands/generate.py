@@ -117,7 +117,7 @@ class GenerateCommand(Command):
     ]
 
     def get_default_generate_function(self, builtin_templates):
-        """ Returns a function that can be used in commands to expand to the default generate command.
+        """Returns a function that can be used in commands to expand to the default generate command.
 
         :param builtin_templates: Whether or not openapi-generator builtin templates should be used
         :type builtin_templates: ``bool``
@@ -134,7 +134,7 @@ class GenerateCommand(Command):
         return inner
 
     def run_language_commands(self, language, version, cwd, chevron_vars=None):
-        """ Runs commands specified in language settings for given language and phase
+        """Runs commands specified in language settings for given language and phase
 
         :param language: Language to run commands for
         :type language: ``str``
@@ -166,7 +166,7 @@ class GenerateCommand(Command):
             )
 
     def render_downstream_templates(self, language_config, chevron_vars):
-        """ Render the templates included in this repository under `downstream-templates/`
+        """Render the templates included in this repository under `downstream-templates/`
 
         :param language_config: Config of language to render templates for
         :type language_config: ``LanguageConfig``
@@ -189,7 +189,7 @@ class GenerateCommand(Command):
                 target.write(chevron.render(temp, chevron_vars))
 
     def get_stamp(self):
-        """ Get string for "stamping" files for trackability
+        """Get string for "stamping" files for trackability
 
         :return: Stamp, for example:
             "Generated with: apigentools version X.Y.Z (image: apigentools:X.Y.Z); spec repo commit abcd123"
@@ -205,7 +205,7 @@ class GenerateCommand(Command):
         return "; ".join(stamp + (self.args.get("additional_stamp", ())))
 
     def write_dot_apigentools_info(self, language_config, version):
-        """ Write a record for language/version in .apigentools-info file in the top-level directory of the language
+        """Write a record for language/version in .apigentools-info file in the top-level directory of the language
 
         :param language_config: Config of language to write .apigentools-info for
         :type language: ``LanguageConfig``

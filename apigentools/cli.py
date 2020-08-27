@@ -99,7 +99,7 @@ def cli(ctx, **kwargs):
 
 
 def check_version(click_ctx):
-    """ Check version of apigentools against `min_apigentools_version` and check that spec
+    """Check version of apigentools against `min_apigentools_version` and check that spec
     is of supported version.
     """
     should_not_check_version = click_ctx.obj.get("skip_version_check")

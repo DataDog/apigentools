@@ -49,7 +49,9 @@ def config(ctx, **kwargs):
     default=False,
     help="If the result is a simple value (string, number or boolean), it will be written directly without quotes",
 )
-@click.argument("jsonpath",)
+@click.argument(
+    "jsonpath",
+)
 @click.pass_context
 def jsonpath(ctx, **kwargs):
     """ Search expanded config for a single value by given JSONPATH. """
@@ -58,7 +60,9 @@ def jsonpath(ctx, **kwargs):
 
 
 @config.command("list")
-@click.argument("jsonpath",)
+@click.argument(
+    "jsonpath",
+)
 @click.pass_context
 def jsonpath(ctx, **kwargs):
     """ Search expanded config for values by given JSONPATH. """
