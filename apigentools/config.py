@@ -319,7 +319,7 @@ class LanguageConfig(BaseModel):
 
     @property
     def generated_lang_dir(self):
-        """ Returns path to the directory with generated code for this language
+        """Returns path to the directory with generated code for this language
 
         :return: path to directory with generated language code
         :rtype: ``str``
@@ -327,7 +327,7 @@ class LanguageConfig(BaseModel):
         return os.path.join(constants.SPEC_REPO_GENERATED_DIR, self.github_repo)
 
     def generated_lang_version_dir_for(self, version):
-        """ Returns path to the directory with generated code for given spec version.
+        """Returns path to the directory with generated code for given spec version.
 
         :param version: spec version to get path for
         :type version: ``str``
@@ -341,7 +341,7 @@ class LanguageConfig(BaseModel):
 
 
 class VersionCheckConfig(BaseSettings):
-    """ This is a minimalistic version of config that we use to validate that currently used
+    """This is a minimalistic version of config that we use to validate that currently used
     apigentools version satisfies both `minimum_apigentools_version` and `config_version`.
     We use it to be able to read the config with `Extra.allow`, so that different versions
     of config are correctly loaded regardless of added/removed fields. This is unlike the full
