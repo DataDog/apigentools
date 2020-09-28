@@ -1,11 +1,11 @@
-# https://github.com/OpenAPITools/openapi-generator/commit/b4edfe477a300558624c235f8b5b83f1bc8a02ae
-FROM openapitools/openapi-generator-cli@sha256:10fdbf4fc389576306f46c213504168b700d26ed6a041d7571d43e0651a220e5 AS jar
+# https://github.com/OpenAPITools/openapi-generator/commit/8b393358591a025f9789401bfdc6d8fc8e1fb69e
+FROM openapitools/openapi-generator@sha256:974854e99369c0140e25f92649a6e621980e84a82f43fddd184b52ddf983b07e AS jar
 # Ensure the jar file is build
 RUN /usr/local/bin/docker-entrypoint.sh version
 
 FROM fedora:30
 
-ENV OPENAPI_GENERATOR_VERSION=4.3.1-SNAPSHOT \
+ENV OPENAPI_GENERATOR_VERSION=5.0.0-SNAPSHOT \
     PACKAGES="docker findutils git golang-googlecode-tools-goimports java jq maven nodejs patch python3 python3-pip unzip"
 
 RUN dnf install -y gcc-c++ make && \
