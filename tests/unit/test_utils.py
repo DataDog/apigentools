@@ -319,6 +319,44 @@ def test_write_full_spec_section_not_found(tmpdir):
     )
 
 
+def test_write_full_spec_param_order(tmpdir):
+    s1 = """components:
+  callbacks: {}
+  examples: {}
+  headers: {}
+  links: {}
+  parameters: {}
+  requestBodies: {}
+  responses: {}
+  schemas:
+    MySchema:
+      type: object
+      properties:
+        b:
+          type: string
+        a:
+          type: string"""
+
+    specdir = tmpdir.mkdir("spec")
+    versiondir = specdir.mkdir("v1")
+
+    p1 = os.path.join(str(versiondir), "s1.yaml")
+
+    with open(p1, "w") as f:
+        f.write(s1)
+
+    written = write_full_spec(
+        str(specdir),
+        "v1",
+        ["s1.yaml"],
+        os.path.join(str(versiondir), "full.yaml"),
+    )
+
+    with open(written, "r") as f:
+        out = f.read()
+        assert out.startswith(s1)
+
+
 @pytest.mark.parametrize(
     "glob_pattern, regex, expected",
     [
