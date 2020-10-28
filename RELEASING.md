@@ -24,7 +24,7 @@ This project does not have a strict release schedule. However, we would make a r
 
 ### Commands
 
-- See changes ready for release by running `ddev release show changes .` at the root of this project. Add any missing labels to PRs if needed.
+- See changes ready for release by running `ddev release show changes . --tag-prefix v` at the root of this project. Add any missing labels to PRs if needed.
 - Run `ddev release changelog . <NEW_VERSION> -o docs/changelog.md` to update the changelog.
 - Commit the changes to the repository in a release branch and get it approved/merged.
 - Tag the repository with the new version number.
