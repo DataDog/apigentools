@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.0 / 2020-10-28
+
+* [Added] Bump pydantic dep to 1.7. See [#207](https://github.com/DataDog/apigentools/pull/207).
+* [Added] Upgrade to latest openapi-generator image. See [#206](https://github.com/DataDog/apigentools/pull/206).
+* [Added] Update click and black dependency versions, fix code formatting. See [#203](https://github.com/DataDog/apigentools/pull/203).
+* [Added] Add `{{config_dir}}` template variable, unify handling of template vars. See [#200](https://github.com/DataDog/apigentools/pull/200).
+* [Changed] Bump pyyaml version. See [#195](https://github.com/DataDog/apigentools/pull/195).
+
 ## 1.2.0 / 2020-05-26
 
 * [Added] Update openapi-generator to 5.0.0 snapshot. See [#193](https://github.com/DataDog/apigentools/pull/193).
