@@ -1,5 +1,5 @@
-# https://github.com/OpenAPITools/openapi-generator/commit/9334909bcd612cd3393d3a9eeb620959e139dd07
-FROM openapitools/openapi-generator@sha256:3477b3d876cf2e5cc231b5622a6670ed05c55a00060b243d7ecc0b6ddf8856f6 AS jar
+# https://github.com/OpenAPITools/openapi-generator/commit/adcf9ffa20123608a6c49958980e2a0ddf0e30a0
+FROM openapitools/openapi-generator@sha256:d3cc357fe224ce1db1ae0d84034889ff99afe129dcac8dfefcdb5e35dd8c5ffc AS jar
 # Ensure the jar file is build
 RUN /usr/local/bin/docker-entrypoint.sh version
 
