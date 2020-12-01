@@ -1,4 +1,5 @@
 import os
+import shlex
 
 from flexmock import flexmock
 import pytest
@@ -27,7 +28,7 @@ class TestCommand:
     ]
 
     @pytest.mark.parametrize(
-        "cmd, cwd, vars, functions, env_override, call",
+        "cmd, cwd, vars, functions, env_override, docker_run_options, call",
         [
             # simple basic test
             (
@@ -36,8 +37,10 @@ class TestCommand:
                 {},
                 {},
                 {},
+                shlex.split("--network=host"),
                 (
-                    EXPECTED_DOCKER_INVOCATION + ["echo", DEFAULT_CONTAINER_IMAGE, "1"],
+                    EXPECTED_DOCKER_INVOCATION
+                    + ["echo", "--network=host", DEFAULT_CONTAINER_IMAGE, "1"],
                     {},
                 ),
             ),
@@ -50,6 +53,7 @@ class TestCommand:
                 {},
                 {},
                 {},
+                [],
                 (["echo", "1"], {"additional_env": {}, "cwd": "."}),
             ),
             # test chevron vars rendering on a more complex command
@@ -65,6 +69,7 @@ class TestCommand:
                 {"chevron_var": "hello"},
                 {"myecho": lambda x: x},
                 {},
+                [],
                 (
                     EXPECTED_DOCKER_INVOCATION
                     + ["echo", DEFAULT_CONTAINER_IMAGE, "hello", "hello"],
@@ -73,14 +78,22 @@ class TestCommand:
             ),
         ],
     )
-    def test_run_config_command(self, cmd, cwd, vars, functions, env_override, call):
+    def test_run_config_command(
+        self, cmd, cwd, vars, functions, env_override, docker_run_options, call
+    ):
         # make sure container_opts are fully populated
         cmd.container_opts = utils.inherit_container_opts(
             cmd.container_opts, ContainerOpts()
         )
         flexmock(command).should_receive("run_command").with_args(call[0], **call[1])
         MyCommand(None, None).run_config_command(
-            cmd, "testing", cwd, vars, functions, env_override
+            cmd,
+            "testing",
+            cwd,
+            vars,
+            functions,
+            env_override,
+            docker_run_options=docker_run_options,
         )
 
     def test_run_config_command_with_image_build(self):
