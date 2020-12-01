@@ -4,6 +4,7 @@
 # Copyright 2019-Present Datadog, Inc.
 import logging
 import os
+import shlex
 import subprocess
 
 import click
@@ -33,6 +34,11 @@ log = logging.getLogger(__name__)
     + "it *will* be logged as part of the test output by apigentools).",
 )
 @click.option(
+    "--docker-run-options",
+    default=env_or_val("APIGENTOOLS_DOCKER_RUN_OPTIONS", None),
+    help="Additional options passed to `docker run` command.",
+)
+@click.option(
     "--no-sensitive-output",
     is_flag=True,
     default=env_or_val("APIGENTOOLS_NO_SENSITIVE_OUTPUT", False),
@@ -49,6 +55,7 @@ def test(ctx, **kwargs):
 class TestCommand(Command):
     def run(self):
         cmd_result = 0
+        docker_run_options = shlex.split(self.args.get("docker_run_options", ""))
 
         for lang_name, version in self.yield_lang_version():
             language_config = self.config.get_language_config(lang_name)
@@ -76,6 +83,7 @@ class TestCommand(Command):
                     language_config.generated_lang_version_dir_for(version),
                     language_config.chevron_vars_for(version),
                     env_override=env_override,
+                    docker_run_options=docker_run_options,
                 )
 
         return cmd_result

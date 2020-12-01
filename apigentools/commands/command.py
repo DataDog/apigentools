@@ -127,6 +127,7 @@ class Command(abc.ABC):
         chevron_vars=None,
         additional_functions=None,
         env_override=None,
+        docker_run_options=None,
     ):
         log.info("Running command '%s'", command.description)
 
@@ -201,6 +202,8 @@ class Command(abc.ABC):
                 dockerized.extend(["--entrypoint", to_run[0]])
             for k, v in additional_env.items():
                 dockerized.extend(["-e", "{}={}".format(k, v)])
+            if docker_run_options:
+                dockerized.extend(docker_run_options)
 
             dockerized.extend([image] + to_run[1:])
             to_run = dockerized
