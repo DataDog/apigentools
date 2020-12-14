@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.4.0 / 2020-12-14
+
+* [Added] Add support for docker run options in test command. See [#217](https://github.com/DataDog/apigentools/pull/217).
+* [Added] Bump openapi-generator to latest master. See [#212](https://github.com/DataDog/apigentools/pull/212).
+
 ## v1.3.0 / 2020-10-28
 
 * [Added] Bump pydantic dep to 1.7. See [#207](https://github.com/DataDog/apigentools/pull/207).
