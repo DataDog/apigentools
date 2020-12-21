@@ -68,7 +68,7 @@ log = logging.getLogger(__name__)
     "-av",
     "--api-versions",
     multiple=True,
-    default=env_or_val("APIGENTOOLS_API_VERSION", None),
+    default=env_or_val("APIGENTOOLS_API_VERSION", None, __type=list),
     help="The API version to run the specified action against."
     "These must match what the config in the spec repo contains."
     "Ex: 'apigentools -av v1 -av v2 test' (Default: None to run all)",
