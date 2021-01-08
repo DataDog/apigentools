@@ -55,7 +55,7 @@ def test(ctx, **kwargs):
 class TestCommand(Command):
     def run(self):
         cmd_result = 0
-        docker_run_options = shlex.split(self.args.get("docker_run_options", ""))
+        docker_run_options = shlex.split(self.args.get("docker_run_options") or "")
 
         for lang_name, version in self.yield_lang_version():
             language_config = self.config.get_language_config(lang_name)
