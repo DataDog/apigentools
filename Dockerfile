@@ -13,7 +13,8 @@ RUN dnf install -y gcc-c++ make && \
     dnf install -y ${PACKAGES} && \
     dnf clean all && \
     curl https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh > /usr/bin/openapi-generator && \
-    chmod +x /usr/bin/openapi-generator
+    chmod +x /usr/bin/openapi-generator && \
+    pip3 install black
 
 # for manipulating html docs
 RUN pip3 install beautifulsoup4
