@@ -188,17 +188,20 @@ class TemplatesCommand(Command):
                             log.info(f"Applied patch {p} with level {level}")
                             if level > 0:
                                 log.warning(
-                                    f"Please remove {level} slash(es) from path prefix from patch {p}"
+                                    f"Please remove {level} slash(es) from path prefix from patch {p}."
                                 )
                             break
                         except subprocess.CalledProcessError:
                             # at this point, the stdout/stderr of the process have been printed by
                             # `run_command`, so the user should have sufficient info to about what went wrong
-                            log.error(
-                                f"Failed to apply patch {p} with level {level}, exiting as templates can't be processed"
+                            log.warning(
+                                f"Could not apply patch {p} with level {level}."
                             )
 
                     if not applied:
+                        log.error(
+                            f"Failed to apply patch {p}."
+                        )
                         return 1
 
         return 0
