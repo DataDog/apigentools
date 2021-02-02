@@ -142,7 +142,7 @@ class TemplatesCommand(Command):
                 return 1
 
             # copy the processed templates from the temporary dir to templates dir
-            outdir = os.path.join(SPEC_REPO_TEMPLATES_DIR, spec_version, lc.language)
+            outdir = os.path.join(SPEC_REPO_TEMPLATES_DIR, lc.language, spec_version)
             if os.path.exists(outdir):
                 shutil.rmtree(outdir)
 
