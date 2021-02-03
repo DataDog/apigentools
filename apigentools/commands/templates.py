@@ -199,9 +199,7 @@ class TemplatesCommand(Command):
                             )
 
                     if not applied:
-                        log.error(
-                            f"Failed to apply patch {p}."
-                        )
+                        log.error(f"Failed to apply patch {p}.")
                         return 1
 
         return 0
