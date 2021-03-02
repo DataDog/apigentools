@@ -313,7 +313,9 @@ class GenerateCommand(Command):
 
     def pull_repository(self, language, branch=None):
         if not (language.github_org and language.github_repo):
-            log.warning("Skipping repository clone because github_org and github_repo are empty")
+            log.warning(
+                "Skipping repository clone because github_org and github_repo are empty"
+            )
             return
         output_dir = language.generated_lang_dir
         secret_repo_url = False
