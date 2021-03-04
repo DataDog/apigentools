@@ -312,6 +312,9 @@ class GenerateCommand(Command):
         return 0
 
     def pull_repository(self, language, branch=None):
+        if not language.github_repo:
+            log.warning("Skipping repository clone because github_repo is empty")
+            return
         output_dir = language.generated_lang_dir
         secret_repo_url = False
         if self.args.get("git_via_https"):

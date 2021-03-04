@@ -105,6 +105,15 @@ class PushCommand(Command):
             # Skip any languages not specified by the user
             if lang_name not in languages:
                 continue
+
+            if not lang_config.github_repo:
+                log.warning(
+                    "Skipping repository push for {} because github_repo is empty".format(
+                        lang_name
+                    )
+                )
+                continue
+
             log.info("Running push for language {}".format(lang_name))
 
             gen_dir = lang_config.generated_lang_dir
