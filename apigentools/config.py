@@ -274,7 +274,7 @@ class LanguageConfig(BaseModel):
         if version:
             spec_repo_relpath = "."
             top_level_relpath = os.path.join(
-                constants.SPEC_REPO_GENERATED_DIR, self.github_repo
+                constants.SPEC_REPO_GENERATED_DIR, self.github_repo or ""
             )
             if paths_relative_to == PathRelativeTo.VERSION_OUTPUT_DIR:
                 version_output_dir = self.generated_lang_version_dir_for(version)
@@ -324,7 +324,7 @@ class LanguageConfig(BaseModel):
         :return: path to directory with generated language code
         :rtype: ``str``
         """
-        return os.path.join(constants.SPEC_REPO_GENERATED_DIR, self.github_repo)
+        return os.path.join(constants.SPEC_REPO_GENERATED_DIR, self.github_repo or "")
 
     def generated_lang_version_dir_for(self, version):
         """Returns path to the directory with generated code for given spec version.
