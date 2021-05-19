@@ -54,7 +54,7 @@ def config(ctx, **kwargs):
 )
 @click.pass_context
 def jsonpath(ctx, **kwargs):
-    """ Search expanded config for a single value by given JSONPATH. """
+    """Search expanded config for a single value by given JSONPATH."""
     kwargs["_get_value"] = True
     run_command_with_config(ConfigCommand, ctx, **kwargs)
 
@@ -65,7 +65,7 @@ def jsonpath(ctx, **kwargs):
 )
 @click.pass_context
 def jsonpath(ctx, **kwargs):
-    """ Search expanded config for values by given JSONPATH. """
+    """Search expanded config for values by given JSONPATH."""
     run_command_with_config(ConfigCommand, ctx, **kwargs)
 
 
