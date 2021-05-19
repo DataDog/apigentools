@@ -3,7 +3,6 @@
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
 import logging
-import os
 import subprocess
 import time
 
@@ -49,6 +48,19 @@ log = logging.getLogger(__name__)
     help="Name of the user to author git commits as. Note this will permanently"
     " modify the local repos git config to use this author",
     default=env_or_val("APIGENTOOLS_GIT_AUTHOR_NAME", None),
+)
+@click.option(
+    "--force",
+    "-f",
+    help="Force push the branch",
+    is_flag=True,
+    default=env_or_val("APIGENTOOLS_FORCE_PUSH", False, __type=bool),
+)
+@click.option(
+    "--exit-code",
+    help="Return exit code 100 if no branch was pushed when using --skip-if-no-changes, 0 if successfully pushed",
+    is_flag=True,
+    default=env_or_val("APIGENTOOLS_PUSH_EXIT_CODE", False, __type=bool),
 )
 @click.pass_context
 def push(ctx, **kwargs):
@@ -129,6 +141,8 @@ class PushCommand(Command):
                                 lang_name
                             )
                         )
+                        if self.args.get("exit-code"):
+                            cmd_result = 100
                         continue
 
                     self.setup_git_config()
@@ -142,8 +156,11 @@ class PushCommand(Command):
                         ["git", "commit", "-a", "-m", commit_msg],
                         dry_run=self.args.get("dry_run"),
                     )
+                    push_commandline = ["git", "push", "origin", "HEAD"]
+                    if self.args.get("force", False):
+                        push_commandline.append("-f")
                     run_command(
-                        ["git", "push", "origin", "HEAD"],
+                        push_commandline,
                         dry_run=self.args.get("dry_run"),
                     )
                     created_branches[repo] = branch_name

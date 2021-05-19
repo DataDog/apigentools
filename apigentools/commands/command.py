@@ -100,7 +100,7 @@ class Command(abc.ABC):
             )
 
     def _render_command_args(self, args, chevron_vars):
-        """ Recursively renders all args, including list items and dict values """
+        """Recursively renders all args, including list items and dict values"""
         retval = args
 
         if isinstance(args, str):
