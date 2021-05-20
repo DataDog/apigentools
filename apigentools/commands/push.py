@@ -141,7 +141,7 @@ class PushCommand(Command):
                                 lang_name
                             )
                         )
-                        if self.args.get("exit-code"):
+                        if self.args.get("exit_code"):
                             cmd_result = 100
                         continue
 
