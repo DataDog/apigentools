@@ -15,9 +15,9 @@ jobs:
     vmImage: "Ubuntu-16.04"
   strategy:
     matrix:
-      Py37:
-        PYTHON_VERSION: "3.7"
-        TOXENV: "py37"
+      Py38:
+        PYTHON_VERSION: "3.8"
+        TOXENV: "py38"
   steps:
     - task: UsePythonVersion@0
       displayName: Use python $(PYTHON_VERSION)
