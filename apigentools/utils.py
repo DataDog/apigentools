@@ -13,6 +13,8 @@ import sys
 
 from packaging import version
 import yaml
+from yaml import CSafeDumper
+from yaml import CSafeLoader
 
 from apigentools import constants, __version__
 from apigentools import errors
@@ -321,7 +323,7 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
         if not os.path.exists(fpath):
             raise errors.SpecSectionNotFoundError(spec_version, filename, fpath)
         with open(fpath) as infile:
-            loaded = yaml.safe_load(infile.read())
+            loaded = yaml.load(infile, Loader=CSafeLoader)
             for k, v in loaded.get("paths", {}).items():
                 full_spec["paths"].setdefault(k, {})
                 validate_duplicates(v, full_spec["paths"][k])
@@ -359,7 +361,7 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
                 full_spec[k] = loaded[k]
 
     with open(fs_path, "w", encoding="utf-8") as f:
-        f.write(yaml.dump(full_spec))
+        yaml.dump(full_spec, f, Dumper=CSafeDumper)
     return fs_path
 
 
