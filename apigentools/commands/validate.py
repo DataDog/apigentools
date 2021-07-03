@@ -2,6 +2,7 @@
 # under the 3-clause BSD style license (see LICENSE).
 # This product includes software developed at Datadog (https://www.datadoghq.com/).
 # Copyright 2019-Present Datadog, Inc.
+import os
 import logging
 
 import click
@@ -23,6 +24,7 @@ log = logging.getLogger(__name__)
     + "Note that if some languages override config's spec_sections, additional "
     + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
 )
+@click.argument("files", nargs=-1)
 @click.pass_context
 def validate(ctx, **kwargs):
     """Validate OpenAPI spec"""
@@ -54,13 +56,40 @@ class ValidateCommand(Command):
             )
         log.info("Validation %s for API version %s successful", log_string, version)
 
+    def _split_spec_file(self, spec_file):
+        return spec_file.rsplit(constants.SPEC_REPO_SPEC_DIR, 1)[1].split(os.sep, 2)[1:]
+
     def run(self):
+        files = self.args.get("files", [])
+        try:
+            files = [self._split_spec_file(spec_file) for spec_file in files]
+        except IndexError:
+            # If we can't parse the files as spec, it's probably that the
+            # config changed, so let's do a complete validation
+            files = []
+        # Keep track of the spec files validated
+        validated_files = set()
         cmd_result = 0
         fs_files = set()
         for language, version, fs_file in self.yield_lang_version_specfile():
             if fs_file in fs_files:
                 continue
             fs_files.add(fs_file)
+
+            if files:
+                spec_sections = self.config.get_language_config(
+                    language
+                ).spec_sections_for(version)
+                matching_files = {
+                    (file_version, spec)
+                    for file_version, spec in files
+                    if (file_version, spec) not in validated_files
+                    and version == file_version
+                    and spec in spec_sections
+                }
+                if not matching_files:
+                    continue
+                validated_files.update(matching_files)
 
             # Generate full spec file is needed
             fs_path = write_full_spec(
