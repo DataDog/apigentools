@@ -87,8 +87,6 @@ class ValidateCommand(Command):
                     and version == file_version
                     and spec in spec_sections
                 }
-                if not matching_files:
-                    continue
                 validated_files.update(matching_files)
 
             # Generate full spec file is needed
@@ -98,6 +96,10 @@ class ValidateCommand(Command):
                 self.config.get_language_config(language).spec_sections_for(version),
                 fs_file,
             )
+
+            if files and not matching_files:
+                # Skip late so that the full spec is still written
+                continue
 
             # Validate a spec file only once
             self.validate_spec(fs_path, language, version)
