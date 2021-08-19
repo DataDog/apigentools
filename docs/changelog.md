@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.5.0 / 2021-08-19
+
+* [Added] Add options `--force` and `--exit-code` to push command. See [#228](https://github.com/DataDog/apigentools/pull/228).
+* [Added] Bump openapi-generator. See [#220](https://github.com/DataDog/apigentools/pull/220).
+* [Fixed] Still write full spec in validate. See [#232](https://github.com/DataDog/apigentools/pull/232).
+* [Fixed] Allow empty GitHub information. See [#227](https://github.com/DataDog/apigentools/pull/227).
+* [Fixed] Fix no docker_run_options. See [#223](https://github.com/DataDog/apigentools/pull/223).
+* [Fixed] Fix parsing of APIGENTOOLS_API_VERSION env variable. See [#221](https://github.com/DataDog/apigentools/pull/221).
+* [Changed] Only validate changed files. See [#231](https://github.com/DataDog/apigentools/pull/231).
+* [Changed] Speep up write_full_spec YAML operations. See [#230](https://github.com/DataDog/apigentools/pull/230).
+
 ## v1.4.0 / 2020-12-14
 
 * [Added] Add support for docker run options in test command. See [#217](https://github.com/DataDog/apigentools/pull/217).
