@@ -11,6 +11,8 @@ import re
 import subprocess
 import sys
 
+from collections import OrderedDict
+
 from packaging import version
 import yaml
 import yamlordereddictloader
@@ -302,18 +304,18 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     """
     spec_version_dir = os.path.join(spec_dir, spec_version)
     full_spec = {
-        "paths": {},
+        "paths": OrderedDict(),
         "tags": [],
         "components": {
-            "schemas": {},
-            "parameters": {},
-            "securitySchemes": {},
-            "requestBodies": {},
-            "responses": {},
-            "headers": {},
-            "examples": {},
-            "links": {},
-            "callbacks": {},
+            "schemas": OrderedDict(),
+            "parameters": OrderedDict(),
+            "securitySchemes": OrderedDict(),
+            "requestBodies": OrderedDict(),
+            "responses": OrderedDict(),
+            "headers": OrderedDict(),
+            "examples": OrderedDict(),
+            "links": OrderedDict(),
+            "callbacks": OrderedDict(),
         },
         "security": [],
     }
@@ -323,8 +325,8 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
             raise errors.SpecSectionNotFoundError(spec_version, filename, fpath)
         with open(fpath) as infile:
             loaded = yaml.load(infile.read(), Loader=yamlordereddictloader.SafeLoader)
-            for k, v in loaded.get("paths", {}).items():
-                full_spec["paths"].setdefault(k, {})
+            for k, v in loaded.get("paths", OrderedDict()).items():
+                full_spec["paths"].setdefault(k, OrderedDict())
                 validate_duplicates(v, full_spec["paths"][k])
                 full_spec["paths"][k].update(v)
 
@@ -341,11 +343,13 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
                 # Note: This won't raise an error if there is a duplicate component in a single file
                 # That would alredy be deduped by the safe_load above.
                 validate_duplicates(
-                    loaded.get("components", {}).get(field, {}).keys(),
-                    full_spec.get("components", {}).get(field).keys(),
+                    loaded.get("components", OrderedDict())
+                    .get(field, OrderedDict())
+                    .keys(),
+                    full_spec.get("components", OrderedDict()).get(field).keys(),
                 )
                 full_spec["components"][field].update(
-                    loaded.get("components", {}).get(field, {})
+                    loaded.get("components", OrderedDict()).get(field, OrderedDict())
                 )
 
             # https://speccy.io/rules/1-rulesets#openapi-tags-alphabetical
