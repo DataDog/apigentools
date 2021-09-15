@@ -364,12 +364,11 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
                 full_spec[k] = loaded[k]
 
     with open(fs_path, "w", encoding="utf-8") as f:
-        f.write(
-            yaml.dump(
-                full_spec,
-                Dumper=yamlordereddictloader.SafeDumper,
-                default_flow_style=False,
-            )
+        yaml.dump(
+            full_spec,
+            f,
+            Dumper=yamlordereddictloader.SafeDumper,
+            default_flow_style=False,
         )
     return fs_path
 
