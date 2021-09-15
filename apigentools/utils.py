@@ -324,7 +324,7 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
         if not os.path.exists(fpath):
             raise errors.SpecSectionNotFoundError(spec_version, filename, fpath)
         with open(fpath) as infile:
-            loaded = yaml.load(infile.read(), Loader=yamlordereddictloader.SafeLoader)
+            loaded = yaml.load(infile, Loader=yamlordereddictloader.SafeLoader)
             for k, v in loaded.get("paths", OrderedDict()).items():
                 full_spec["paths"].setdefault(k, OrderedDict())
                 validate_duplicates(v, full_spec["paths"][k])
