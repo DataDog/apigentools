@@ -57,13 +57,21 @@ class ValidateCommand(Command):
         log.info("Validation %s for API version %s successful", log_string, version)
 
     def _split_spec_file(self, spec_file):
-        return spec_file.rsplit(constants.SPEC_REPO_SPEC_DIR, 1)[1].split(os.sep, 2)[1:]
+        if not spec_file.startswith(constants.SPEC_REPO_SPEC_DIR):
+            raise ValueError(spec_file)
+
+        result = spec_file.rsplit(constants.SPEC_REPO_SPEC_DIR, 1)[1].split(os.sep, 2)[
+            1:
+        ]
+        if len(result) != 2:
+            raise IndexError(result)
+        return result
 
     def run(self):
         files = self.args.get("files", [])
         try:
             files = [self._split_spec_file(spec_file) for spec_file in files]
-        except IndexError:
+        except (ValueError, IndexError):
             # If we can't parse the files as spec, it's probably that the
             # config changed, so let's do a complete validation
             files = []

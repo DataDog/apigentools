@@ -5,6 +5,8 @@
 
 import sys
 
+import pytest
+
 from flexmock import flexmock
 
 from apigentools.commands.validate import ValidateCommand
@@ -61,6 +63,33 @@ def test_validate_with_config():
     val_command = ValidateCommand(
         SPEC_CONFIG_OBJ,
         {"files": ["config/config.yaml"], "full_spec_file": "full_spec.yaml"},
+    )
+    val_command.validate_spec = validate_spec
+
+    flexmock(sys.modules["apigentools.commands.validate"]).should_receive(
+        "write_full_spec"
+    )
+
+    val_command.run()
+
+    assert calls == [
+        (None, "test-lang1", "v1"),
+        (None, "test-lang1", "v2"),
+        (None, "test-lang2", "v1"),
+        (None, "test-lang3", "v1"),
+    ]
+
+
+@pytest.mark.parametrize("file", ["config/functions/validate.js", "spec/root.yaml"])
+def test_spec_filtering_regression(file):
+    calls = []
+
+    def validate_spec(fs_path, language, version):
+        calls.append((fs_path, language, version))
+
+    val_command = ValidateCommand(
+        SPEC_CONFIG_OBJ,
+        {"files": [file], "full_spec_file": "full_spec.yaml"},
     )
     val_command.validate_spec = validate_spec
 
