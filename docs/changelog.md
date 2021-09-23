@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.6.0 / 2021-09-23
+
+* [Added] Add command to merge spec files. See [#235](https://github.com/DataDog/apigentools/pull/235).
+* [Fixed] Fix detection of modified files for validation. See [#234](https://github.com/DataDog/apigentools/pull/234).
+
 ## v1.5.0 / 2021-08-19
 
 * [Added] Add options `--force` and `--exit-code` to push command. See [#228](https://github.com/DataDog/apigentools/pull/228).
