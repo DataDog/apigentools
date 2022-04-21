@@ -6,7 +6,7 @@ RUN /usr/local/bin/docker-entrypoint.sh version
 FROM fedora:35
 
 ENV OPENAPI_GENERATOR_VERSION=5.0.0-SNAPSHOT \
-    PACKAGES="docker findutils git golang-googlecode-tools-goimports java jq maven nodejs patch python3 python3-pip unzip"
+    PACKAGES="docker findutils git golang-x-tools-goimports java jq maven nodejs patch python3 python3-pip unzip"
 
 RUN dnf install -y gcc-c++ make && \
     curl -sL https://rpm.nodesource.com/setup_16.x | bash - && \
