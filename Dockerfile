@@ -9,7 +9,7 @@ ENV OPENAPI_GENERATOR_VERSION=5.0.0-SNAPSHOT \
     PACKAGES="docker findutils git golang-googlecode-tools-goimports java jq maven nodejs patch python3 python3-pip unzip"
 
 RUN dnf install -y gcc-c++ make && \
-    curl -sL https://rpm.nodesource.com/setup_12.x | bash - && \
+    curl -sL https://rpm.nodesource.com/setup_16.x | bash - && \
     dnf install -y ${PACKAGES} && \
     dnf clean all && \
     curl https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh > /usr/bin/openapi-generator && \
