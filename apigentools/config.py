@@ -184,7 +184,7 @@ class LanguageConfig(BaseModel):
     generation: Dict[str, VersionGeneration] = {}
     github_repo: Optional[str] = None
     github_org: Optional[str] = None
-    library_version: str
+    library_version: Optional[str] = None
     spec_sections: Optional[Dict]
     spec_versions: Optional[List]
     validation_commands: Optional[List[ConfigCommand]]

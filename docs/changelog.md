@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.6.2 / 2022-02-01
+
+* [Fixed] Bump and relax dependencies. See [#238](https://github.com/DataDog/apigentools/pull/240).
+
+## 1.6.1 / 2022-01-17
+
+* [Fixed] build: unpin PyYAML to support Python 3.10. See [#238](https://github.com/DataDog/apigentools/pull/238).
+* [Fixed] Make library_version optional. See [#237](https://github.com/DataDog/apigentools/pull/237).
+
 ## v1.6.0 / 2021-09-23
 
 * [Added] Add command to merge spec files. See [#235](https://github.com/DataDog/apigentools/pull/235).

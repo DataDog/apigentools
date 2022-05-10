@@ -10,6 +10,7 @@ import subprocess
 import flexmock
 import pytest
 import yaml
+from yaml import CSafeLoader
 
 from apigentools.constants import REDACTED_OUT_SECRET
 from apigentools.errors import SpecSectionNotFoundError
@@ -294,7 +295,7 @@ def test_write_full_spec(tmpdir):
     )
 
     with open(written, "r") as f:
-        assert yaml.load(f) == expected
+        assert yaml.load(f, Loader=CSafeLoader) == expected
 
 
 def test_write_full_spec_section_not_found(tmpdir):
