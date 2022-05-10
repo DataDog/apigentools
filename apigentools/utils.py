@@ -11,10 +11,11 @@ import re
 import subprocess
 import sys
 
+from collections import OrderedDict
+
 from packaging import version
 import yaml
-from yaml import CSafeDumper
-from yaml import CSafeLoader
+import yamlloader
 
 from apigentools import constants, __version__
 from apigentools import errors
@@ -303,18 +304,18 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     """
     spec_version_dir = os.path.join(spec_dir, spec_version)
     full_spec = {
-        "paths": {},
+        "paths": OrderedDict(),
         "tags": [],
         "components": {
-            "schemas": {},
-            "parameters": {},
-            "securitySchemes": {},
-            "requestBodies": {},
-            "responses": {},
-            "headers": {},
-            "examples": {},
-            "links": {},
-            "callbacks": {},
+            "schemas": OrderedDict(),
+            "parameters": OrderedDict(),
+            "securitySchemes": OrderedDict(),
+            "requestBodies": OrderedDict(),
+            "responses": OrderedDict(),
+            "headers": OrderedDict(),
+            "examples": OrderedDict(),
+            "links": OrderedDict(),
+            "callbacks": OrderedDict(),
         },
         "security": [],
     }
@@ -323,9 +324,9 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
         if not os.path.exists(fpath):
             raise errors.SpecSectionNotFoundError(spec_version, filename, fpath)
         with open(fpath) as infile:
-            loaded = yaml.load(infile, Loader=CSafeLoader)
-            for k, v in loaded.get("paths", {}).items():
-                full_spec["paths"].setdefault(k, {})
+            loaded = yaml.load(infile, Loader=yamlloader.ordereddict.CSafeLoader)
+            for k, v in loaded.get("paths", OrderedDict()).items():
+                full_spec["paths"].setdefault(k, OrderedDict())
                 validate_duplicates(v, full_spec["paths"][k])
                 full_spec["paths"][k].update(v)
 
@@ -342,11 +343,13 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
                 # Note: This won't raise an error if there is a duplicate component in a single file
                 # That would alredy be deduped by the safe_load above.
                 validate_duplicates(
-                    loaded.get("components", {}).get(field, {}).keys(),
-                    full_spec.get("components", {}).get(field).keys(),
+                    loaded.get("components", OrderedDict())
+                    .get(field, OrderedDict())
+                    .keys(),
+                    full_spec.get("components", OrderedDict()).get(field).keys(),
                 )
                 full_spec["components"][field].update(
-                    loaded.get("components", {}).get(field, {})
+                    loaded.get("components", OrderedDict()).get(field, OrderedDict())
                 )
 
             # https://speccy.io/rules/1-rulesets#openapi-tags-alphabetical
@@ -361,7 +364,12 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
                 full_spec[k] = loaded[k]
 
     with open(fs_path, "w", encoding="utf-8") as f:
-        yaml.dump(full_spec, f, Dumper=CSafeDumper)
+        yaml.dump(
+            full_spec,
+            f,
+            Dumper=yamlloader.ordereddict.CSafeDumper,
+            default_flow_style=False,
+        )
     return fs_path
 
 
