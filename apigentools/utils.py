@@ -286,7 +286,9 @@ def get_full_spec_file_name(default_fsf, l):
     return "{}.{}".format(default_fsf, l)
 
 
-def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
+def write_full_spec(
+    spec_dir, spec_version, spec_sections, fs_path, filter_sections=None
+):
     """Write a full OpenAPI spec file
 
     :param spec_dir: Directory containing per-major-version subdirectories
@@ -298,6 +300,7 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
     :type spec_sections: ``list`` of ``str``
     :param fs_path: Full path of the output file for the combined OpenAPI spec
     :type fs_path: ``str``
+    :param filter_sections: If specified. list of spec keys to remove.
     :return: Path to the written combined OpenAPI spec file
     :rtype: ``str``
     """
@@ -324,6 +327,8 @@ def write_full_spec(spec_dir, spec_version, spec_sections, fs_path):
             raise errors.SpecSectionNotFoundError(spec_version, filename, fpath)
         with open(fpath) as infile:
             loaded = yaml.load(infile, Loader=CSafeLoader)
+            if filter_sections:
+                loaded = filter_keys(loaded, filter_sections)
             for k, v in loaded.get("paths", {}).items():
                 full_spec["paths"].setdefault(k, {})
                 validate_duplicates(v, full_spec["paths"][k])
@@ -369,6 +374,17 @@ def validate_duplicates(loaded_keys, full_spec_keys):
     for key in loaded_keys:
         if key in full_spec_keys:
             raise ValueError("Duplicate field {} found in spec. Exiting".format(key))
+
+
+def filter_keys(spec, sections):
+    result = {}
+    for key, value in spec.items():
+        if key in sections:
+            continue
+        if isinstance(value, dict):
+            value = filter_keys(value, sections)
+        result[key] = value
+    return result
 
 
 def glob_re(glob_pattern, re_filter):
