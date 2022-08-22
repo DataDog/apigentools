@@ -61,6 +61,6 @@ def test_filter_merge():
 
     flexmock(sys.modules["apigentools.commands.merge"]).should_receive(
         "write_full_spec"
-        ).with_args(str, str, list, str, frozenset(["x-bar"]))
+    ).with_args(str, str, list, str, frozenset(["x-bar"]))
 
     assert merge_command.run() == 0

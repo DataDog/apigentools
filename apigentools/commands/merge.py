@@ -25,7 +25,8 @@ log = logging.getLogger(__name__)
     + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
 )
 @click.option(
-    "--filter-sections", help="Specify spec sections to filter out from the output",
+    "--filter-sections",
+    help="Specify spec sections to filter out from the output",
     multiple=True,
 )
 @click.pass_context
