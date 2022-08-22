@@ -31,6 +31,16 @@ SPEC_CONFIG = {
 SPEC_CONFIG_OBJ = Config.from_dict(SPEC_CONFIG)
 
 
+SIMPLE_SPEC_CONFIG = {
+    "spec_versions": ["v1"],
+    "languages": {
+        "test-lang1": {"library_version": "1.0.0"},
+    },
+    "spec_sections": {"v1": ["x.yaml"]},
+}
+SIMPLE_SPEC_CONFIG_OBJ = Config.from_dict(SIMPLE_SPEC_CONFIG)
+
+
 def test_merge():
     merge_command = MergeCommand(
         SPEC_CONFIG_OBJ,
@@ -39,5 +49,18 @@ def test_merge():
     flexmock(sys.modules["apigentools.commands.merge"]).should_receive(
         "write_full_spec"
     )
+
+    assert merge_command.run() == 0
+
+
+def test_filter_merge():
+    merge_command = MergeCommand(
+        SPEC_CONFIG_OBJ,
+        {"full_spec_file": "full_spec.yaml", "filter_sections": ["x-bar"]},
+    )
+
+    flexmock(sys.modules["apigentools.commands.merge"]).should_receive(
+        "write_full_spec"
+        ).with_args(str, str, list, str, frozenset(["x-bar"]))
 
     assert merge_command.run() == 0

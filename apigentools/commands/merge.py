@@ -24,6 +24,10 @@ log = logging.getLogger(__name__)
     + "Note that if some languages override config's spec_sections, additional "
     + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
 )
+@click.option(
+    "--filter-sections", help="Specify spec sections to filter out from the output",
+    multiple=True,
+)
 @click.pass_context
 def merge(ctx, **kwargs):
     """Merge OpenAPI spec"""
@@ -37,6 +41,7 @@ class MergeCommand(Command):
     def run(self):
         cmd_result = 0
         fs_files = set()
+        filter_sections = frozenset(self.args.get("filter_sections", ()))
         for language, version, fs_file in self.yield_lang_version_specfile():
             if fs_file in fs_files:
                 continue
@@ -47,6 +52,7 @@ class MergeCommand(Command):
                 version,
                 self.config.get_language_config(language).spec_sections_for(version),
                 fs_file,
+                filter_sections,
             )
 
         return cmd_result

@@ -320,6 +320,108 @@ def test_write_full_spec_section_not_found(tmpdir):
     )
 
 
+def test_write_full_spec_filter(tmpdir):
+    s1 = {
+        "components": {
+            "schemas": {
+                "MySchema": {
+                    "type": "object",
+                    "x-ignore": "boo",
+                },
+            },
+        },
+        "paths": {
+            "/api/v1/foo": {
+                "get": {
+                    "operationId": "getFoo",
+                    "summary": "get",
+                },
+            },
+        },
+    }
+    s2 = {
+        "components": {
+            "schemas": {
+                "MyOtherSchema": {
+                    "type": "string",
+                },
+            },
+        },
+        "paths": {
+            "/api/v1/foo": {  # add a new operation to the same path
+                "post": {
+                    "operationId": "postFoo",
+                    "summary": "post",
+                },
+            },
+        },
+    }
+    header = {
+        "servers": [{"url": "http://base.url"}],
+    }
+
+    expected = {
+        "components": {
+            "callbacks": {},
+            "examples": {},
+            "headers": {},
+            "links": {},
+            "parameters": {},
+            "requestBodies": {},
+            "responses": {},
+            "schemas": {
+                "MySchema": {
+                    "type": "object",
+                },
+                "MyOtherSchema": {
+                    "type": "string",
+                },
+            },
+            "securitySchemes": {},
+        },
+        "paths": {
+            "/api/v1/foo": {
+                "get": {
+                    "operationId": "getFoo",
+                    "summary": "get",
+                },
+                "post": {
+                    "operationId": "postFoo",
+                    "summary": "post",
+                },
+            },
+        },
+        "security": [],
+        "servers": [{"url": "http://base.url"}],
+        "tags": [],
+    }
+    specdir = tmpdir.mkdir("spec")
+    versiondir = specdir.mkdir("v1")
+    p1 = os.path.join(str(versiondir), "s1.yaml")
+    p2 = os.path.join(str(versiondir), "s2.yaml")
+    header_file = os.path.join(str(versiondir), "header.yaml")
+
+    with open(p1, "w") as f:
+        yaml.dump(s1, f)
+
+    with open(p2, "w") as f:
+        yaml.dump(s2, f)
+
+    with open(header_file, "w") as f:
+        yaml.dump(header, f)
+
+    written = write_full_spec(
+        str(specdir),
+        "v1",
+        ["header.yaml", "s1.yaml", "s2.yaml"],
+        os.path.join(str(versiondir), "full.yaml"),
+        ["x-ignore"],
+    )
+
+    with open(written, "r") as f:
+        assert yaml.load(f, Loader=CSafeLoader) == expected
+
+
 @pytest.mark.parametrize(
     "glob_pattern, regex, expected",
     [
