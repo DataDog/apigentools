@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.3 / 2022-08-23
+
+* [Added] Add a filter option to the merge command. See [#246](https://github.com/DataDog/apigentools/pull/246).
+
 ## 1.6.2 / 2022-02-01
 
 * [Fixed] Bump and relax dependencies. See [#238](https://github.com/DataDog/apigentools/pull/240).
