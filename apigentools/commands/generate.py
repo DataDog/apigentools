@@ -90,6 +90,12 @@ REPO_HTTPS_URL = "https://{}github.com/{}/{}.git"
     default=False,
     help="Delete generated files in output_dir before generation",
 )
+@click.option(
+    "--filter-sections",
+    help="Specify spec sections to filter out from the output",
+    default=env_or_val("APIGENTOOLS_FILTER_SECTIONS", (), __type=list),
+    multiple=True,
+)
 @click.pass_context
 def generate(ctx, **kwargs):
     """Generate client code"""
@@ -243,6 +249,7 @@ class GenerateCommand(Command):
         fs_files = set()
 
         # first, generate full spec for all major versions of the API
+        filter_sections = frozenset(self.args.get("filter_sections", ()))
         for language, version, fs_file in self.yield_lang_version_specfile():
             info[language][version] = fs_file
 
@@ -257,6 +264,7 @@ class GenerateCommand(Command):
                 version,
                 self.config.get_language_config(language).spec_sections_for(version),
                 fs_file,
+                filter_sections,
             )
             log.info(f"Generated {fs_file} for {language}/{version}")
 
