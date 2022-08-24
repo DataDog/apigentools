@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.4 / 2022-08-24
+
+* [Added] Add filter option to generate. See [#248](https://github.com/DataDog/apigentools/pull/248).
+
 ## 1.6.3 / 2022-08-23
 
 * [Added] Add a filter option to the merge command. See [#246](https://github.com/DataDog/apigentools/pull/246).
