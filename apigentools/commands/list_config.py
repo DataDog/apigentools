@@ -90,7 +90,9 @@ class ConfigCommand(Command):
                         return 1
                 else:
                     print(json.dumps(result_values))
-            except Exception as e:  # jsonpath_ng parser really does `raise Exception`, not a more specific exception class
+            except (
+                Exception
+            ) as e:  # jsonpath_ng parser really does `raise Exception`, not a more specific exception class
                 log.error("Failed parsing JSONPath expression: %s", e)
                 return 1
 
