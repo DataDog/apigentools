@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.6.5 / 2023-06-30
+
+* [Added] Pin `pydantic` to `<2`. See [#256](https://github.com/DataDog/apigentools/pull/256).
+
 ## 1.6.4 / 2022-08-24
 
 * [Added] Add filter option to generate. See [#248](https://github.com/DataDog/apigentools/pull/248).
