@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.6.6 / 2023-09-21
+
+* [Fixed] Pin `setuptools_scm` to < 8. See [#260](https://github.com/DataDog/apigentools/pull/260).
+
 ## 1.6.5 / 2023-06-30
 
 * [Added] Pin `pydantic` to `<2`. See [#256](https://github.com/DataDog/apigentools/pull/256).
