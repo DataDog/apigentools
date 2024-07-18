@@ -25,6 +25,12 @@ log = logging.getLogger(__name__)
     + "files will be generated with name pattern 'full_spec.<lang>.yaml'",
 )
 @click.argument("files", nargs=-1)
+@click.option(
+    "--filter-sections",
+    help="Specify spec sections to filter out from the output",
+    default=env_or_val("APIGENTOOLS_FILTER_SECTIONS", (), __type=list),
+    multiple=True,
+)
 @click.pass_context
 def validate(ctx, **kwargs):
     """Validate OpenAPI spec"""
@@ -79,6 +85,7 @@ class ValidateCommand(Command):
         validated_files = set()
         cmd_result = 0
         fs_files = set()
+        filter_sections = frozenset(self.args.get("filter_sections", ()))
         for language, version, fs_file in self.yield_lang_version_specfile():
             if fs_file in fs_files:
                 continue
@@ -103,6 +110,7 @@ class ValidateCommand(Command):
                 version,
                 self.config.get_language_config(language).spec_sections_for(version),
                 fs_file,
+                filter_sections,
             )
 
             if files and not matching_files:
