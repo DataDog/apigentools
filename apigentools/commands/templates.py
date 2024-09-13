@@ -30,6 +30,11 @@ log = logging.getLogger(__name__)
 
 
 @click.command()
+@click.option(
+    "--commit-patches",
+    help="Commit changes in the template repository for easier patch extraction",
+    is_flag=True,
+)
 @click.pass_context
 def templates(ctx, **kwargs):
     """Get upstream templates and apply downstream patches"""
@@ -59,6 +64,7 @@ class TemplatesCommand(Command):
             )
             return 0
 
+        commit_patches = self.args.get("commit_patches")
         from_container = not templates_cfg.source.system
         source_type = templates_cfg.source.type
         with tempfile.TemporaryDirectory() as td:
@@ -135,41 +141,67 @@ class TemplatesCommand(Command):
                 log.error("Unknown templates source type {}".format(source_type))
                 return 1
 
-            patches = templates_cfg.patches
-            if patches:
-                log.info("Applying patches to upstream templates ...")
-                for p in patches:
-                    try:
-                        run_command(
-                            [
-                                "patch",
-                                "--fuzz",
-                                "0",
-                                "--no-backup-if-mismatch",
-                                "-p1",
-                                "-i",
-                                os.path.abspath(p),
-                                "-d",
-                                patch_in,
-                            ]
-                        )
-                    except subprocess.CalledProcessError:
-                        # at this point, the stdout/stderr of the process have been printed by
-                        # `run_command`, so the user should have sufficient info to about what went wrong
-                        log.error(
-                            "Failed to apply patch %s, exiting as templates can't be processed",
-                            p,
-                        )
-                        return 1
-
             # copy the processed templates from the temporary dir to templates dir
             outdir = os.path.join(SPEC_REPO_TEMPLATES_DIR, lc.language, spec_version)
             if os.path.exists(outdir):
                 shutil.rmtree(outdir)
+
             shutil.copytree(
                 os.path.join(copy_from, templates_cfg.source.templates_dir),
                 outdir,
             )
+
+            if commit_patches:
+                try:
+                    run_command(["git", "init", "."], cwd=outdir)
+                    run_command(["git", "add", "-A"], cwd=outdir)
+                    run_command(["git", "commit", "-m", lc.language], cwd=outdir)
+                except subprocess.CalledProcessError:
+                    pass
+
+            patches = templates_cfg.patches
+            if patches:
+                log.info("Applying patches to upstream templates ...")
+                for p in patches:
+                    applied = False
+                    for level in range(3):
+                        try:
+                            run_command(
+                                [
+                                    "patch",
+                                    "--fuzz",
+                                    "0",
+                                    "--no-backup-if-mismatch",
+                                    f"-p{level}",
+                                    "-i",
+                                    os.path.abspath(p),
+                                    "-d",
+                                    outdir,
+                                ]
+                            )
+                            if commit_patches:
+                                run_command(
+                                    ["git", "commit", "-a", "-m", p],
+                                    cwd=outdir,
+                                )
+                            applied = True
+                            log.info(f"Applied patch {p} with level {level}")
+                            if level > 0:
+                                log.warning(
+                                    f"Please remove {level} slash(es) from path prefix from patch {p}."
+                                )
+                            break
+                        except subprocess.CalledProcessError:
+                            # at this point, the stdout/stderr of the process have been printed by
+                            # `run_command`, so the user should have sufficient info to about what went wrong
+                            log.warning(
+                                f"Could not apply patch {p} with level {level}."
+                            )
+
+                    if not applied:
+                        log.error(f"Failed to apply patch {p}.")
+                        return 1
+
         return 0
 
     def run(self):
