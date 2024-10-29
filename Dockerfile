@@ -3,13 +3,13 @@ FROM openapitools/openapi-generator-cli@sha256:67100c4bda1fb1886b5024e3a7549f905
 # Ensure the jar file is build
 RUN /usr/local/bin/docker-entrypoint.sh version
 
-FROM fedora:35
+FROM fedora:42
 
 ENV OPENAPI_GENERATOR_VERSION=5.0.0-SNAPSHOT \
     PACKAGES="docker findutils git golang-x-tools-goimports java jq maven nodejs patch python3 python3-pip unzip"
 
 RUN dnf install -y gcc-c++ make && \
-    curl -sL https://rpm.nodesource.com/setup_16.x | bash - && \
+    curl -sL https://rpm.nodesource.com/setup_20.x | bash - && \
     dnf install -y ${PACKAGES} && \
     dnf clean all && \
     curl https://raw.githubusercontent.com/OpenAPITools/openapi-generator/master/bin/utils/openapi-generator-cli.sh > /usr/bin/openapi-generator && \
