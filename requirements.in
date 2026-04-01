@@ -1,0 +1,8 @@
+# Pinned from setup.cfg install_requires — keep in sync.
+# This file is the input for `uv pip compile`; the output is requirements.txt.
+chevron>=0.14.0
+click>=8.0.0
+jsonpath-ng>=1.5.1
+PyYAML>=5.4.1,<7.0.0
+packaging>=21.3
+pydantic>=1.9.0,<2
