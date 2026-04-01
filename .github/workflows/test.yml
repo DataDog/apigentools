@@ -38,12 +38,15 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip"
+      - name: Compute pip cooldown cutoff (2 days ago)
+        id: cooldown
+        run: echo "cutoff=$(date -u -d '2 days ago' +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
       - name: Upgrade pip
         run: |
-          python -m pip install --upgrade pip
-          pip install --upgrade wheel setuptools build
+          python -m pip install --upgrade --uploaded-prior-to '${{ steps.cooldown.outputs.cutoff }}' pip
+          pip install --upgrade --uploaded-prior-to '${{ steps.cooldown.outputs.cutoff }}' wheel setuptools build
       - name: Install
-        run: pip install --disable-pip-version-check -e .[tests]
+        run: pip install --disable-pip-version-check --uploaded-prior-to '${{ steps.cooldown.outputs.cutoff }}' -e .[tests]
       - name: Install openapi-generator
         run: npm install -g @openapitools/openapi-generator-cli
       - name: Test
